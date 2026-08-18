@@ -1,0 +1,637 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated"
+  binaryTargets = ["native"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Enums
+enum Role {
+  ADMIN
+  VENDOR
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum CouponDiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  SUCCESS
+  ERROR
+  ORDER_UPDATE
+  PROMOTION
+  WELCOME
+  ALERT
+  SHIPMENT_UPDATE
+}
+
+enum ProviderEnum {
+  STRIPE
+  RAZORPAY
+  CASHFREE
+}
+
+// For payment accounts specifically (could reuse ProviderEnum but keeping separate for clarity)
+enum AccountProvider {
+  STRIPE_CONNECT
+  RAZORPAY_ROUTE
+  CASHFREE_MARKETPLACE
+}
+
+enum AccountStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// Models
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  passwordHash      String
+  name              String?
+  role              Role      @default(CUSTOMER)
+  isActive          Boolean   @default(true)
+  googleId          String?   @unique
+  avatarUrl         String?
+  resetToken        String? // For password reset
+  resetTokenExpires DateTime? // Expiry for reset token
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  products              Product[]              @relation("VendorProducts")
+  orders                Order[]                @relation("CustomerOrders")
+  cartItems             CartItem[]             @relation("UserCart")
+  wishlistItems         WishlistItem[]         @relation("UserWishlist")
+  reviews               Review[]               @relation("UserReviews")
+  helpfulVotes          HelpfulVote[]          @relation("UserHelpfulVotes")
+  notifications         Notification[]         @relation("UserNotifications")
+  paymentTransactions   PaymentTransaction[]   @relation("UserPayments")
+  auditLogs             AuditLog[]             @relation("UserAuditLogs")
+  refreshTokens         RefreshToken[]         @relation("UserRefreshTokens")
+  sessions              Session[]              @relation("UserSessions")
+  vendorPaymentAccounts VendorPaymentAccount[] @relation("VendorPaymentAccounts")
+  settlements           Settlement[]           @relation("VendorSettlements")
+  transactions          Transaction[]          @relation("UserTransactions")
+  // Vendor-specific relations (User with role VENDOR)
+  vendorOrders          VendorOrder[]          @relation("VendorVendorOrders")
+  shipments             Shipment[]             @relation("UserShipments")
+  invoices              Invoice[]              @relation("CustomerInvoices") // Customer invoices
+  vendorInvoices        Invoice[]              @relation("VendorInvoices") // Vendor invoices
+  refunds               Refund[]               @relation("UserRefunds")
+  vendorDeliveryConfigs VendorDeliveryConfig[] @relation("UserVendorDeliveryConfigs")
+  commissions           Commission[]           @relation("UserCommissions")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  price          Float
+  compareAtPrice Float?
+  stock          Int      @default(0)
+  sku            String?  @unique
+  weight         Float? // in grams
+  dimensions     Json? // {length, width, height}
+  images         String[] // URLs of images
+  category       String?
+  tags           String[]
+  isActive       Boolean  @default(true)
+  featured       Boolean  @default(false)
+  vendorId       String
+  vendor         User     @relation("VendorProducts", fields: [vendorId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  orderItems      OrderItem[]      @relation("ProductOrderItems")
+  cartItems       CartItem[]       @relation("ProductCart")
+  wishlistItems   WishlistItem[]   @relation("ProductWishlist")
+  reviews         Review[]         @relation("ProductReviews")
+  productImages   ProductImage[]   @relation("ProductImages")
+  productVariants ProductVariant[] @relation("ProductVariants")
+  invoiceItems    InvoiceItem[]    @relation("ProductInvoiceItems")
+}
+
+model Category {
+  id          String     @id @default(uuid())
+  name        String     @unique
+  description String?
+  parentId    String?
+  parent      Category?  @relation("CategoryParent", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryParent")
+  imageUrl    String?
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation("CustomerOrders", fields: [userId], references: [id])
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING)
+  subtotal        Float
+  taxAmount       Float
+  shippingCost    Float
+  discountAmount  Float
+  total           Float
+  shippingAddress Json?
+  billingAddress  Json?
+  notes           String?
+  couponId        String?
+  coupon          Coupon?       @relation("CouponOrders", fields: [couponId], references: [id])
+  transactionId   String? // Reference to payment transaction
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  items           OrderItem[]          @relation("OrderItems")
+  transactions    PaymentTransaction[] @relation("OrderTransactions")
+  settlementItems SettlementItem[]     @relation("SettlementOrderItems")
+  vendorOrders    VendorOrder[]        @relation("OrderVendorOrders") // Vendor sub-orders
+  shipments       Shipment[]           @relation("OrderShipments")
+  invoices        Invoice[]            @relation("OrderInvoices")
+  commissions     Commission[]         @relation("OrderCommissions")
+  refunds         Refund[]             @relation("OrderRefunds")
+}
+
+model OrderItem {
+  id              String           @id @default(uuid())
+  orderId         String
+  order           Order            @relation("OrderItems", fields: [orderId], references: [id])
+  productId       String
+  product         Product          @relation("ProductOrderItems", fields: [productId], references: [id])
+  quantity        Int
+  price           Float // price at the time of purchase
+  total           Float // quantity * price
+  settlementItems SettlementItem[] @relation("SettlementOrderItems")
+
+  @@unique([orderId, productId])
+}
+
+model CartItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("UserCart", fields: [userId], references: [id])
+  productId String
+  product   Product  @relation("ProductCart", fields: [productId], references: [id])
+  quantity  Int
+  addedAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
+model WishlistItem {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("UserWishlist", fields: [userId], references: [id])
+  productId String
+  product   Product  @relation("ProductWishlist", fields: [productId], references: [id])
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+model Review {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation("UserReviews", fields: [userId], references: [id])
+  productId          String
+  product            Product  @relation("ProductReviews", fields: [productId], references: [id])
+  rating             Int
+  title              String?
+  comment            String?
+  isVerifiedPurchase Boolean  @default(false)
+  helpfulCount       Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  helpfulVotes HelpfulVote[] @relation("ReviewHelpfulVotes")
+}
+
+model HelpfulVote {
+  id        String   @id @default(uuid())
+  userId    String
+  reviewId  String
+  user      User     @relation("UserHelpfulVotes", fields: [userId], references: [id])
+  review    Review   @relation("ReviewHelpfulVotes", fields: [reviewId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, reviewId])
+  @@index([reviewId])
+}
+
+model Coupon {
+  id            String             @id @default(uuid())
+  code          String             @unique
+  name          String?
+  description   String?
+  discountType  CouponDiscountType
+  discountValue Float
+  minPurchase   Float? // minimum order value to apply coupon
+  startsAt      DateTime?
+  expiresAt     DateTime?
+  usageLimit    Int? // null means unlimited
+  usedCount     Int                @default(0)
+  isActive      Boolean            @default(true)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  // Relations
+  orders Order[] @relation("CouponOrders")
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation("UserNotifications", fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  data      Json? // Additional data for the notification
+  isRead    Boolean          @default(false)
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+}
+
+model PaymentTransaction {
+  id                String        @id @default(uuid())
+  userId            String
+  user              User          @relation("UserPayments", fields: [userId], references: [id])
+  orderId           String?
+  order             Order?        @relation("OrderTransactions", fields: [orderId], references: [id])
+  amount            Float
+  currency          String        @default("usd")
+  status            PaymentStatus
+  provider          ProviderEnum
+  providerPaymentId String?
+  providerFee       Float?
+  netAmount         Float
+  failureReason     String?
+  metadata          Json? // Additional data from payment provider
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([providerPaymentId])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  userId    String
+  user      User      @relation("UserRefreshTokens", fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  revoked   Boolean   @default(false)
+  revokedAt DateTime?
+  ipAddress String?
+  userAgent String?
+
+  @@index([userId])
+  @@index([token])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String? // nullable because system actions might not have a user
+  user      User?    @relation("UserAuditLogs", fields: [userId], references: [id])
+  action    String // e.g., "CREATE_PRODUCT", "UPDATE_ORDER", "DELETE_USER"
+  details   Json // flexible JSON for additional data
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation("UserSessions", fields: [userId], references: [id])
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model VendorPaymentAccount {
+  id                String          @id @default(uuid())
+  vendorId          String
+  vendor            User            @relation("VendorPaymentAccounts", fields: [vendorId], references: [id])
+  provider          AccountProvider
+  providerAccountId String
+  status            AccountStatus
+  details           Json? // Provider-specific account details
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@index([vendorId])
+}
+
+model Settlement {
+  id               String           @id @default(uuid())
+  vendorId         String
+  vendor           User             @relation("VendorSettlements", fields: [vendorId], references: [id])
+  periodStart      DateTime
+  periodEnd        DateTime
+  status           SettlementStatus
+  grossAmount      Float // Total sales amount before platform fee
+  platformFee      Float // Amount taken by platform
+  taxAmount        Float // Taxes (if applicable)
+  netAmount        Float // Amount to be paid to vendor (gross - platformFee - taxAmount + any adjustments)
+  currency         String           @default("USD")
+  paymentReference String? // Reference from payment provider (e.g., payout ID)
+  startedAt        DateTime?
+  completedAt      DateTime?
+  failedReason     String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  settlementItems  SettlementItem[] @relation("SettlementItems")
+
+  @@index([vendorId, status])
+  @@index([periodStart, periodEnd])
+}
+
+model SettlementItem {
+  id           String     @id @default(uuid())
+  settlementId String
+  settlement   Settlement @relation("SettlementItems", fields: [settlementId], references: [id])
+  orderId      String
+  order        Order      @relation("SettlementOrderItems", fields: [orderId], references: [id])
+  orderItemId  String
+  orderItem    OrderItem  @relation("SettlementOrderItems", fields: [orderItemId], references: [id])
+  amount       Float // Vendor's share from this item (price * quantity - proportional discount)
+  platformFee  Float // Platform fee for this item
+  createdAt    DateTime   @default(now())
+
+  @@unique([settlementId, orderItemId])
+  @@index([orderId])
+}
+
+enum SettlementStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// Add Transaction model for financial transactions (payments, refunds, etc.)
+model Transaction {
+  id          String            @id @default(uuid())
+  type        TransactionType
+  status      TransactionStatus
+  amount      Float
+  currency    String            @default("USD")
+  description String?
+  referenceId String? // External reference (e.g., payment intent ID)
+  relatedId   String? // Reference to another transaction (e.g., refund of payment)
+  relatedType String? // Type of related transaction
+  metadata    Json? // Additional data
+  userId      String? // User involved (customer, vendor, etc.)
+  user        User?             @relation("UserTransactions", fields: [userId], references: [id])
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([type, status])
+  @@index([userId])
+}
+
+enum TransactionType {
+  PAYMENT
+  REFUND
+  PAYOUT
+  ADJUSTMENT
+  FEE
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+// ===== NEW MODELS FOR ENHANCED FEATURES =====
+
+model Commission {
+  id               String   @id @default(uuid())
+  orderId          String
+  order            Order    @relation("OrderCommissions", fields: [orderId], references: [id])
+  vendorId         String
+  vendor           User     @relation("UserCommissions", fields: [vendorId], references: [id])
+  rate             Float // commission rate (e.g., 0.10 for 10%)
+  vendorEarnings   Float
+  platformEarnings Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([vendorId])
+}
+
+model ProductImage {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation("ProductImages", fields: [productId], references: [id])
+  url       String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ProductVariant {
+  id         String   @id @default(uuid())
+  productId  String
+  product    Product  @relation("ProductVariants", fields: [productId], references: [id])
+  name       String
+  priceDelta Float    @default(0)
+  stock      Int      @default(0)
+  sku        String?
+  createdAt  DateTime @default(now())
+}
+
+model VendorOrder {
+  id            String   @id @default(uuid())
+  orderId       String
+  order         Order    @relation("OrderVendorOrders", fields: [orderId], references: [id])
+  vendorId      String
+  vendor        User     @relation("VendorVendorOrders", fields: [vendorId], references: [id])
+  subtotal      Float    @default(0)
+  discount      Float    @default(0)
+  shipping      Float    @default(0)
+  tax           Float    @default(0)
+  total         Float    @default(0)
+  status        String   @default("pending") // pending, confirmed, shipped, delivered, cancelled
+  paymentStatus String   @default("pending") // pending, processing, completed, failed, refunded
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([vendorId])
+}
+
+model Shipment {
+  id                String    @id @default(uuid())
+  orderId           String
+  order             Order     @relation("OrderShipments", fields: [orderId], references: [id])
+  vendorId          String
+  vendor            User      @relation("UserShipments", fields: [vendorId], references: [id])
+  trackingNumber    String?
+  carrier           String // delhivery, etc.
+  status            String // pending, picked_up, in_transit, delivered, failed, cancelled
+  senderDetails     Json? // vendor address
+  recipientDetails  Json? // customer address
+  items             Json? // items in shipment
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([vendorId])
+}
+
+model Invoice {
+  id             String        @id @default(uuid())
+  invoiceNumber  String        @unique
+  orderId        String
+  order          Order         @relation("OrderInvoices", fields: [orderId], references: [id])
+  vendorId       String
+  vendor         User          @relation("VendorInvoices", fields: [vendorId], references: [id])
+  customerId     String
+  customer       User          @relation("CustomerInvoices", fields: [customerId], references: [id])
+  issueDate      DateTime      @default(now())
+  dueDate        DateTime?
+  status         String        @default("draft") // draft, sent, paid, overdue, cancelled
+  subtotal       Float
+  taxAmount      Float
+  shippingAmount Float
+  discountAmount Float
+  totalAmount    Float
+  paidAmount     Float         @default(0)
+  balanceDue     Float
+  notes          String?
+  terms          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  invoiceItems   InvoiceItem[] @relation("InvoiceItems")
+
+  @@index([orderId])
+  @@index([vendorId])
+  @@index([invoiceNumber])
+}
+
+model InvoiceItem {
+  id        String  @id @default(uuid())
+  invoiceId String
+  invoice   Invoice @relation("InvoiceItems", fields: [invoiceId], references: [id])
+  productId String
+  product   Product @relation("ProductInvoiceItems", fields: [productId], references: [id])
+  name      String
+  sku       String?
+  quantity  Int
+  unitPrice Float
+  discount  Float
+  tax       Float
+  total     Float
+}
+
+model VendorDeliveryConfig {
+  id          String   @id @default(uuid())
+  vendorId    String
+  vendor      User     @relation("UserVendorDeliveryConfigs", fields: [vendorId], references: [id])
+  provider    String // delhivery, own, etc.
+  isEnabled   Boolean  @default(false)
+  apiKey      String? // encrypted or reference to secret
+  apiSecret   String? // encrypted or reference to secret
+  credentials Json? // Additional provider-specific credentials
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([vendorId])
+}
+
+model PaymentProviderSettings {
+  id            String   @id @default(uuid())
+  name          String // razorpay, cashfree, etc.
+  isEnabled     Boolean  @default(false)
+  apiKey        String? // encrypted or reference to secret
+  apiSecret     String? // encrypted or reference to secret
+  webhookSecret String? // encrypted or reference to secret
+  credentials   Json? // Additional provider-specific credentials
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model DeliveryProviderSettings {
+  id          String   @id @default(uuid())
+  name        String // delhivery, etc.
+  isEnabled   Boolean  @default(false)
+  apiKey      String? // encrypted or reference to secret
+  apiSecret   String? // encrypted or reference to secret
+  credentials Json? // Additional provider-specific credentials
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MarketplaceSettings {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json?
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Refund {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation("OrderRefunds", fields: [orderId], references: [id])
+  vendorId  String
+  vendor    User     @relation("UserRefunds", fields: [vendorId], references: [id])
+  amount    Float
+  currency  String   @default("usd")
+  reason    String?
+  status    String   @default("pending") // pending, processed, failed
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([vendorId])
+}

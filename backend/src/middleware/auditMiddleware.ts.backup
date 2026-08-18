@@ -1,0 +1,240 @@
+import { Request, Response, NextFunction } from "express";
+import { prisma } from "../server";
+import { Prisma } from "../generated/client";
+import { asyncHandler } from "../utils/asyncHandler";
+
+/**
+ * Audit logging middleware
+ * Logs requests and responses for auditing purposes
+ */
+export const auditLogger = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+  // Skip logging for health checks and other noisy endpoints if desired
+  const skipPaths = ["/health", "/favicon.ico"];
+  if (skipPaths.some((path) => req.path.startsWith(path))) {
+    return next();
+  }
+
+  // Capture request start time
+  const startTime = Date.now();
+
+  // Get user info from request if available (set by auth middleware)
+  const userId = (req as any).userId || null;
+
+  // Get client IP
+  const ipAddress =
+    (req.headers["x-forwarded-for"] as string) ||
+    (req.connection.remoteAddress as string) ||
+    (req.socket.remoteAddress as string) ||
+    "";
+
+  // Get user agent
+  const userAgent = req.get("User-Agent") || "";
+
+  // Store original res.send
+  const originalSend = res.send;
+
+  // Override res.send to capture response data
+  res.send = function (body: any) {
+    // Restore original send
+    res.send = originalSend;
+
+    // Calculate response time
+    const responseTime = Date.now() - startTime;
+
+    // Determine action based on request method and path
+    const action = getActionFromRequest(req);
+
+    // Prepare details
+    const details = {
+      method: req.method,
+      path: req.path,
+      query: req.query,
+      body: sanitizeBody(req.body),
+      responseTime: `${responseTime}ms`,
+      statusCode: res.statusCode,
+    };
+
+    // Create audit log entry (fire and forget - don't await to avoid slowing response)
+    createAuditLog({
+      action,
+      details,
+      userId,
+      ipAddress: ipAddress.toString(),
+      userAgent,
+    }).catch((err) => {
+      // Log error but don't send to client
+      console.error("Failed to create audit log:", err);
+    });
+
+    // Call original send
+    return originalSend.call(this, body);
+  };
+
+  next();
+});
+
+/**
+ * Create an audit log entry
+ * @param {Object} params - Audit log parameters
+ * @param {string} params.action - Action performed (e.g., 'CREATE_PRODUCT', 'UPDATE_ORDER')
+ * @param {Object} [params.details] - Additional details about the action
+ * @param {string} [params.userId] - ID of the user who performed the action (optional for system actions)
+ * @param {string} [params.ipAddress] - IP address of the user
+ * @param {string} [params.userAgent] - User agent of the user
+ * @returns {Promise<Object>} Created audit log entry
+ */
+export const createAuditLog = async ({
+  action,
+  details = {},
+  userId,
+  ipAddress,
+  userAgent,
+}: {
+  action: string;
+  details?: Prisma.InputJsonValue;
+  userId?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+}) => {
+  try {
+    const auditLog = await prisma.auditLog.create({
+      data: {
+        action,
+        details,
+        userId: userId || null,
+        ipAddress: ipAddress || null,
+        userAgent: userAgent || null,
+      },
+    });
+    return auditLog;
+  } catch (error) {
+    // Log error but don't throw - we don't want audit logging failures to break the app
+    console.error("Failed to create audit log:", error);
+    return null;
+  }
+};
+
+/**
+ * Get action name from request method and path
+ * @param {Request} req - Express request object
+ * @returns {string} Action name
+ */
+function getActionFromRequest(req: Request): string {
+  const method = req.method;
+  const path = req.path
+    .replace(/\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, "/:id") // Replace UUIDs with :id
+    .replace(/\/\d+/g, "/:id"); // Replace numbers with :id
+
+  // Map of common routes to actions
+  const routeMap: Record<string, Record<string, string>> = {
+    GET: {
+      "/": "GET_ROOT",
+      "/health": "HEALTH_CHECK",
+      "/auth/me": "GET_CURRENT_USER",
+      "/auth/logout": "LOGOUT",
+      "/products": "GET_PRODUCTS",
+      "/products/:id": "GET_PRODUCT_BY_ID",
+      "/orders": "GET_ORDERS",
+      "/orders/:id": "GET_ORDER_BY_ID",
+      "/cart": "GET_CART",
+      "/wishlist": "GET_WISHLIST",
+      "/reviews": "GET_REVIEWS",
+      "/coupons": "GET_COUPONS",
+      "/notifications": "GET_NOTIFICATIONS",
+      "/admin/stats": "GET_ADMIN_STATS",
+      "/admin/users": "GET_ADMIN_USERS",
+    },
+    POST: {
+      "/auth/register": "REGISTER_USER",
+      "/auth/login": "LOGIN_USER",
+      "/auth/refresh": "REFRESH_TOKEN",
+      "/products": "CREATE_PRODUCT",
+      "/orders": "CREATE_ORDER",
+      "/cart/add": "ADD_TO_CART",
+      "/wishlist/toggle": "TOGGLE_WISHLIST",
+      "/reviews": "CREATE_REVIEW",
+      "/coupons": "CREATE_COUPON",
+      "/notifications/send": "SEND_NOTIFICATION",
+      "/payment/create-intent": "CREATE_PAYMENT_INTENT",
+      "/payment/confirm": "CONFIRM_PAYMENT",
+      "/upload/url": "GET_UPLOAD_URL",
+      "/search": "SEARCH_PRODUCTS",
+    },
+    PUT: {
+      "/products/:id": "UPDATE_PRODUCT",
+      "/orders/:id/status": "UPDATE_ORDER_STATUS",
+      "/cart/update/:id": "UPDATE_CART_ITEM",
+      "/users/:id": "UPDATE_USER",
+    },
+    DELETE: {
+      "/products/:id": "DELETE_PRODUCT",
+      "/cart/remove/:id": "REMOVE_FROM_CART",
+      "/cart/clear": "CLEAR_CART",
+      "/wishlist/remove/:id": "REMOVE_FROM_WISHLIST",
+      "/reviews/:id": "DELETE_REVIEW",
+      "/coupons/:id": "DELETE_COUPON",
+      "/notifications/:id": "DELETE_NOTIFICATION",
+    },
+    PATCH: {
+      "/notifications/:id/read": "MARK_NOTIFICATION_READ",
+      "/notifications/read-all": "MARK_ALL_NOTIFICATIONS_READ",
+    },
+  };
+
+  const methodMap = routeMap[method] || {};
+  return methodMap[path] || `${method}_${path.replace(/\//g, "_").toUpperCase()}`;
+}
+
+/**
+ * Sanitize request body for logging (remove sensitive fields)
+ * @param {any} body - Request body
+ * @returns {any} Sanitized body
+ */
+function sanitizeBody(body: any): any {
+  if (!body || typeof body !== "object") {
+    return body;
+  }
+
+  // Create a copy to avoid modifying original
+  const sanitized = { ...body };
+
+  // List of sensitive fields to remove or mask
+  const sensitiveFields = [
+    "password",
+    "passwordHash",
+    "currentPassword",
+    "newPassword",
+    "confirmPassword",
+    "secret",
+    "token",
+    "refreshToken",
+    "accessToken",
+    "creditCardNumber",
+    "cvv",
+    "expiryDate",
+    "ssn",
+    "apiKey",
+    "authorization",
+  ];
+
+  // Remove or mask sensitive fields
+  for (const field of sensitiveFields) {
+    if (Object.prototype.hasOwnProperty.call(sanitized, field)) {
+      sanitized[field] = "[REDACTED]";
+    }
+  }
+
+  // Recursively sanitize nested objects
+  for (const key in sanitized) {
+    if (sanitized[key] && typeof sanitized[key] === "object" && !Array.isArray(sanitized[key])) {
+      sanitized[key] = sanitizeBody(sanitized[key]);
+    }
+  }
+
+  return sanitized;
+}
+
+export default {
+  auditLogger,
+  createAuditLog,
+};
