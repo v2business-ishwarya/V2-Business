@@ -4,7 +4,12 @@ import { authenticate, authorizeRole } from "../middleware/authMiddleware";
 
 const router = Router();
 
-// All routes require authentication and admin role
+// Read-only configurations accessible to authenticated users (vendors, customers, admin)
+router.get("/settings", authenticate, adminController.getSettings);
+router.get("/payment-providers", authenticate, adminController.getPaymentProviders);
+router.get("/delivery-providers", authenticate, adminController.getDeliveryProviders);
+
+// All management and sensitive routes strictly require ADMIN role
 router.use(authenticate, authorizeRole(["ADMIN"]));
 
 router.get("/stats", adminController.getAdminStats);
@@ -12,13 +17,8 @@ router.get("/users", adminController.getUsers);
 router.put("/users/:id", adminController.updateUser);
 router.get("/audit-logs", adminController.getAuditLogs);
 
-router.get("/settings", adminController.getSettings);
 router.put("/settings", adminController.updateSettings);
-
-router.get("/payment-providers", adminController.getPaymentProviders);
 router.put("/payment-providers/:id", adminController.updatePaymentProvider);
-
-router.get("/delivery-providers", adminController.getDeliveryProviders);
 router.put("/delivery-providers/:id", adminController.updateDeliveryProvider);
 
 router.get("/invoices", adminController.getInvoices);

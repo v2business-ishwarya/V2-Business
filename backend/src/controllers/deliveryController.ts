@@ -26,7 +26,7 @@ export const getShipments = asyncHandler(async (req, res) => {
     orderBy: { createdAt: 'desc' }
   });
 
-  res.json(shipments);
+  res.json(shipments || []);
 });
 
 export const updateShipmentStatus = asyncHandler(async (req, res) => {
@@ -56,21 +56,43 @@ export const updateShipmentStatus = asyncHandler(async (req, res) => {
 
 export const getVendorDeliveryConfig = asyncHandler(async (req, res) => {
   const vendorId = (req as any).userId;
+  if (!vendorId) return res.status(401).json({ error: "Unauthorized" });
+
   const configs = await db.vendorDeliveryConfig.findMany({
     where: { vendorId }
   });
-  res.json(configs);
+  res.json(configs || []);
 });
 
 export const updateVendorDeliveryConfig = asyncHandler(async (req, res) => {
   const vendorId = (req as any).userId;
+  if (!vendorId) return res.status(401).json({ error: "Unauthorized" });
   const { provider, isEnabled, credentials } = req.body;
   
-  const config = await db.vendorDeliveryConfig.upsert({
-    where: { id: req.body.id || 'new' },
-    update: { isEnabled, credentials },
-    create: { vendorId, provider, isEnabled, credentials }
+  // When enabling one provider, disable others for this vendor
+  if (isEnabled) {
+    await db.vendorDeliveryConfig.updateMany({
+      where: { vendorId },
+      data: { isEnabled: false }
+    });
+  }
+
+  const targetProvider = provider || "own";
+  const existing = await db.vendorDeliveryConfig.findFirst({
+    where: { vendorId, provider: targetProvider }
   });
+
+  let config;
+  if (existing) {
+    config = await db.vendorDeliveryConfig.update({
+      where: { id: existing.id },
+      data: { isEnabled: isEnabled ?? true, credentials }
+    });
+  } else {
+    config = await db.vendorDeliveryConfig.create({
+      data: { vendorId, provider: targetProvider, isEnabled: isEnabled ?? true, credentials }
+    });
+  }
 
   res.json(config);
 });
