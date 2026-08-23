@@ -4,7 +4,7 @@
   "main": "dist/src/server.js",
   "scripts": {
     "dev": "concurrently \"tsc -w --preserveWatchOutput\" \"nodemon dist/src/server.js\"",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
