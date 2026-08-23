@@ -4,7 +4,7 @@ import { Store } from "lucide-react";
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border/70 bg-surface">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-4 lg:px-8">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-5 lg:px-8">
         <div className="lg:col-span-2">
           <div className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground">
@@ -48,6 +48,31 @@ export function SiteFooter() {
             <li>
               <Link to="/vendor" className="hover:text-foreground">
                 Vendor dashboard
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="text-sm font-semibold">Company</h4>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li>
+              <Link to="/about" className="hover:text-foreground">
+                About Us
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="hover:text-foreground">
+                Contact Us
+              </Link>
+            </li>
+            <li>
+              <Link to="/terms" className="hover:text-foreground">
+                Terms & Conditions
+              </Link>
+            </li>
+            <li>
+              <Link to="/privacy" className="hover:text-foreground">
+                Privacy Policy
               </Link>
             </li>
           </ul>
