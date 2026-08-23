@@ -36,14 +36,14 @@ const uploadToCloudinary = (buffer: Buffer, filename: string): Promise<string> =
 const productSchema = z.object({
   name: z.string().min(2),
   description: z.string().optional(),
-  price: z.number().positive(),
-  compareAtPrice: z.number().nonnegative().optional(),
-  stock: z.number().int().nonnegative().default(0),
+  price: z.coerce.number().positive(),
+  compareAtPrice: z.coerce.number().nonnegative().optional(),
+  stock: z.coerce.number().int().nonnegative().default(0),
   sku: z.string().optional(),
-  weight: z.number().nonnegative().optional(),
+  weight: z.coerce.number().nonnegative().optional(),
   dimensions: z.record(z.string(), z.number()).optional(),
   images: z.array(z.string()).default([]),
-  category: z.string(),
+  category: z.string().default("General"),
   tags: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
   featured: z.boolean().default(false),
@@ -99,6 +99,9 @@ export const getAllProducts = asyncHandler(
     }
     if (req.query.category) {
       where.category = req.query.category as string;
+    }
+    if (req.query.vendorId) {
+      where.vendorId = req.query.vendorId as string;
     }
     if (req.query.isActive !== undefined) {
       where.isActive = req.query.isActive === "true";

@@ -1,16 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
-import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatMoney } from "@/lib/utils-app";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { ShieldCheck, Truck, CreditCard } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -24,53 +25,38 @@ function CheckoutPage() {
   const nav = useNavigate();
   const qc = useQueryClient();
 
-  const { data: items = [] } = useQuery({
+  const { data: cartData, isLoading: cartLoading } = useQuery({
     queryKey: ["cart", user?.id],
     enabled: !!user,
-    queryFn: async () =>
-      (
-        await supabase
-          .from("cart_items")
-          .select("*, products(*, vendors(id,name,slug))")
-          .eq("user_id", user!.id)
-      ).data ?? [],
+    queryFn: () => api.getCart(),
   });
 
-  const addresses = useQuery({
-    queryKey: ["addresses", user?.id],
-    enabled: !!user,
-    queryFn: async () =>
-      (await supabase.from("addresses").select("*").eq("user_id", user!.id)).data ?? [],
+  const { data: paymentProviders = [] } = useQuery({
+    queryKey: ["checkout-payment-providers"],
+    queryFn: () => api.getPaymentProviders(),
   });
 
-  const [addr, setAddr] = useState({
-    full_name: "",
+  const cartItems: any[] = (cartData as any)?.items ?? (Array.isArray(cartData) ? cartData : []);
+  const activeProviders: any[] = (paymentProviders as any)?.filter((p: any) => p.isEnabled) ?? [];
+
+  const [shippingAddress, setShippingAddress] = useState({
+    name: user?.name || "",
     street: "",
     city: "",
     state: "",
-    postal_code: "",
-    country: "",
+    zipCode: "",
     phone: "",
   });
-  const [selectedAddr, setSelectedAddr] = useState<string | "new">("new");
+
+  const [selectedProvider, setSelectedProvider] = useState<string>("razorpay");
   const [placing, setPlacing] = useState(false);
-
-  // Coupon state
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [couponError, setCouponError] = useState("");
-  const [couponStatus, setCouponStatus] = useState("idle"); // idle, loading, success, error
-
-  useEffect(() => {
-    const def = addresses.data?.find((a) => a.is_default) ?? addresses.data?.[0];
-    if (def) setSelectedAddr(def.id);
-  }, [addresses.data]);
 
   if (!loading && !user)
     return (
       <div className="mx-auto max-w-2xl p-8">
         <EmptyState
-          title="Sign in to check out"
+          title="Sign in to checkout"
+          description="Please login to complete your order."
           action={
             <Link to="/auth" search={{ redirect: "/checkout" }}>
               <Button>Sign in</Button>
@@ -80,11 +66,16 @@ function CheckoutPage() {
       </div>
     );
 
-  if (items.length === 0)
+  if (cartLoading) {
+    return <div className="p-12 text-center text-muted-foreground">Loading checkout…</div>;
+  }
+
+  if (cartItems.length === 0)
     return (
       <div className="mx-auto max-w-2xl p-8">
         <EmptyState
           title="Your cart is empty"
+          description="Add items from our marketplace before checking out."
           action={
             <Link to="/search">
               <Button>Browse products</Button>
@@ -94,346 +85,190 @@ function CheckoutPage() {
       </div>
     );
 
-  // Group items by vendor
-  const grouped = items.reduce(
-    (acc: any, it: any) => {
-      const vid = it.products.vendor_id;
-      if (!acc[vid]) acc[vid] = { vendor: it.products.vendors, items: [] as any[] };
-      acc[vid].items.push(it);
-      return acc;
-    },
-    {} as Record<string, { vendor: any; items: any[] }>,
-  );
-
-  // Calculate totals
-  const totalAll = items.reduce(
-    (s: number, i: any) => s + Number(i.products.price) * i.quantity,
+  const totalAmount = cartItems.reduce(
+    (sum: number, item: any) => sum + Number(item.product?.price ?? item.price ?? 0) * (item.quantity || 1),
     0,
   );
 
-  // Calculate discount from coupon
-  let discountAmount = 0;
-  if (appliedCoupon) {
-    if (appliedCoupon.discount_type === "percent") {
-      discountAmount = totalAll * (Number(appliedCoupon.discount_value) / 100);
-    } else {
-      // FIXED_AMOUNT
-      discountAmount = Math.min(Number(appliedCoupon.discount_value), totalAll);
-    }
-  }
-
-  const discountedTotal = Math.max(0, totalAll - discountAmount);
-
-  const validateCoupon = async (code: string) => {
-    if (!code.trim()) {
-      setCouponError("Please enter a coupon code");
-      return false;
+  const handlePlaceOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!shippingAddress.street || !shippingAddress.city || !shippingAddress.zipCode) {
+      return toast.error("Please enter your complete delivery address");
     }
 
-    setCouponStatus("loading");
-    setCouponError("");
-    try {
-      const result = await supabase
-        .from("coupons")
-        .select("*")
-        .eq("code", code.trim().toUpperCase())
-        .single();
-
-      if (result.error) throw result.error;
-
-      const coupon = result.data;
-
-      // Additional validation
-      const now = new Date();
-      const expiresAt = coupon.expires_at ? new Date(coupon.expires_at) : null;
-
-      if (expiresAt && now > expiresAt) {
-        throw new Error("Coupon has expired");
-      }
-      if (!coupon.active) {
-        throw new Error("Coupon is not active");
-      }
-
-      // Check minimum purchase requirement
-      if (coupon.min_order && totalAll < Number(coupon.min_order)) {
-        throw new Error(`Minimum purchase of ${formatMoney(Number(coupon.min_order))} required`);
-      }
-
-      setAppliedCoupon(coupon);
-      setCouponStatus("success");
-      return true;
-    } catch (err: any) {
-      setAppliedCoupon(null);
-      setCouponError(err.message || "Invalid coupon code");
-      setCouponStatus("error");
-      return false;
-    }
-  };
-
-  const removeCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-    setCouponError("");
-    setCouponStatus("idle");
-  };
-
-  const place = async () => {
-    if (!user) return;
-    let shippingAddr: any = null;
-    if (selectedAddr === "new") {
-      if (!addr.full_name || !addr.street || !addr.city || !addr.postal_code || !addr.country)
-        return toast.error("Please fill required address fields");
-      shippingAddr = addr;
-      await supabase.from("addresses").insert({ user_id: user.id, ...addr });
-    } else {
-      shippingAddr = addresses.data?.find((a) => a.id === selectedAddr);
-    }
     setPlacing(true);
     try {
-      for (const vid of Object.keys(grouped)) {
-        const g = grouped[vid];
-        const sub = g.items.reduce(
-          (s: number, i: any) => s + Number(i.products.price) * i.quantity,
-          0,
-        );
+      const payload = {
+        shippingAddress,
+        providerType: selectedProvider || "razorpay",
+      };
 
-        // Calculate discount for this vendor's items (pro-rated based on subtotal)
-        const vendorDiscount = totalAll > 0 ? (sub / totalAll) * discountAmount : 0;
-        const vendorTotal = sub - vendorDiscount;
+      const result: any = await api.createOrder(payload);
 
-        const { data: order, error } = await supabase
-          .from("orders")
-          .insert({
-            customer_id: user.id,
-            vendor_id: vid,
-            status: "pending",
-            subtotal: sub,
-            discount: parseFloat(vendorDiscount.toFixed(2)),
-            total: parseFloat(vendorTotal.toFixed(2)),
-            shipping_address: shippingAddr as any,
-          })
-          .select()
-          .single();
+      toast.success("Order placed successfully!");
+      qc.invalidateQueries({ queryKey: ["cart"] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
 
-        if (error) throw error;
-
-        const orderItems = g.items.map((i: any) => ({
-          order_id: order.id,
-          product_id: i.products.id,
-          name: i.products.name,
-          price: Number(i.products.price),
-          quantity: i.quantity,
-          image_url: i.products.featured_image,
-        }));
-
-        await supabase.from("order_items").insert(orderItems);
-
-        // Decrement stock
-        for (const it of g.items) {
-          await supabase
-            .from("products")
-            .update({ stock: Math.max(0, it.products.stock - it.quantity) })
-            .eq("id", it.products.id);
-        }
-      }
-
-      // No usedCount field in coupons schema, so we skip update
-
-      await supabase.from("cart_items").delete().eq("user_id", user.id);
-      qc.invalidateQueries();
-      toast.success("Order placed!");
-      nav({ to: "/account/orders" });
-    } catch (e: any) {
-      toast.error(e.message ?? "Could not place order");
+      nav({ to: "/account/invoices" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to place order. Please try again.");
     } finally {
       setPlacing(false);
     }
   };
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
-      <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Checkout</h1>
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="text-2xl font-semibold mb-6">Checkout & Payment</h1>
 
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold">Shipping address</h2>
-          {(addresses.data?.length ?? 0) > 0 && (
-            <div className="mt-4 space-y-2">
-              {addresses.data!.map((a) => (
-                <label
-                  key={a.id}
-                  className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 ${selectedAddr === a.id ? "border-primary bg-primary-soft" : "border-border"}`}
-                >
-                  <input
-                    type="radio"
-                    name="addr"
-                    checked={selectedAddr === a.id}
-                    onChange={() => setSelectedAddr(a.id)}
-                  />
-                  <div className="text-sm">
-                    <p className="font-medium">{a.full_name}</p>
-                    <p className="text-muted-foreground">
-                      {a.street}, {a.city}
-                      {a.state ? `, ${a.state}` : ""} {a.postal_code}, {a.country}
-                    </p>
-                  </div>
-                </label>
-              ))}
-              <label
-                className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 ${selectedAddr === "new" ? "border-primary bg-primary-soft" : "border-border"}`}
-              >
-                <input
-                  type="radio"
-                  name="addr"
-                  checked={selectedAddr === "new"}
-                  onChange={() => setSelectedAddr("new")}
-                />
-                <span className="text-sm">Use a new address</span>
-              </label>
+      <form onSubmit={handlePlaceOrder} className="grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-6">
+          {/* Shipping Address */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Truck className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Delivery Address</h2>
             </div>
-          )}
-          {selectedAddr === "new" && (
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="col-span-2">
-                <Label>Full name</Label>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label>Full Name *</Label>
                 <Input
-                  value={addr.full_name}
-                  onChange={(e) => setAddr({ ...addr, full_name: e.target.value })}
+                  required
+                  placeholder="Recipient full name"
+                  value={shippingAddress.name}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, name: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
-                <Label>Street address</Label>
+              <div className="sm:col-span-2">
+                <Label>Street Address *</Label>
                 <Input
-                  value={addr.street}
-                  onChange={(e) => setAddr({ ...addr, street: e.target.value })}
+                  required
+                  placeholder="House / Flat / Street / Area"
+                  value={shippingAddress.street}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, street: e.target.value })}
                 />
               </div>
               <div>
-                <Label>City</Label>
+                <Label>City *</Label>
                 <Input
-                  value={addr.city}
-                  onChange={(e) => setAddr({ ...addr, city: e.target.value })}
+                  required
+                  placeholder="City"
+                  value={shippingAddress.city}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, city: e.target.value })}
                 />
               </div>
               <div>
                 <Label>State / Region</Label>
                 <Input
-                  value={addr.state}
-                  onChange={(e) => setAddr({ ...addr, state: e.target.value })}
+                  placeholder="State"
+                  value={shippingAddress.state}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, state: e.target.value })}
                 />
               </div>
               <div>
-                <Label>Postal code</Label>
+                <Label>PIN / Postal Code *</Label>
                 <Input
-                  value={addr.postal_code}
-                  onChange={(e) => setAddr({ ...addr, postal_code: e.target.value })}
+                  required
+                  placeholder="e.g. 500001"
+                  value={shippingAddress.zipCode}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, zipCode: e.target.value })}
                 />
               </div>
               <div>
-                <Label>Country</Label>
+                <Label>Phone Number</Label>
                 <Input
-                  value={addr.country}
-                  onChange={(e) => setAddr({ ...addr, country: e.target.value })}
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  value={shippingAddress.phone}
+                  onChange={(e) => setShippingAddress({ ...shippingAddress, phone: e.target.value })}
                 />
               </div>
-              <div className="col-span-2">
-                <Label>Phone</Label>
-                <Input
-                  value={addr.phone}
-                  onChange={(e) => setAddr({ ...addr, phone: e.target.value })}
-                />
-              </div>
-            </div>
-          )}
-        </Card>
-
-        {Object.entries(grouped).map(([vid, g]: any) => (
-          <Card key={vid} className="p-4">
-            <p className="text-sm font-medium">From {g.vendor?.name ?? "Vendor"}</p>
-            <div className="mt-2 space-y-2">
-              {g.items.map((i: any) => (
-                <div key={i.id} className="flex justify-between text-sm">
-                  <span>
-                    {i.products.name} × {i.quantity}
-                  </span>
-                  <span>{formatMoney(Number(i.products.price) * i.quantity)}</span>
-                </div>
-              ))}
             </div>
           </Card>
-        ))}
-      </div>
 
-      <Card className="h-fit p-6">
-        <h2 className="text-lg font-semibold">Order summary</h2>
-        <div className="mt-4 flex justify-between text-sm">
-          <span className="text-muted-foreground">Subtotal</span>
-          <span>{formatMoney(totalAll)}</span>
-        </div>
-        {discountAmount > 0 && (
-          <div className="mt-1 flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              Discount (-
-              {appliedCoupon?.discount_type === "percent"
-                ? appliedCoupon.discount_value
-                : formatMoney(Number(appliedCoupon?.discount_value))}
-              %)
-            </span>
-            <span>-{formatMoney(discountAmount)}</span>
-          </div>
-        )}
-        <div className="mt-1 flex justify-between text-sm">
-          <span className="text-muted-foreground">Shipping</span>
-          <span>Free</span>
-        </div>
-        <div className="mt-4 flex justify-between border-t border-border pt-4 text-base font-semibold">
-          <span>Total</span>
-          <span>{formatMoney(discountedTotal)}</span>
-        </div>
+          {/* Payment Method */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <CreditCard className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Payment Method</h2>
+            </div>
 
-        {/* Coupon section */}
-        <div className="mt-6">
-          <div className="flex items-stretch gap-2">
-            <Input
-              placeholder="Enter coupon code"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              disabled={couponStatus === "loading"}
-            />
-            <Button
-              onClick={() => validateCoupon(couponCode)}
-              disabled={couponStatus === "loading"}
+            <RadioGroup
+              value={selectedProvider}
+              onValueChange={setSelectedProvider}
+              className="space-y-3"
             >
-              {couponStatus === "loading" ? "Applying..." : "Apply Coupon"}
-            </Button>
-          </div>
-          {couponError && <p className="mt-2 text-sm text-destructive">{couponError}</p>}
-          {appliedCoupon && (
-            <div className="mt-2 p-3 bg-primary text-primary-foreground rounded">
-              <div className="flex justify-between">
-                <span>Applied: {appliedCoupon.code}</span>
-                <Button variant="ghost" size="icon" onClick={removeCoupon}>
-                  <span className="text-primary">✕</span>
-                </Button>
+              <div className="flex items-center space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="razorpay" id="pay-razorpay" />
+                <Label htmlFor="pay-razorpay" className="flex-1 cursor-pointer font-medium">
+                  Razorpay (UPI, Credit/Debit Cards, NetBanking, Wallets)
+                </Label>
               </div>
-              <div className="mt-1 text-sm">
-                {appliedCoupon.discount_type === "percent"
-                  ? `${appliedCoupon.discount_value}% off`
-                  : `${formatMoney(Number(appliedCoupon.discount_value))} off`}
-                {Number(appliedCoupon.min_order) > 0 &&
-                  ` (min. ${formatMoney(Number(appliedCoupon.min_order))})`}
+              <div className="flex items-center space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="cashfree" id="pay-cashfree" />
+                <Label htmlFor="pay-cashfree" className="flex-1 cursor-pointer font-medium">
+                  Cashfree Payments (UPI, Instant NetBanking)
+                </Label>
+              </div>
+              <div className="flex items-center space-x-3 rounded-lg border p-4 cursor-pointer hover:bg-muted/50">
+                <RadioGroupItem value="mock" id="pay-mock" />
+                <Label htmlFor="pay-mock" className="flex-1 cursor-pointer font-medium">
+                  Cash on Delivery / Direct Settlement Test Mode
+                </Label>
+              </div>
+            </RadioGroup>
+          </Card>
+        </div>
+
+        {/* Order Summary */}
+        <div>
+          <Card className="p-6 sticky top-24">
+            <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+
+            <div className="space-y-3 max-h-60 overflow-y-auto divide-y">
+              {cartItems.map((item: any) => {
+                const prod = item.product || item;
+                return (
+                  <div key={item.id || prod.id} className="pt-3 first:pt-0 flex justify-between text-sm">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <p className="font-medium truncate">{prod.name}</p>
+                      <p className="text-xs text-muted-foreground">Qty: {item.quantity || 1}</p>
+                    </div>
+                    <span className="font-semibold">
+                      {formatMoney(Number(prod.price || 0) * (item.quantity || 1))}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 border-t pt-4 space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span>{formatMoney(totalAmount)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Delivery</span>
+                <span className="text-green-600 font-medium">FREE</span>
+              </div>
+              <div className="flex justify-between text-base font-semibold border-t pt-2 mt-2">
+                <span>Total Amount</span>
+                <span>{formatMoney(totalAmount)}</span>
               </div>
             </div>
-          )}
-        </div>
 
-        <Button onClick={place} disabled={placing} className="mt-4 w-full">
-          {placing ? "Placing order..." : "Place order"}
-        </Button>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          Payment is arranged directly with each vendor.
-        </p>
-      </Card>
+            <Button type="submit" className="w-full mt-6" size="lg" disabled={placing}>
+              {placing ? "Processing Order…" : `Pay ${formatMoney(totalAmount)}`}
+            </Button>
+
+            <div className="mt-4 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              <span>Safe & Secure 256-bit Encrypted Checkout</span>
+            </div>
+          </Card>
+        </div>
+      </form>
     </div>
   );
 }

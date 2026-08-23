@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
 import { useSession } from "@/hooks/use-session";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,45 +16,74 @@ export const Route = createFileRoute("/_authenticated/account/")({
 function Profile() {
   const { user } = useSession();
   const qc = useQueryClient();
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    enabled: !!user,
-    queryFn: async () =>
-      (await supabase.from("profiles").select("*").eq("id", user!.id).maybeSingle()).data,
-  });
-  const [full_name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  useEffect(() => {
-    setName(profile?.full_name ?? "");
-    setPhone(profile?.phone ?? "");
-  }, [profile]);
 
-  const save = async () => {
-    if (!user) return;
-    const { error } = await supabase.from("profiles").upsert({ id: user.id, full_name, phone });
-    if (error) return toast.error(error.message);
-    toast.success("Profile updated");
-    qc.invalidateQueries({ queryKey: ["profile"] });
-  };
+  const { data: me } = useQuery({
+    queryKey: ["profile-me", user?.id],
+    enabled: !!user,
+    queryFn: () => api.getMe(),
+  });
+
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+
+  useEffect(() => {
+    if (me || user) {
+      setFullName((me as any)?.name ?? user?.name ?? "");
+      setPhone((me as any)?.phone ?? "");
+    }
+  }, [me, user]);
+
+  const updateMutation = useMutation({
+    mutationFn: () => api.updateUser(user!.id, { name: fullName }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["profile-me"] });
+      // update local storage user name
+      if (user) {
+        const updated = { ...user, name: fullName };
+        localStorage.setItem("user", JSON.stringify(updated));
+      }
+      toast.success("Profile updated successfully");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update profile"),
+  });
 
   return (
-    <Card className="p-6">
-      <h2 className="text-lg font-semibold">Your profile</h2>
-      <div className="mt-4 space-y-3">
-        <div>
-          <Label>Email</Label>
-          <Input value={user?.email ?? ""} disabled />
-        </div>
-        <div>
-          <Label>Full name</Label>
-          <Input value={full_name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div>
-          <Label>Phone</Label>
-          <Input value={phone} onChange={(e) => setPhone(e.target.value)} />
-        </div>
-        <Button onClick={save}>Save changes</Button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Account Profile</h1>
+        <p className="text-sm text-muted-foreground">Manage your personal information and contact details</p>
       </div>
-    </Card>
+
+      <Card className="p-6 max-w-xl">
+        <div className="space-y-4">
+          <div>
+            <Label>Email Address</Label>
+            <Input value={user?.email ?? ""} disabled className="bg-muted" />
+          </div>
+          <div>
+            <Label>Full Name</Label>
+            <Input
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder="Your full name"
+            />
+          </div>
+          <div>
+            <Label>Phone Number</Label>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+91 98765 43210"
+            />
+          </div>
+          <Button
+            onClick={() => updateMutation.mutate()}
+            disabled={updateMutation.isPending}
+          >
+            {updateMutation.isPending ? "Saving…" : "Save Changes"}
+          </Button>
+        </div>
+      </Card>
+    </div>
   );
 }
