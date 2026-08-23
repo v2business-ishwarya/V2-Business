@@ -19,6 +19,7 @@ import searchRouter from "./routes/search";
 import userRouter from "./routes/users";
 import deliveryRouter from "./routes/delivery";
 import invoiceRouter from "./routes/invoice";
+import categoryRouter from "./routes/category";
 import { apiLimiter, authLimiter } from "./middleware/rateLimit";
 import { auditLogger } from "./middleware/auditMiddleware";
 
@@ -84,6 +85,7 @@ const routeModules = [
   { path: "users", router: userRouter },
   { path: "delivery", router: deliveryRouter },
   { path: "invoices", router: invoiceRouter },
+  { path: "categories", router: categoryRouter },
 ];
 
 routeModules.forEach(({ path, router }) => {

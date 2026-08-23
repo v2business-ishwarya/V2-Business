@@ -179,6 +179,11 @@ export const api = {
 
   getAdminAllOrders: (params?: Record<string, unknown>) =>
     request("/orders/all", "GET", undefined, false, params),
+
+  // Categories
+  getCategories: () => request("/categories", "GET"),
+  createCategory: (data: unknown) => request("/categories", "POST", data),
+  deleteCategory: (id: string) => request(`/categories/${id}`, "DELETE"),
 };
 
 export function initializeAuth() {

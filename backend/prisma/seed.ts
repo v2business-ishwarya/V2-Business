@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/client";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import "dotenv/config";
 import bcrypt from "bcryptjs";
@@ -35,6 +35,51 @@ async function main() {
     });
   }
   console.log("Categories ensured");
+
+  // Seed default marketplace settings
+  const defaultSettings = [
+    { key: "PLATFORM_COMMISSION_RATE", value: { rate: "0.10" }, description: "Default platform commission rate (10%)" },
+    { key: "MAINTENANCE_MODE", value: { enabled: false }, description: "Platform maintenance mode" },
+    { key: "PLATFORM_NAME", value: { name: "V2 Business" }, description: "Marketplace platform name" },
+    { key: "PLATFORM_CURRENCY", value: { code: "INR", symbol: "₹" }, description: "Primary platform currency" },
+  ];
+  for (const s of defaultSettings) {
+    await (prisma as any).marketplaceSettings.upsert({
+      where: { key: s.key },
+      update: {},
+      create: s,
+    });
+  }
+  console.log("Marketplace settings ensured");
+
+  // Seed default payment providers
+  const paymentProviders = [
+    { name: "razorpay", isEnabled: true },
+    { name: "cashfree", isEnabled: false },
+    { name: "mock", isEnabled: true },
+  ];
+  for (const p of paymentProviders) {
+    const existing = await (prisma as any).paymentProviderSettings.findFirst({ where: { name: p.name } });
+    if (!existing) {
+      await (prisma as any).paymentProviderSettings.create({ data: p });
+    }
+  }
+  console.log("Payment providers ensured");
+
+  // Seed default delivery providers
+  const deliveryProviders = [
+    { name: "delhivery", isEnabled: true },
+    { name: "shiprocket", isEnabled: true },
+    { name: "own", isEnabled: true },
+    { name: "platform", isEnabled: true },
+  ];
+  for (const d of deliveryProviders) {
+    const existing = await (prisma as any).deliveryProviderSettings.findFirst({ where: { name: d.name } });
+    if (!existing) {
+      await (prisma as any).deliveryProviderSettings.create({ data: d });
+    }
+  }
+  console.log("Delivery providers ensured");
 }
 
 main()

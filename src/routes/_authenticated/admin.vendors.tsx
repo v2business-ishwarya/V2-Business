@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,53 +13,70 @@ export const Route = createFileRoute("/_authenticated/admin/vendors")({
 
 function AdminVendors() {
   const qc = useQueryClient();
-  const { data = [] } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-vendors"],
-    queryFn: async () =>
-      (await supabase.from("vendors").select("*").order("created_at", { ascending: false })).data ??
-      [],
+    queryFn: () => api.getAdminUsers({ role: "VENDOR" }),
   });
-  const update = async (id: string, status: "approved" | "pending" | "suspended") => {
-    const { error } = await supabase.from("vendors").update({ status }).eq("id", id);
-    if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["admin-vendors"] });
-    toast.success("Vendor updated");
-  };
-  if (data.length === 0)
-    return <EmptyState title="No vendors" description="Vendor applications will appear here." />;
+
+  const vendors: any[] = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      api.updateAdminUser(id, { isActive }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-vendors"] });
+      toast.success("Vendor status updated");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update vendor"),
+  });
+
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading vendors…</div>;
+  if (vendors.length === 0)
+    return <EmptyState title="No vendors" description="Vendor accounts will appear here." />;
+
   return (
-    <div className="space-y-2">
-      {data.map((v) => (
-        <Card key={v.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-          <div className="min-w-0">
-            <Link
-              to="/store/$slug"
-              params={{ slug: v.slug }}
-              className="font-medium hover:text-primary"
-            >
-              {v.name}
-            </Link>
-            <div className="text-xs text-muted-foreground">
-              {v.email ?? "—"} · {new Date(v.created_at).toLocaleDateString()}
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold">Vendor Management</h1>
+        <p className="text-sm text-muted-foreground mt-1">Manage and approve marketplace sellers</p>
+      </div>
+
+      <div className="space-y-2">
+        {vendors.map((v) => (
+          <Card key={v.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <p className="font-medium">{v.name || v.email}</p>
+              <div className="text-xs text-muted-foreground">
+                {v.email ?? "—"} · Joined {new Date(v.createdAt).toLocaleDateString()}
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="capitalize">
-              {v.status}
-            </Badge>
-            {v.status !== "approved" && (
-              <Button size="sm" onClick={() => update(v.id, "approved")}>
-                Approve
-              </Button>
-            )}
-            {v.status !== "suspended" && (
-              <Button size="sm" variant="outline" onClick={() => update(v.id, "suspended")}>
-                Suspend
-              </Button>
-            )}
-          </div>
-        </Card>
-      ))}
+            <div className="flex items-center gap-2">
+              <Badge variant={v.isActive ? "default" : "secondary"}>
+                {v.isActive ? "Active" : "Suspended"}
+              </Badge>
+              {!v.isActive && (
+                <Button
+                  size="sm"
+                  onClick={() => updateMutation.mutate({ id: v.id, isActive: true })}
+                  disabled={updateMutation.isPending}
+                >
+                  Approve / Activate
+                </Button>
+              )}
+              {v.isActive && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => updateMutation.mutate({ id: v.id, isActive: false })}
+                  disabled={updateMutation.isPending}
+                >
+                  Suspend
+                </Button>
+              )}
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
