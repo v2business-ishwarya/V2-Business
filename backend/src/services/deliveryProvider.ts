@@ -179,7 +179,7 @@ export class DelhiveryProvider implements DeliveryProvider {
       body: formData,
     });
 
-    const result = await res.json();
+    const result = await res.json() as any;
     const pkg = result?.packages?.[0];
 
     return {
@@ -203,7 +203,7 @@ export class DelhiveryProvider implements DeliveryProvider {
     const res = await fetch(`${this.baseUrl}/api/v1/packages/json/?waybill=${trackingId}`, {
       headers: this.headers(),
     });
-    const data = await res.json();
+    const data = await res.json() as any;
     const shipment = data?.ShipmentData?.[0]?.Shipment;
 
     return {
@@ -228,7 +228,7 @@ export class DelhiveryProvider implements DeliveryProvider {
       headers: { ...this.headers(), 'Content-Type': 'application/x-www-form-urlencoded' },
       body: `waybill=${shipmentId}&cancellation=true`,
     });
-    return await res.json();
+    return await res.json() as any;
   }
 
   async getServiceability(pincode: string): Promise<ServiceabilityResponse> {
@@ -237,7 +237,7 @@ export class DelhiveryProvider implements DeliveryProvider {
     const res = await fetch(`${this.baseUrl}/c/api/pin-codes/json/?filter_codes=${pincode}`, {
       headers: this.headers(),
     });
-    const data = await res.json();
+    const data = await res.json() as any;
     const info = data?.delivery_codes?.[0]?.postal_code;
     return {
       available: !!info, cod: info?.cod === 'Y',
@@ -282,7 +282,7 @@ export class ShiprocketProvider implements DeliveryProvider {
     });
 
     if (!res.ok) throw new Error('Shiprocket authentication failed');
-    const data = await res.json();
+    const data = await res.json() as any;
     this.token = data.token;
     return this.token;
   }
@@ -337,7 +337,7 @@ export class ShiprocketProvider implements DeliveryProvider {
       }),
     });
 
-    const orderData = await orderRes.json();
+    const orderData: any = await orderRes.json();
 
     // Step 2: Generate AWB
     const awbRes = await fetch(`${this.baseUrl}/courier/assign/awb`, {
@@ -349,7 +349,7 @@ export class ShiprocketProvider implements DeliveryProvider {
       }),
     });
 
-    const awbData = await awbRes.json();
+    const awbData: any = await awbRes.json();
 
     return {
       id: String(orderData.order_id || `sr_${Date.now()}`),
@@ -371,7 +371,7 @@ export class ShiprocketProvider implements DeliveryProvider {
 
     const hdrs = await this.headers();
     const res = await fetch(`${this.baseUrl}/courier/track/awb/${trackingId}`, { headers: hdrs });
-    const data = await res.json();
+    const data = await res.json() as any;
     const tracking = data.tracking_data;
 
     return {
@@ -394,7 +394,7 @@ export class ShiprocketProvider implements DeliveryProvider {
       headers: hdrs,
       body: JSON.stringify({ ids: [shipmentId] }),
     });
-    return await res.json();
+    return await res.json() as any;
   }
 
   async getServiceability(pincode: string): Promise<ServiceabilityResponse> {
@@ -405,7 +405,7 @@ export class ShiprocketProvider implements DeliveryProvider {
       `${this.baseUrl}/courier/serviceability/?pickup_postcode=110001&delivery_postcode=${pincode}&weight=0.5&cod=1`,
       { headers: hdrs }
     );
-    const data = await res.json();
+    const data = await res.json() as any;
     const available = data?.data?.available_courier_companies?.length > 0;
     return {
       available,
@@ -422,7 +422,7 @@ export class ShiprocketProvider implements DeliveryProvider {
       `${this.baseUrl}/courier/serviceability/?pickup_postcode=${rateReq.originPincode}&delivery_postcode=${rateReq.destinationPincode}&weight=${rateReq.weight}&cod=${rateReq.cod ? 1 : 0}`,
       { headers: hdrs }
     );
-    const data = await res.json();
+    const data = await res.json() as any;
     const cheapest = data?.data?.available_courier_companies?.sort((a: any, b: any) => a.rate - b.rate)?.[0];
 
     return {

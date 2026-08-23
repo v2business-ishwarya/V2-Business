@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
+const db = prisma as any;
 
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +20,7 @@ export const getInvoices = asyncHandler(async (req, res) => {
     whereClause = { customerId: userId };
   } // Admin sees all if calling the admin endpoint
 
-  const invoices = await prisma.invoice.findMany({
+  const invoices = await db.invoice.findMany({
     where: whereClause,
     include: {
       vendor: { select: { id: true, name: true, email: true } },
@@ -36,7 +37,7 @@ export const getInvoiceById = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = (req as any).userId;
   
-  const invoice = await prisma.invoice.findUnique({
+  const invoice = await db.invoice.findUnique({
     where: { id },
     include: {
       vendor: { select: { id: true, name: true, email: true } },

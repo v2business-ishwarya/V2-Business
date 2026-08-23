@@ -35,7 +35,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   const providerType = req.body.providerType || 'mock';
 
   try {
-    const { CheckoutService } = await import('../services/checkoutService');
+    const { CheckoutService } = await import('../services/checkoutService.js');
     const checkoutService = new CheckoutService(providerType);
     const checkoutResult = await checkoutService.checkout(userId, shippingAddress, providerType);
     

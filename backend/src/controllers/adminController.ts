@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
+// The PG adapter types don't expose all models; cast for extended models
+const db = prisma as any;
 import * as z from "zod";
 import { authenticate, authorizeRole } from "../middleware/authMiddleware";
 import auditService from "../services/auditService";
@@ -147,13 +149,13 @@ export const getAuditLogs = asyncHandler(async (req, res) => {
 });
 
 export const getSettings = asyncHandler(async (req, res) => {
-  const settings = await prisma.marketplaceSettings.findMany();
+  const settings = await db.marketplaceSettings.findMany();
   res.json(settings);
 });
 
 export const updateSettings = asyncHandler(async (req, res) => {
   const { key, value, description } = req.body;
-  const setting = await prisma.marketplaceSettings.upsert({
+  const setting = await db.marketplaceSettings.upsert({
     where: { key },
     update: { value, description },
     create: { key, value, description }
@@ -162,14 +164,14 @@ export const updateSettings = asyncHandler(async (req, res) => {
 });
 
 export const getPaymentProviders = asyncHandler(async (req, res) => {
-  const providers = await prisma.paymentProviderSettings.findMany();
+  const providers = await db.paymentProviderSettings.findMany();
   res.json(providers);
 });
 
 export const updatePaymentProvider = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { isEnabled, apiKey, apiSecret, webhookSecret, credentials } = req.body;
-  const provider = await prisma.paymentProviderSettings.update({
+  const provider = await db.paymentProviderSettings.update({
     where: { id },
     data: { isEnabled, apiKey, apiSecret, webhookSecret, credentials }
   });
@@ -177,14 +179,14 @@ export const updatePaymentProvider = asyncHandler(async (req, res) => {
 });
 
 export const getDeliveryProviders = asyncHandler(async (req, res) => {
-  const providers = await prisma.deliveryProviderSettings.findMany();
+  const providers = await db.deliveryProviderSettings.findMany();
   res.json(providers);
 });
 
 export const updateDeliveryProvider = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { isEnabled, apiKey, apiSecret, credentials } = req.body;
-  const provider = await prisma.deliveryProviderSettings.update({
+  const provider = await db.deliveryProviderSettings.update({
     where: { id },
     data: { isEnabled, apiKey, apiSecret, credentials }
   });
@@ -192,7 +194,7 @@ export const updateDeliveryProvider = asyncHandler(async (req, res) => {
 });
 
 export const getInvoices = asyncHandler(async (req, res) => {
-  const invoices = await prisma.invoice.findMany({
+  const invoices = await db.invoice.findMany({
     include: { vendor: { select: { name: true } }, customer: { select: { name: true, email: true } } },
     orderBy: { createdAt: 'desc' }
   });
@@ -200,7 +202,7 @@ export const getInvoices = asyncHandler(async (req, res) => {
 });
 
 export const getCommissions = asyncHandler(async (req, res) => {
-  const commissions = await prisma.commission.findMany({
+  const commissions = await db.commission.findMany({
     include: { vendor: { select: { name: true, email: true } } },
     orderBy: { createdAt: 'desc' }
   });

@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
+const db = prisma as any;
 
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -19,7 +20,7 @@ export const getShipments = asyncHandler(async (req, res) => {
     whereClause = { order: { userId: userId } };
   }
 
-  const shipments = await prisma.shipment.findMany({
+  const shipments = await db.shipment.findMany({
     where: whereClause,
     include: { order: true },
     orderBy: { createdAt: 'desc' }
@@ -33,16 +34,15 @@ export const updateShipmentStatus = asyncHandler(async (req, res) => {
   const { status, trackingNumber } = req.body;
   const userId = (req as any).userId;
   
-  const shipment = await prisma.shipment.findUnique({ where: { id } });
+  const shipment = await db.shipment.findUnique({ where: { id } });
   if (!shipment) return res.status(404).json({ error: "Shipment not found" });
 
-  // Only vendor who owns the shipment or admin can update it
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (user?.role !== 'ADMIN' && shipment.vendorId !== userId) {
     return res.status(403).json({ error: "Unauthorized" });
   }
 
-  const updated = await prisma.shipment.update({
+  const updated = await db.shipment.update({
     where: { id },
     data: { 
       status, 
@@ -56,7 +56,7 @@ export const updateShipmentStatus = asyncHandler(async (req, res) => {
 
 export const getVendorDeliveryConfig = asyncHandler(async (req, res) => {
   const vendorId = (req as any).userId;
-  const configs = await prisma.vendorDeliveryConfig.findMany({
+  const configs = await db.vendorDeliveryConfig.findMany({
     where: { vendorId }
   });
   res.json(configs);
@@ -66,8 +66,8 @@ export const updateVendorDeliveryConfig = asyncHandler(async (req, res) => {
   const vendorId = (req as any).userId;
   const { provider, isEnabled, credentials } = req.body;
   
-  const config = await prisma.vendorDeliveryConfig.upsert({
-    where: { id: req.body.id || 'new' }, // Prisma will fall back to create if id is 'new' and doesn't exist
+  const config = await db.vendorDeliveryConfig.upsert({
+    where: { id: req.body.id || 'new' },
     update: { isEnabled, credentials },
     create: { vendorId, provider, isEnabled, credentials }
   });

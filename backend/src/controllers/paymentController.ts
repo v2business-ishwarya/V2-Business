@@ -77,7 +77,7 @@ export const confirmPayment = asyncHandler(async (req, res) => {
 
   // The client side usually calls order confirmation after the payment gateway completes.
   try {
-    const { CheckoutService } = await import('../services/checkoutService');
+    const { CheckoutService } = await import('../services/checkoutService.js');
     // For mock, provider is mock. In real it's from db or req
     const checkoutService = new CheckoutService('mock');
     const result = await checkoutService.confirmPayment(paymentId, orderId, providerPaymentId);
@@ -96,7 +96,7 @@ export const paymentWebhook = asyncHandler(async (req, res) => {
   if (event === "payment.succeeded" && data?.object) {
     const { payment_id, order_id, amount } = data.object;
     try {
-      const { CheckoutService } = await import('../services/checkoutService');
+      const { CheckoutService } = await import('../services/checkoutService.js');
       const checkoutService = new CheckoutService('mock');
       // In webhook, we process confirmation if order_id is present
       if (order_id) {

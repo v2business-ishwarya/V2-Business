@@ -64,10 +64,10 @@ export class RazorpayProvider implements PaymentProvider {
       }),
     });
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err = await res.json() as any.catch(() => ({}));
       throw new Error(`Razorpay createVendor failed: ${JSON.stringify(err)}`);
     }
-    const data = await res.json();
+    const data = await res.json() as any;
     return { id: data.id, provider: 'razorpay', status: data.status, details: data };
   }
 
@@ -97,11 +97,11 @@ export class RazorpayProvider implements PaymentProvider {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err = await res.json() as any.catch(() => ({}));
       throw new Error(`Razorpay order creation failed: ${JSON.stringify(err)}`);
     }
 
-    const data = await res.json();
+    const data = await res.json() as any;
     return {
       id: data.id,
       orderId: data.id,
@@ -134,7 +134,7 @@ export class RazorpayProvider implements PaymentProvider {
         headers: { Authorization: this.authHeader() },
       });
       if (res.ok) {
-        const payment = await res.json();
+        const payment = await res.json() as any;
         return {
           id: payment.id, status: payment.status === 'captured' ? 'succeeded' : payment.status,
           provider: 'razorpay', amount: payment.amount / 100, currency: payment.currency,
@@ -173,7 +173,7 @@ export class RazorpayProvider implements PaymentProvider {
         queue_if_low_balance: true,
       }),
     });
-    const data = await res.json();
+    const data = await res.json() as any;
     return { id: data.id, status: data.status, amount: payoutData.amount };
   }
 
@@ -184,7 +184,7 @@ export class RazorpayProvider implements PaymentProvider {
     const res = await fetch(`${this.baseUrl}/settlements/${settlementId}`, {
       headers: { Authorization: this.authHeader() },
     });
-    return await res.json();
+    return await res.json() as any;
   }
 }
 
@@ -234,7 +234,7 @@ export class CashfreeProvider implements PaymentProvider {
         ifsc: vendorData.ifsc,
       }),
     });
-    const data = await res.json();
+    const data = await res.json() as any;
     return { id: vendorData.id, provider: 'cashfree', status: data.status || 'ACTIVE', details: data };
   }
 
@@ -271,11 +271,11 @@ export class CashfreeProvider implements PaymentProvider {
     });
 
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
+      const err = await res.json() as any.catch(() => ({}));
       throw new Error(`Cashfree order creation failed: ${JSON.stringify(err)}`);
     }
 
-    const data = await res.json();
+    const data = await res.json() as any;
     return {
       id: data.cf_order_id || cfOrderId,
       orderId: data.order_id || cfOrderId,
@@ -303,7 +303,7 @@ export class CashfreeProvider implements PaymentProvider {
     });
 
     if (res.ok) {
-      const payments = await res.json();
+      const payments = await res.json() as any;
       const payment = Array.isArray(payments) ? payments[0] : payments;
       return {
         id: payment?.cf_payment_id || paymentData.cfPaymentId,
@@ -340,7 +340,7 @@ export class CashfreeProvider implements PaymentProvider {
         transferMode: payoutData.mode || 'banktransfer',
       }),
     });
-    const data = await res.json();
+    const data = await res.json() as any;
     return { id: data.data?.referenceId, status: data.status, amount: payoutData.amount };
   }
 
@@ -351,7 +351,7 @@ export class CashfreeProvider implements PaymentProvider {
     const res = await fetch(`${this.baseUrl}/settlements/${settlementId}`, {
       headers: this.headers(),
     });
-    return await res.json();
+    return await res.json() as any;
   }
 }
 
