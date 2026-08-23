@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/services/api";
 import { Card } from "@/components/ui/card";
 import { formatMoney } from "@/lib/utils-app";
 
@@ -11,42 +11,31 @@ export const Route = createFileRoute("/_authenticated/admin/")({
 function AdminOverview() {
   const { data } = useQuery({
     queryKey: ["admin-overview"],
-    queryFn: async () => {
-      const [v, p, o, u] = await Promise.all([
-        supabase.from("vendors").select("id,status", { count: "exact" }),
-        supabase.from("products").select("id", { count: "exact", head: true }),
-        supabase.from("orders").select("total,status"),
-        supabase.from("profiles").select("id", { count: "exact", head: true }),
-      ]);
-      const pendingVendors = (v.data ?? []).filter((x) => x.status === "pending").length;
-      const revenue = (o.data ?? [])
-        .filter((x) => x.status !== "cancelled")
-        .reduce((s, x) => s + Number(x.total), 0);
-      return {
-        vendors: v.count ?? 0,
-        pendingVendors,
-        products: p.count ?? 0,
-        users: u.count ?? 0,
-        orders: o.data?.length ?? 0,
-        revenue,
-      };
-    },
+    queryFn: () => api.getAdminStats(),
   });
+
   const cards = [
     { label: "Total revenue", value: formatMoney(data?.revenue ?? 0) },
     { label: "Orders", value: data?.orders ?? 0 },
-    { label: "Vendors", value: `${data?.vendors ?? 0} (${data?.pendingVendors ?? 0} pending)` },
     { label: "Products", value: data?.products ?? 0 },
-    { label: "Users", value: data?.users ?? 0 },
+    { label: "Users & Customers", value: data?.users ?? 0 },
+    { label: "Low Stock Items", value: data?.lowStockProducts ?? 0 },
   ];
+
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {cards.map((c) => (
-        <Card key={c.label} className="p-4">
-          <div className="text-xs text-muted-foreground">{c.label}</div>
-          <div className="mt-2 text-xl font-semibold">{c.value}</div>
-        </Card>
-      ))}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Admin Overview</h1>
+        <p className="text-sm text-muted-foreground mt-1">Marketplace key metrics and operations</p>
+      </div>
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        {cards.map((c) => (
+          <Card key={c.label} className="p-4">
+            <div className="text-xs text-muted-foreground">{c.label}</div>
+            <div className="mt-2 text-xl font-semibold">{c.value}</div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

@@ -30,7 +30,7 @@ export const getInvoices = asyncHandler(async (req, res) => {
     orderBy: { createdAt: 'desc' }
   });
 
-  res.json(invoices);
+  res.json(invoices || []);
 });
 
 export const getInvoiceById = asyncHandler(async (req, res) => {

@@ -43,9 +43,17 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const res = await login(email, password);
       toast.success("Welcome back!");
-      navigate({ to: target, replace: true });
+      if (target && target !== "/" && target !== "/auth") {
+        navigate({ to: target, replace: true });
+      } else if (res.user?.role === "ADMIN" || (res.user as any)?.role === "admin") {
+        navigate({ to: "/admin", replace: true });
+      } else if (res.user?.role === "VENDOR" || (res.user as any)?.role === "vendor") {
+        navigate({ to: "/vendor", replace: true });
+      } else {
+        navigate({ to: "/", replace: true });
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign in failed");
     } finally {

@@ -1,5 +1,4 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { supabase } from "@/integrations/supabase/client";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -10,15 +9,15 @@ import {
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin — V2 Business" }, { name: "robots", content: "noindex" }] }),
-  beforeLoad: async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/auth" });
-    const { data: roles } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", u.user.id);
-    const isAdmin = (roles ?? []).some((r) => r.role === "admin");
-    return { isAdmin };
+  beforeLoad: async ({ location }) => {
+    const rawUser = localStorage.getItem("user");
+    const token = localStorage.getItem("accessToken");
+    if (!token || !rawUser) {
+      throw redirect({ to: "/auth", search: { redirect: location.href } });
+    }
+    const user = JSON.parse(rawUser);
+    const isAdmin = user.role === "ADMIN" || user.role === "admin";
+    return { isAdmin, user };
   },
   component: AdminLayout,
 });
@@ -57,4 +56,3 @@ function AdminLayout() {
     </DashboardShell>
   );
 }
-

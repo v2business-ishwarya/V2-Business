@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,64 +13,78 @@ export const Route = createFileRoute("/_authenticated/admin/users")({
 
 function AdminUsers() {
   const qc = useQueryClient();
-  const { data = [] } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],
-    queryFn: async () => {
-      const [{ data: profiles }, { data: roles }] = await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id, full_name, created_at")
-          .order("created_at", { ascending: false }),
-        supabase.from("user_roles").select("user_id, role"),
-      ]);
-      const rolesByUser: Record<string, string[]> = {};
-      (roles ?? []).forEach((r) => {
-        rolesByUser[r.user_id] = [...(rolesByUser[r.user_id] ?? []), r.role];
-      });
-      return (profiles ?? []).map((p) => ({ ...p, roles: rolesByUser[p.id] ?? ["customer"] }));
-    },
+    queryFn: () => api.getAdminUsers(),
   });
-  const toggleAdmin = async (userId: string, makeAdmin: boolean) => {
-    if (makeAdmin) {
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: "admin" });
-      if (error) return toast.error(error.message);
-    } else {
-      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", "admin");
-    }
-    qc.invalidateQueries({ queryKey: ["admin-users"] });
-  };
-  if (data.length === 0) return <EmptyState title="No users yet" />;
+
+  const users: any[] = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      api.updateAdminUser(userId, { role }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User role updated");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to update user"),
+  });
+
+  if (isLoading) return <div className="p-8 text-center text-muted-foreground">Loading users…</div>;
+  if (users.length === 0) return <EmptyState title="No users yet" />;
+
   return (
-    <div className="space-y-2">
-      {data.map((u) => {
-        const isAdmin = u.roles.includes("admin");
-        return (
-          <Card key={u.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-            <div className="min-w-0">
-              <p className="font-medium">{u.full_name ?? "Unnamed"}</p>
-              <p className="text-xs text-muted-foreground">
-                Joined {new Date(u.created_at).toLocaleDateString()}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {u.roles.map((r) => (
-                <Badge key={r} variant="outline" className="capitalize">
-                  {r}
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-semibold">User & Customer Management</h1>
+        <p className="text-sm text-muted-foreground mt-1">Manage accounts and platform roles</p>
+      </div>
+
+      <div className="space-y-2">
+        {users.map((u) => {
+          const isAdmin = u.role === "ADMIN";
+          const isVendor = u.role === "VENDOR";
+
+          return (
+            <Card key={u.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+              <div className="min-w-0">
+                <p className="font-medium">{u.name || u.email}</p>
+                <p className="text-xs text-muted-foreground">
+                  {u.email} • Joined {new Date(u.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={isAdmin ? "default" : isVendor ? "secondary" : "outline"}
+                  className="capitalize"
+                >
+                  {u.role}
                 </Badge>
-              ))}
-              <Button
-                size="sm"
-                variant={isAdmin ? "outline" : "default"}
-                onClick={() => toggleAdmin(u.id, !isAdmin)}
-              >
-                {isAdmin ? "Revoke admin" : "Make admin"}
-              </Button>
-            </div>
-          </Card>
-        );
-      })}
+                {!isAdmin && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => updateRoleMutation.mutate({ userId: u.id, role: "ADMIN" })}
+                    disabled={updateRoleMutation.isPending}
+                  >
+                    Make Admin
+                  </Button>
+                )}
+                {isAdmin && u.email !== "admin@example.com" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => updateRoleMutation.mutate({ userId: u.id, role: "CUSTOMER" })}
+                    disabled={updateRoleMutation.isPending}
+                  >
+                    Remove Admin
+                  </Button>
+                )}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }
