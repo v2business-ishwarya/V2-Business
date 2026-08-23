@@ -6,8 +6,8 @@ import { prisma } from "../server";
 
 const ACCESS_TOKEN_SECRET = process.env.JWT_ACCESS_SECRET || "fallback_access_secret";
 const REFRESH_TOKEN_SECRET = process.env.JWT_REFRESH_SECRET || "fallback_refresh_secret";
-const ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_EXPIRES_IN || "15m";
-const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRES_IN || "7d";
+const ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_EXPIRES_IN || "30d";
+const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRES_IN || "90d";
 
 /**
  * Parse strings like '7d', '15m' to milliseconds

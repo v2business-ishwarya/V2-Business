@@ -123,9 +123,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     // Set refresh token in httpOnly cookie
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true,
+      sameSite: "none",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
     // Return access token and user info
@@ -163,9 +163,9 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
     // Set new refresh token in httpOnly cookie
     res.cookie("refreshToken", newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true,
+      sameSite: "none",
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     });
 
     // Generate new access token
