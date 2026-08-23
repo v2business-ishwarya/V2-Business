@@ -64,7 +64,7 @@ export class RazorpayProvider implements PaymentProvider {
       }),
     });
     if (!res.ok) {
-      const err = await res.json() as any.catch(() => ({}));
+      const err = (await res.json().catch(() => ({}))) as any;
       throw new Error(`Razorpay createVendor failed: ${JSON.stringify(err)}`);
     }
     const data = await res.json() as any;
@@ -97,7 +97,7 @@ export class RazorpayProvider implements PaymentProvider {
     });
 
     if (!res.ok) {
-      const err = await res.json() as any.catch(() => ({}));
+      const err = (await res.json().catch(() => ({}))) as any;
       throw new Error(`Razorpay order creation failed: ${JSON.stringify(err)}`);
     }
 
@@ -271,7 +271,7 @@ export class CashfreeProvider implements PaymentProvider {
     });
 
     if (!res.ok) {
-      const err = await res.json() as any.catch(() => ({}));
+      const err = (await res.json().catch(() => ({}))) as any;
       throw new Error(`Cashfree order creation failed: ${JSON.stringify(err)}`);
     }
 
