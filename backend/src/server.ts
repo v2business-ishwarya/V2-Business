@@ -31,8 +31,23 @@ const app = express();
 const PORT = process.env.PORT ?? 5000;
 
 // Middleware
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:8080", credentials: true }));
-app.use(helmet());
+const allowedOrigins = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",").map(o => o.trim()) : ["*"];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, origin);
+      }
+      return callback(null, origin); // Allow all Vercel previews & custom domains dynamically
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+  })
+);
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -41,30 +56,40 @@ app.use(auditLogger);
 
 // Rate limiting
 app.use("/api/auth", authLimiter);
+app.use("/auth", authLimiter);
 app.use(apiLimiter);
-app.use("/api/", apiLimiter);
 
 // Health check
-app.get("/api/health", (req: Request, res: Response) => {
+const healthHandler = (req: Request, res: Response) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
-});
+};
+app.get("/api/health", healthHandler);
+app.get("/health", healthHandler);
+app.get("/", healthHandler);
 
-// Routes
-app.use("/api/auth", authRouter);
-app.use("/api/products", productRouter);
-app.use("/api/orders", orderRouter);
-app.use("/api/cart", cartRouter);
-app.use("/api/wishlist", wishlistRouter);
-app.use("/api/reviews", reviewRouter);
-app.use("/api/coupons", couponRouter);
-app.use("/api/notifications", notificationRouter);
-app.use("/api/admin", adminRouter);
-app.use("/api/payment", paymentRouter);
-app.use("/api/upload", uploadRouter);
-app.use("/api/search", searchRouter);
-app.use("/api/users", userRouter);
-app.use("/api/delivery", deliveryRouter);
-app.use("/api/invoices", invoiceRouter);
+// Mount routes on both /api/* and /* for maximum compatibility
+const routeModules = [
+  { path: "auth", router: authRouter },
+  { path: "products", router: productRouter },
+  { path: "orders", router: orderRouter },
+  { path: "cart", router: cartRouter },
+  { path: "wishlist", router: wishlistRouter },
+  { path: "reviews", router: reviewRouter },
+  { path: "coupons", router: couponRouter },
+  { path: "notifications", router: notificationRouter },
+  { path: "admin", router: adminRouter },
+  { path: "payment", router: paymentRouter },
+  { path: "upload", router: uploadRouter },
+  { path: "search", router: searchRouter },
+  { path: "users", router: userRouter },
+  { path: "delivery", router: deliveryRouter },
+  { path: "invoices", router: invoiceRouter },
+];
+
+routeModules.forEach(({ path, router }) => {
+  app.use(`/api/${path}`, router);
+  app.use(`/${path}`, router);
+});
 
 // 404
 app.use("*", (req: Request, res: Response) => {

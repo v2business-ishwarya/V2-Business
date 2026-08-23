@@ -1,9 +1,12 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const RAW_API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = RAW_API_URL.replace(/\/+$/, "");
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 function buildUrl(endpoint: string, params?: Record<string, unknown>) {
-  const url = new URL(endpoint.startsWith("http") ? endpoint : `${API_URL}${endpoint}`);
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const fullUrl = endpoint.startsWith("http") ? endpoint : `${API_URL}${cleanEndpoint}`;
+  const url = new URL(fullUrl);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
