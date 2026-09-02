@@ -7,8 +7,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Store } from "lucide-react";
+import { Store, Eye, EyeOff, Mail, ArrowRight } from "lucide-react";
 import { login, storeSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 
@@ -36,8 +44,15 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Forgot Password state
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +80,6 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // Registration already returns an authenticated backend session.
       const res = await api.register({ email, password, name });
       storeSession(res);
       toast.success("Account created — you're signed in.");
@@ -77,31 +91,36 @@ function AuthPage() {
     }
   };
 
-  // Google sign-in - we can keep using lovable for now or implement via API
   const googleSignIn = async () => {
-    // For now, fallback to lovable (Supabase) - we need to implement Google OAuth via backend
-    // We'll redirect to backend Google OAuth endpoint
     try {
-      window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+      window.location.href = `${import.meta.env.VITE_API_URL || "https://v2-business.onrender.com"}/auth/google`;
     } catch (err) {
       toast.error("Google sign-in failed");
     }
   };
 
-  const forgot = async () => {
-    if (!email) return toast.error("Enter your email above first.");
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}/auth/request-password-reset`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-        credentials: "include",
-      });
-      toast.success("Password reset email sent.");
-      setForgotOpen(false);
-    } catch (err) {
-      toast.error("Failed to send reset email");
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const targetEmail = forgotEmail.trim() || email.trim();
+    if (!targetEmail) {
+      return toast.error("Please enter your email address.");
     }
+    setForgotLoading(true);
+    try {
+      await api.requestPasswordReset(targetEmail);
+      setForgotSubmitted(true);
+      toast.success("Password reset instructions sent to your email!");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send reset email");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const openForgotModal = () => {
+    setForgotEmail(email || "");
+    setForgotSubmitted(false);
+    setForgotOpen(true);
   };
 
   return (
@@ -139,6 +158,7 @@ function AuthPage() {
             <TabsTrigger value="signup">Create account</TabsTrigger>
           </TabsList>
 
+          {/* SIGN IN TAB */}
           <TabsContent value="signin" className="mt-4">
             <form onSubmit={signIn} className="space-y-3">
               <div>
@@ -147,6 +167,7 @@ function AuthPage() {
                   id="e1"
                   type="email"
                   required
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -156,19 +177,36 @@ function AuthPage() {
                   <Label htmlFor="p1">Password</Label>
                   <button
                     type="button"
-                    onClick={forgot}
-                    className="text-xs text-primary hover:underline"
+                    onClick={openForgotModal}
+                    className="text-xs text-primary font-medium hover:underline"
                   >
-                    Forgot?
+                    Forgot password?
                   </button>
                 </div>
-                <Input
-                  id="p1"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative mt-1">
+                  <Input
+                    id="p1"
+                    type={showSignInPassword ? "text" : "password"}
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowSignInPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    aria-label={showSignInPassword ? "Hide password" : "Show password"}
+                  >
+                    {showSignInPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Signing in..." : "Sign in"}
@@ -176,11 +214,18 @@ function AuthPage() {
             </form>
           </TabsContent>
 
+          {/* SIGN UP TAB */}
           <TabsContent value="signup" className="mt-4">
             <form onSubmit={signUp} className="space-y-3">
               <div>
                 <Label htmlFor="n2">Full name</Label>
-                <Input id="n2" required value={name} onChange={(e) => setName(e.target.value)} />
+                <Input
+                  id="n2"
+                  required
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div>
                 <Label htmlFor="e2">Email</Label>
@@ -188,20 +233,38 @@ function AuthPage() {
                   id="e2"
                   type="email"
                   required
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
                 <Label htmlFor="p2">Password (min. 8 chars)</Label>
-                <Input
-                  id="p2"
-                  type="password"
-                  required
-                  minLength={8}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative mt-1">
+                  <Input
+                    id="p2"
+                    type={showSignUpPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Create a strong password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowSignUpPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
+                    aria-label={showSignUpPassword ? "Hide password" : "Show password"}
+                  >
+                    {showSignUpPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Creating..." : "Create account"}
@@ -217,6 +280,70 @@ function AuthPage() {
           </TabsContent>
         </Tabs>
       </Card>
+
+      {/* FORGOT PASSWORD DIALOG */}
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
+              <Mail className="h-6 w-6" />
+            </div>
+            <DialogTitle className="text-center text-xl">Forgot Password?</DialogTitle>
+            <DialogDescription className="text-center text-sm">
+              {forgotSubmitted
+                ? "If an account exists with this email, you will receive password reset instructions shortly."
+                : "Enter your registered email address and we'll send you a link to reset your password."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {forgotSubmitted ? (
+            <div className="space-y-4 pt-2">
+              <div className="rounded-lg bg-muted p-4 text-center text-sm text-muted-foreground">
+                Check your inbox at <span className="font-semibold text-foreground">{forgotEmail}</span>.
+              </div>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => {
+                  setForgotOpen(false);
+                  setForgotSubmitted(false);
+                }}
+              >
+                Back to Sign in
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
+              <div>
+                <Label htmlFor="forgot-email">Email address</Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  required
+                  placeholder="name@example.com"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  className="mt-1"
+                />
+              </div>
+
+              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setForgotOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={forgotLoading}>
+                  {forgotLoading ? "Sending..." : "Send Reset Link"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

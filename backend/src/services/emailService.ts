@@ -42,17 +42,26 @@ const emailTemplates = {
       <p>Thanks for shopping with us!</p>
     `,
   }),
-  passwordReset: (user: EmailUser, resetToken: string) => ({
-    subject: "Password Reset Request",
-    html: `
-      <h1>Password Reset</h1>
-      <p>Hello ${user.name || user.email},</p>
-      <p>You requested a password reset. Click the link below to reset your password:</p>
-      <a href="${process.env.FRONTEND_URL}/reset-password?token=${resetToken}">Reset Password</a>
-      <p>This link will expire in 1 hour.</p>
-      <p>If you didn't request this, please ignore this email.</p>
-    `,
-  }),
+  passwordReset: (user: EmailUser, resetToken: string) => {
+    const baseUrl = process.env.FRONTEND_URL || "https://v2business.in";
+    const resetUrl = `${baseUrl.replace(/\/+$/, "")}/reset-password?token=${resetToken}`;
+    console.log(`[PASSWORD RESET] Generated reset link for ${user.email}: ${resetUrl}`);
+    return {
+      subject: "Password Reset Request — V2 Business",
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #111;">Password Reset Request</h2>
+          <p>Hello ${user.name || user.email},</p>
+          <p>We received a request to reset your password for your V2 Business account. Click the button below to set a new password:</p>
+          <div style="margin: 30px 0;">
+            <a href="${resetUrl}" style="background-color: #0f172a; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="font-size: 13px; color: #64748b;">Or copy and paste this link into your browser:<br/><a href="${resetUrl}">${resetUrl}</a></p>
+          <p style="font-size: 12px; color: #94a3b8; margin-top: 30px;">This link will expire in 1 hour. If you did not request a password reset, you can safely ignore this email.</p>
+        </div>
+      `,
+    };
+  },
   welcome: (user: EmailUser) => ({
     subject: "Welcome to Our Store!",
     html: `
