@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <defs>
+    <linearGradient id="v2Bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+    <linearGradient id="v2Fg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E0F2FE" />
+    </linearGradient>
+  </defs>
+
+  <!-- Container -->
+  <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#v2Bg)" />
+  <rect x="3" y="3" width="42" height="42" rx="11" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" fill="none" />
+
+  <!-- V -->
+  <path d="M10 15L18.5 32.5C19 33.5 20.4 33.5 20.9 32.5L28 15" stroke="url(#v2Fg)" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- 2 -->
+  <path d="M25 18C25 14.8 27.5 13 31.5 13C34.8 13 37.5 15 37.5 18C37.5 22 26 27 25 33H38.5" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Accent Sparkle -->
+  <circle cx="39" cy="9" r="2.5" fill="#FDE047" />
+</svg>

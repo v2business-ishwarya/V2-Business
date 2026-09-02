@@ -25,6 +25,8 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 
+import { V2Logo } from "@/components/v2-logo";
+
 export function SiteHeader() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -60,11 +62,8 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/70 bg-surface/85 backdrop-blur supports-[backdrop-filter]:bg-surface/70">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground shadow-sm">
-            <Store className="h-5 w-5" />
-          </div>
-          <span className="text-lg font-bold tracking-tight">V2 Business</span>
+        <Link to="/" className="flex items-center">
+          <V2Logo size="md" />
         </Link>
 
         <form onSubmit={submit} className="relative ml-2 hidden flex-1 max-w-2xl md:block">

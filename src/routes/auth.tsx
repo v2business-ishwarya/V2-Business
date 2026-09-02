@@ -20,6 +20,8 @@ import { Store, Eye, EyeOff, Mail, ArrowRight } from "lucide-react";
 import { login, storeSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 
+import { V2LogoIcon } from "@/components/v2-logo";
+
 const searchSchema = z.object({ redirect: z.string().optional() });
 
 export const Route = createFileRoute("/auth")({
@@ -126,13 +128,11 @@ function AuthPage() {
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md items-center px-4 py-10">
       <Card className="w-full p-6 shadow-card">
-        <div className="mb-6 flex items-center gap-2">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Store className="h-5 w-5" />
-          </div>
+        <div className="mb-6 flex items-center gap-3">
+          <V2LogoIcon size={44} />
           <div>
-            <h1 className="text-lg font-semibold">Welcome to V2 Business</h1>
-            <p className="text-xs text-muted-foreground">Sign in or create an account</p>
+            <h1 className="text-xl font-bold">Welcome to V2 Business</h1>
+            <p className="text-xs text-muted-foreground">Sign in or create your account</p>
           </div>
         </div>
 
