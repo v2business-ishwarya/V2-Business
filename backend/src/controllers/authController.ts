@@ -273,24 +273,71 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-// Google OAuth callback (simplified - in production use passport.js or similar)
-export const googleCallback = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    // This would normally be handled by passport.js middleware
-    // For simplicity, we assume req.user contains Google profile data
-    // In real implementation, you'd use a strategy like:
-    // passport.authenticate('google', { failureRedirect: '/login' })
+export const googleRedirect = async (req: Request, res: Response) => {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const backendUrl = process.env.BACKEND_URL || "https://v2-business.onrender.com";
+  const redirectUri = `${backendUrl}/auth/google/callback`;
+  const frontendUrl = process.env.FRONTEND_URL || "https://v2business.in";
 
-    // Mock implementation - replace with actual OAuth flow
-    const {
-      email,
-      name,
-      picture,
-      sub: googleId,
-    } = (req as Request & { user?: GoogleProfile }).user ?? {}; // Assuming populated by auth middleware
+  if (!clientId) {
+    return res.redirect(`${frontendUrl}/auth?error=google_not_configured`);
+  }
+
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
+  res.redirect(authUrl);
+};
+
+// Google OAuth callback
+export const googleCallback = async (req: Request, res: Response, next: NextFunction) => {
+  const frontendUrl = process.env.FRONTEND_URL || "https://v2business.in";
+  try {
+    const code = req.query.code as string;
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const backendUrl = process.env.BACKEND_URL || "https://v2-business.onrender.com";
+    const redirectUri = `${backendUrl}/auth/google/callback`;
+
+    let email = "";
+    let name = "";
+    let picture = "";
+    let googleId = "";
+
+    if (code && clientId && clientSecret) {
+      // Exchange code for tokens
+      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: "authorization_code",
+        }),
+      });
+
+      const tokenData: any = await tokenRes.json();
+      if (tokenData.access_token) {
+        // Fetch user profile from Google
+        const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
+          headers: { Authorization: `Bearer ${tokenData.access_token}` },
+        });
+        const userData: any = await userRes.json();
+        email = userData.email;
+        name = userData.name || userData.given_name || "";
+        picture = userData.picture || "";
+        googleId = userData.id || "";
+      }
+    } else {
+      const userPayload = (req as any).user ?? {};
+      email = userPayload.email;
+      name = userPayload.name;
+      picture = userPayload.picture;
+      googleId = userPayload.sub;
+    }
 
     if (!email) {
-      return res.status(400).json({ error: "Email not provided by Google" });
+      return res.redirect(`${frontendUrl}/auth?error=google_auth_failed`);
     }
 
     // Find or create user
@@ -304,14 +351,13 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
           name: name || "",
           avatarUrl: picture || undefined,
           googleId,
-          // No password for Google users initially (set a random unusable password)
           passwordHash: await bcrypt.hash(Math.random().toString(36).slice(-8), 10),
         },
       });
 
       // Send welcome email
       await emailService.sendWelcomeEmail(user);
-    } else if (!user.googleId) {
+    } else if (!user.googleId && googleId) {
       // Link existing account to Google
       user = await prisma.user.update({
         where: { id: user.id },
@@ -329,22 +375,24 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    // Redirect to frontend with token or return JSON
-    // For API, return JSON
-    res.json({
-      accessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
-    });
+    // Redirect to frontend with auth credentials in URL
+    const safeUserData = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    };
+
+    res.redirect(
+      `${frontendUrl}/auth?token=${encodeURIComponent(accessToken)}&user=${encodeURIComponent(
+        JSON.stringify(safeUserData)
+      )}`
+    );
   } catch (error) {
-    next(error);
+    res.redirect(`${frontendUrl}/auth?error=google_auth_error`);
   }
 };
 
@@ -439,6 +487,7 @@ export default {
   logout,
   requestPasswordReset,
   resetPassword,
+  googleRedirect,
   googleCallback,
   getMe,
   becomeVendor,

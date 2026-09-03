@@ -10,7 +10,8 @@ router.post("/refresh", authController.refresh);
 router.post("/logout", authController.logout);
 router.post("/request-password-reset", authController.requestPasswordReset);
 router.post("/reset-password", authController.resetPassword);
-// Google OAuth callback
+// Google OAuth routes
+router.get("/google", authController.googleRedirect);
 router.get("/google/callback", authController.googleCallback);
 // Get current user (protected)
 router.get("/me", authenticate, authController.getMe);

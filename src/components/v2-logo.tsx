@@ -102,9 +102,9 @@ export function V2Logo({
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
       <V2LogoIcon size={size} {...props} />
       {showText && (
-        <div className="flex flex-col leading-none">
-          <span
-            className={`font-extrabold tracking-tight ${
+        <div className="flex flex-col leading-none text-left">
+          <div
+            className={`font-extrabold tracking-tight flex items-baseline gap-1.5 ${
               size === "sm"
                 ? "text-base"
                 : size === "md"
@@ -112,16 +112,22 @@ export function V2Logo({
                 : size === "lg"
                 ? "text-xl"
                 : "text-2xl"
-            } ${textColor ?? (isWhite ? "text-white" : "text-foreground")}`}
+            }`}
           >
-            V2{" "}
-            <span className={isWhite ? "text-emerald-200 font-bold" : "text-primary font-bold"}>
+            <span style={{ color: "#FFFFFF" }} className={isWhite ? "text-white font-extrabold" : "text-foreground font-extrabold"}>
+              V2
+            </span>
+            <span
+              style={{ color: isWhite ? "#A7F3D0" : undefined }}
+              className={isWhite ? "font-extrabold text-emerald-200" : "font-extrabold text-primary"}
+            >
               Business
             </span>
-          </span>
+          </div>
           <span
+            style={{ color: isWhite ? "rgba(255, 255, 255, 0.9)" : undefined }}
             className={`text-[10px] uppercase font-bold tracking-widest mt-0.5 ${
-              isWhite ? "text-white/80" : "text-muted-foreground"
+              isWhite ? "text-white/90" : "text-muted-foreground"
             }`}
           >
             Marketplace

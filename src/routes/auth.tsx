@@ -73,6 +73,38 @@ function AuthPage() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotSubmitted, setForgotSubmitted] = useState(false);
 
+  // Check for Google OAuth redirect callback tokens in URL
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+    const rawUser = urlParams.get("user");
+    const error = urlParams.get("error");
+
+    if (error) {
+      if (error === "google_not_configured") {
+        toast.error("Google OAuth is waiting for GOOGLE_CLIENT_ID in your Render environment variables.");
+      } else {
+        toast.error("Google authentication failed. Please sign in with email & password.");
+      }
+    } else if (token && rawUser) {
+      try {
+        const parsedUser = JSON.parse(decodeURIComponent(rawUser));
+        storeSession({ accessToken: token, user: parsedUser });
+        toast.success("Signed in with Google successfully!");
+        if (parsedUser.role === "ADMIN") {
+          navigate({ to: "/admin", replace: true });
+        } else if (parsedUser.role === "VENDOR") {
+          navigate({ to: "/vendor", replace: true });
+        } else {
+          navigate({ to: target, replace: true });
+        }
+      } catch (err) {
+        console.error("Failed to parse Google auth payload", err);
+      }
+    }
+  }, []);
+
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -116,9 +148,10 @@ function AuthPage() {
 
   const googleSignIn = async () => {
     try {
-      window.location.href = `${import.meta.env.VITE_API_URL || "https://v2-business.onrender.com"}/auth/google`;
-    } catch (err) {
-      toast.error("Google sign-in failed");
+      const apiUrl = import.meta.env.VITE_API_URL || "https://v2-business.onrender.com";
+      window.location.href = `${apiUrl}/auth/google`;
+    } catch (err: any) {
+      toast.error(err.message || "Google sign-in failed");
     }
   };
 
