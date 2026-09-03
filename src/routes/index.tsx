@@ -583,12 +583,12 @@ function Home() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <Link to="/search">
-                <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-xl">
+                <Button size="lg" className="h-12 rounded-full bg-white text-emerald-800 hover:bg-white/95 font-bold px-8 shadow-xl hover:scale-105 transition-all">
                   Start Shopping Now
                 </Button>
               </Link>
               <Link to="/vendor">
-                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/60 text-white hover:bg-white/10 font-bold px-8">
+                <Button size="lg" className="h-12 rounded-full bg-black/30 border-2 border-white text-white hover:bg-black/50 font-bold px-8 shadow-xl hover:scale-105 transition-all">
                   Open a Store
                 </Button>
               </Link>
