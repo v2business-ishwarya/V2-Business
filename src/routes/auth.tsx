@@ -161,19 +161,15 @@ function AuthPage() {
           <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
 
           {/* Top Logo & Pill */}
-          <div className="relative z-10 space-y-4">
+          <div className="relative z-10 flex flex-wrap items-center gap-4">
             <Link to="/" className="inline-block">
-              <V2Logo size="md" textColor="text-white" />
+              <V2Logo size="md" textColor="text-white" isLightOnDark={true} />
             </Link>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md"
-            >
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-black/25 border border-white/30 px-3.5 py-1 text-xs font-bold text-white shadow-sm">
               <Sparkles className="h-3.5 w-3.5 text-yellow-300" />
               <span>{mode === "signin" ? "Welcome Back to V2" : "Join Our Marketplace"}</span>
-            </motion.div>
+            </div>
           </div>
 
           {/* Dynamic Middle Headline & Benefits */}

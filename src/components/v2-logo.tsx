@@ -5,6 +5,7 @@ interface V2LogoProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
   showText?: boolean;
   textColor?: string;
+  isLightOnDark?: boolean;
 }
 
 export function V2LogoIcon({ size = "md", className = "", ...props }: V2LogoProps) {
@@ -58,7 +59,7 @@ export function V2LogoIcon({ size = "md", className = "", ...props }: V2LogoProp
         width="42"
         height="42"
         rx="11"
-        stroke="rgba(255, 255, 255, 0.25)"
+        stroke="rgba(255, 255, 255, 0.35)"
         strokeWidth="1.5"
         fill="none"
       />
@@ -92,8 +93,11 @@ export function V2Logo({
   showText = true,
   className = "",
   textColor,
+  isLightOnDark,
   ...props
 }: V2LogoProps) {
+  const isWhite = isLightOnDark || textColor?.includes("text-white") || textColor?.includes("white");
+
   return (
     <div className={`inline-flex items-center gap-2.5 ${className}`}>
       <V2LogoIcon size={size} {...props} />
@@ -108,11 +112,18 @@ export function V2Logo({
                 : size === "lg"
                 ? "text-xl"
                 : "text-2xl"
-            } ${textColor ?? "text-foreground"}`}
+            } ${textColor ?? (isWhite ? "text-white" : "text-foreground")}`}
           >
-            V2 <span className="text-primary font-bold">Business</span>
+            V2{" "}
+            <span className={isWhite ? "text-emerald-200 font-bold" : "text-primary font-bold"}>
+              Business
+            </span>
           </span>
-          <span className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground mt-0.5">
+          <span
+            className={`text-[10px] uppercase font-bold tracking-widest mt-0.5 ${
+              isWhite ? "text-white/80" : "text-muted-foreground"
+            }`}
+          >
             Marketplace
           </span>
         </div>
