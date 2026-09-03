@@ -19,7 +19,7 @@ import {
   Zap,
   CheckCircle2,
   Search,
-  DollarSign,
+  IndianRupee,
   Users,
   ChevronRight,
   Layers,
@@ -84,57 +84,44 @@ function Home() {
   const displayCategories = categories.length > 0 ? categories : defaultCategories;
 
   return (
-    <div className="relative overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
+    <div className="relative overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground min-h-screen">
       {/* AMBIENT BACKGROUND GLOWS */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-primary/20 via-emerald-500/10 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute top-[600px] right-[-200px] -z-10 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl" />
 
       {/* HERO SECTION */}
-      <section className="relative mx-auto max-w-7xl px-4 pt-12 pb-20 sm:px-6 lg:px-8 lg:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-12">
+      <section className="relative mx-auto max-w-7xl px-4 pt-8 pb-16 sm:px-6 lg:px-8 lg:pt-16 lg:pb-20">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
           {/* Left Column: Headline & Interactive Search */}
-          <motion.div
-            className="lg:col-span-7 space-y-6 text-center lg:text-left"
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             {/* Pulsing Pill Badge */}
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary backdrop-blur-sm"
-            >
-              <span className="relative flex h-2 w-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-1.5 text-xs font-bold text-primary backdrop-blur-sm">
+              <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-primary" />
               </span>
               India's Next-Gen Multi-Vendor Marketplace
-            </motion.div>
+            </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.15]">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.15] text-foreground">
               Shop Direct from{" "}
-              <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-400 bg-clip-text text-transparent">
-                Verified Creators & Stores.
+              <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                Verified Indian Stores.
               </span>
             </h1>
 
             <p className="mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg lg:mx-0">
-              Discover unique products from independent vendors across India. Enjoy unified multi-vendor carts, direct vendor shipping, and transparent pricing.
+              Discover thousands of unique products from independent vendors across India. Enjoy unified multi-vendor carts, direct vendor shipping, and transparent INR pricing.
             </p>
 
             {/* Interactive Hero Search Form */}
-            <motion.form
+            <form
               onSubmit={handleSearchSubmit}
               className="relative mx-auto max-w-lg lg:mx-0"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25, duration: 0.5 }}
             >
-              <div className="relative flex items-center rounded-full border-2 border-primary/20 bg-card p-1.5 shadow-lg transition-all focus-within:border-primary focus-within:shadow-primary/20">
-                <Search className="ml-3 h-5 w-5 text-muted-foreground" />
+              <div className="relative flex items-center rounded-full border-2 border-primary/30 bg-card p-1.5 shadow-lg transition-all focus-within:border-primary focus-within:shadow-primary/20">
+                <Search className="ml-3.5 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
                   value={heroSearch}
@@ -142,55 +129,50 @@ function Home() {
                   placeholder="Search products, brands, stores..."
                   className="border-0 bg-transparent px-3 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground"
                 />
-                <Button type="submit" className="rounded-full px-6 font-semibold shadow-md">
+                <Button type="submit" className="rounded-full px-6 font-bold shadow-md">
                   Search
                 </Button>
               </div>
 
               {/* Suggested Quick Tags */}
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground lg:justify-start">
-                <span className="font-medium">Trending:</span>
+              <div className="mt-3.5 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground lg:justify-start">
+                <span className="font-semibold text-foreground">Trending:</span>
                 {["Handmade Decor", "Wireless Audio", "Organic Tea", "Designer Watches"].map((tag) => (
                   <button
                     key={tag}
                     type="button"
                     onClick={() => navigate({ to: "/search", search: { q: tag } })}
-                    className="rounded-full bg-muted px-2.5 py-1 text-xs hover:bg-primary/10 hover:text-primary transition-colors"
+                    className="rounded-full bg-muted border border-border px-3 py-1 text-xs font-medium hover:bg-primary/10 hover:text-primary transition-colors"
                   >
                     {tag}
                   </button>
                 ))}
               </div>
-            </motion.form>
+            </form>
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center justify-center gap-4 pt-2 lg:justify-start">
               <Link to="/search">
-                <Button size="lg" className="rounded-full shadow-lg shadow-primary/20 font-semibold px-7">
+                <Button size="lg" className="rounded-full shadow-lg shadow-primary/25 font-bold px-7 h-12">
                   Explore Products <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/vendor">
-                <Button size="lg" variant="outline" className="rounded-full border-2 px-7 font-semibold">
+                <Button size="lg" variant="outline" className="rounded-full border-2 px-7 font-bold h-12">
                   <Store className="mr-2 h-4 w-4" /> Open Your Store
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Right Column: Animated Interactive 3D Mockup Cards */}
-          <motion.div
-            className="lg:col-span-5 relative flex items-center justify-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, ease: "easeOut", delay: 0.2 }}
-          >
-            {/* Central Glow Card */}
-            <div className="relative w-full max-w-md rounded-3xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur-xl">
+          {/* Right Column: Interactive 3D Mockup Cards */}
+          <div className="lg:col-span-5 relative flex items-center justify-center">
+            {/* Central Card */}
+            <div className="relative w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl backdrop-blur-xl">
               {/* Top Banner inside visual */}
               <div className="flex items-center justify-between border-b pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground font-bold">
                     <Store className="h-5 w-5" />
                   </div>
                   <div>
@@ -198,21 +180,21 @@ function Home() {
                     <p className="text-xs text-muted-foreground">Live Seller Activity</p>
                   </div>
                 </div>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[11px]">
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/25 text-[11px] font-semibold">
                   ● Live Sync
                 </Badge>
               </div>
 
               {/* Sample Product Spotlight */}
-              <div className="mt-4 rounded-2xl bg-muted/50 p-3 flex gap-3 items-center">
-                <div className="h-16 w-16 rounded-xl bg-primary/10 grid place-items-center shrink-0">
+              <div className="mt-4 rounded-2xl bg-muted/60 p-3 flex gap-3 items-center border border-border/50">
+                <div className="h-16 w-16 rounded-xl bg-primary/15 grid place-items-center shrink-0">
                   <Package className="h-8 w-8 text-primary" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">Trending Item</p>
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Trending Item</p>
                   <p className="font-bold text-sm truncate">Handcrafted Wooden Craft</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-bold text-sm">{formatMoney(1499)}</span>
+                    <span className="font-bold text-sm text-foreground">{formatMoney(1499)}</span>
                     <span className="text-xs line-through text-muted-foreground">{formatMoney(1999)}</span>
                   </div>
                 </div>
@@ -220,23 +202,23 @@ function Home() {
 
               {/* Floating Notification 1: Order Payout */}
               <motion.div
-                animate={{ y: [0, -6, 0] }}
+                animate={{ y: [0, -5, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                 className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-background p-3 shadow-md"
               >
                 <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/20 text-emerald-600">
-                  <DollarSign className="h-4 w-4" />
+                  <IndianRupee className="h-4 w-4" />
                 </div>
                 <div className="flex-1 text-xs">
-                  <p className="font-semibold">Instant 90% Net Settlement</p>
+                  <p className="font-bold">Instant 90% Net Settlement</p>
                   <p className="text-muted-foreground">₹1,349 credited to Seller Bank</p>
                 </div>
-                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
               </motion.div>
 
               {/* Floating Notification 2: Express Shipping */}
               <motion.div
-                animate={{ y: [0, 6, 0] }}
+                animate={{ y: [0, 5, 0] }}
                 transition={{ repeat: Infinity, duration: 3.5, ease: "easeInOut", delay: 1 }}
                 className="mt-2.5 flex items-center gap-3 rounded-xl border border-border bg-background p-3 shadow-md"
               >
@@ -244,52 +226,44 @@ function Home() {
                   <Truck className="h-4 w-4" />
                 </div>
                 <div className="flex-1 text-xs">
-                  <p className="font-semibold">Delhivery Automated Dispatch</p>
-                  <p className="text-muted-foreground">Tracking ID: DEL98472910</p>
+                  <p className="font-bold">Delhivery Automated Dispatch</p>
+                  <p className="text-muted-foreground">Tracking: DEL98472910</p>
                 </div>
-                <span className="text-[10px] font-bold text-blue-600">On Time</span>
+                <span className="text-[10px] font-bold text-blue-600 shrink-0">On Time</span>
               </motion.div>
             </div>
 
-            {/* Floating Top-Right Mini Badge */}
-            <motion.div
-              animate={{ rotate: [0, 3, -3, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              className="absolute -top-6 -right-4 rounded-2xl border border-primary/20 bg-background/90 p-3 shadow-xl backdrop-blur-md hidden sm:flex items-center gap-2 text-xs font-semibold"
-            >
+            {/* Floating Mini Badge */}
+            <div className="absolute -top-5 -right-3 rounded-2xl border border-primary/20 bg-background/95 p-3 shadow-xl backdrop-blur-md hidden sm:flex items-center gap-2 text-xs font-bold text-foreground">
               <ShieldCheck className="h-5 w-5 text-primary" />
               <span>100% Buyer Protected</span>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* LIVE STATS & TRUST STRIP */}
-      <section className="border-y border-border/70 bg-card/50 py-8 backdrop-blur-sm">
+      <section className="border-y border-border/70 bg-card/60 py-8 backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
             {[
               { label: "Verified Sellers", val: "100+", icon: Store, color: "text-primary" },
               { label: "Curated Products", val: "10,000+", icon: Package, color: "text-emerald-500" },
-              { label: "Transparent Commission", val: "10% Flat", icon: DollarSign, color: "text-amber-500" },
+              { label: "Transparent Commission", val: "10% Flat", icon: IndianRupee, color: "text-amber-500" },
               { label: "Direct Net Settlements", val: "90% Payouts", icon: Zap, color: "text-blue-500" },
             ].map((stat, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.4 }}
                 className="flex items-center gap-3.5"
               >
                 <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-muted ${stat.color}`}>
                   <stat.icon className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-2xl font-extrabold tracking-tight">{stat.val}</p>
-                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  <p className="text-2xl font-extrabold tracking-tight text-foreground">{stat.val}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -299,7 +273,7 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
-            <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20">
+            <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20 font-semibold">
               Catalogue
             </Badge>
             <h2 className="text-3xl font-bold tracking-tight">Explore Categories</h2>
@@ -316,7 +290,7 @@ function Home() {
             return (
               <motion.div
                 key={c.id || c.slug || idx}
-                whileHover={{ y: -6, scale: 1.02 }}
+                whileHover={{ y: -5, scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
                 <Link
@@ -339,11 +313,11 @@ function Home() {
       </section>
 
       {/* FEATURED PRODUCTS SHOWCASE */}
-      <section className="bg-muted/40 py-16">
+      <section className="bg-muted/40 py-16 border-y border-border/50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
             <div>
-              <Badge variant="outline" className="mb-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
+              <Badge variant="outline" className="mb-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-semibold">
                 Live Stock
               </Badge>
               <h2 className="text-3xl font-bold tracking-tight">Featured Marketplace Products</h2>
@@ -371,31 +345,13 @@ function Home() {
               }
             />
           ) : (
-            <motion.div
-              className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              variants={{
-                hidden: { opacity: 0 },
-                show: {
-                  opacity: 1,
-                  transition: { staggerChildren: 0.1 },
-                },
-              }}
-            >
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {products.map((p: any) => (
-                <motion.div
-                  key={p.id}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-                  }}
-                >
+                <div key={p.id}>
                   <ProductCard product={p} />
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
       </section>
@@ -403,7 +359,7 @@ function Home() {
       {/* INTERACTIVE DUAL-EXPERIENCE TABS (BUYERS VS SELLERS) */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
-          <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20">
+          <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20 font-semibold">
             Tailored For You
           </Badge>
           <h2 className="text-3xl font-bold tracking-tight">Built For Shoppers & Ambitious Sellers</h2>
@@ -415,7 +371,7 @@ function Home() {
           <div className="mt-6 inline-flex rounded-full border bg-muted p-1 shadow-inner">
             <button
               onClick={() => setActiveTab("buyers")}
-              className={`rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+              className={`rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
                 activeTab === "buyers"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -425,7 +381,7 @@ function Home() {
             </button>
             <button
               onClick={() => setActiveTab("sellers")}
-              className={`rounded-full px-6 py-2 text-sm font-semibold transition-all ${
+              className={`rounded-full px-6 py-2.5 text-sm font-bold transition-all ${
                 activeTab === "sellers"
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
@@ -440,70 +396,70 @@ function Home() {
           {activeTab === "buyers" ? (
             <motion.div
               key="buyers"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               className="grid gap-6 md:grid-cols-3"
             >
               {[
                 {
-                  title: "Unified Multi-Vendor Cart",
-                  desc: "Add items from multiple independent stores in a single cart and check out in one click with UPI, Cards, or NetBanking.",
+                  title: "One Multi-Store Cart",
+                  desc: "Add items from multiple independent vendors into a single cart and checkout once smoothly.",
                   icon: ShoppingBag,
                 },
                 {
-                  title: "Transparent Individual Invoices",
-                  desc: "Get crystal-clear itemized bills generated per vendor for hassle-free warranty, returns, and GST accounting.",
-                  icon: Layers,
-                },
-                {
-                  title: "Direct Verified Deliveries",
-                  desc: "Orders are dispatched directly by the sellers with live courier tracking updates via Delhivery and Shiprocket.",
+                  title: "Direct Seller Shipping",
+                  desc: "Track dispatch from Delhivery or independent courier straight from each seller's warehouse.",
                   icon: Truck,
                 },
-              ].map((item, i) => (
-                <Card key={i} className="p-6 transition-all hover:border-primary hover:shadow-lg">
+                {
+                  title: "100% Protected Checkout",
+                  desc: "Encrypted Razorpay & Cashfree gateway payments with full buyer guarantee and issue resolution.",
+                  icon: ShieldCheck,
+                },
+              ].map((feat, i) => (
+                <Card key={i} className="p-6 transition-all hover:border-primary/50 hover:shadow-lg">
                   <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary mb-4">
-                    <item.icon className="h-6 w-6" />
+                    <feat.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="font-bold text-lg">{item.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-lg">{feat.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-2">{feat.desc}</p>
                 </Card>
               ))}
             </motion.div>
           ) : (
             <motion.div
               key="sellers"
-              initial={{ opacity: 0, y: 15 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
               className="grid gap-6 md:grid-cols-3"
             >
               {[
                 {
-                  title: "Zero Upfront Listing Fees",
-                  desc: "List unlimited products and build your custom storefront without paying any setup fee. We only succeed when you make a sale.",
+                  title: "Zero Setup Fees",
+                  desc: "Create and brand your store in 2 minutes. List unlimited products with custom inventory rules.",
                   icon: Store,
                 },
                 {
-                  title: "Direct 90% Net Bank Settlements",
-                  desc: "Receive 90% of every sale directly to your bank account with only a flat 10% platform fee deducted automatically.",
-                  icon: DollarSign,
+                  title: "90% Direct Bank Settlements",
+                  desc: "Pay only 10% platform commission on completed orders. Retain 90% of your earnings.",
+                  icon: IndianRupee,
                 },
                 {
-                  title: "Built-in Logistics & Shipping",
-                  desc: "Choose between your own delivery network or toggle automated courier pick-ups via integrated Delhivery & Shiprocket.",
+                  title: "Built-In Automated Logistics",
+                  desc: "Connect Delhivery or Shiprocket with 1 click or use your own local delivery fleet.",
                   icon: Truck,
                 },
-              ].map((item, i) => (
-                <Card key={i} className="p-6 transition-all hover:border-primary hover:shadow-lg">
+              ].map((feat, i) => (
+                <Card key={i} className="p-6 transition-all hover:border-primary/50 hover:shadow-lg">
                   <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 mb-4">
-                    <item.icon className="h-6 w-6" />
+                    <feat.icon className="h-6 w-6" />
                   </div>
-                  <h3 className="font-bold text-lg">{item.title}</h3>
-                  <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-lg">{feat.title}</h3>
+                  <p className="text-sm text-muted-foreground mt-2">{feat.desc}</p>
                 </Card>
               ))}
             </motion.div>
@@ -511,58 +467,56 @@ function Home() {
         </AnimatePresence>
       </section>
 
-      {/* INTERACTIVE VENDOR EARNINGS CALCULATOR */}
-      <section className="bg-gradient-to-b from-card to-muted/40 py-20 border-y">
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
-            <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20">
-              Revenue Simulator
-            </Badge>
-            <h2 className="text-3xl font-bold tracking-tight">Calculate Your Seller Earnings</h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              See how much you take home with our transparent 10% marketplace commission.
-            </p>
-          </div>
+      {/* LIVE VENDOR EARNINGS CALCULATOR / SIMULATOR */}
+      <section className="bg-gradient-to-br from-card via-surface-muted to-muted/50 py-16 border-t border-border/70">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <Card className="p-8 sm:p-12 shadow-xl border-2 border-primary/20">
+            <div className="text-center max-w-xl mx-auto mb-8">
+              <Badge variant="outline" className="mb-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-semibold">
+                Transparent Calculator
+              </Badge>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Estimate Your Monthly Earnings</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                See exactly how much you take home with our transparent 10% platform commission.
+              </p>
+            </div>
 
-          <Card className="p-8 shadow-xl border-primary/20">
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-semibold text-muted-foreground">Estimated Monthly Sales</span>
-                  <span className="text-2xl font-extrabold text-primary">{formatMoney(vendorRevenue)}</span>
-                </div>
-                <Slider
-                  min={10000}
-                  max={1000000}
-                  step={5000}
-                  value={[vendorRevenue]}
-                  onValueChange={(val) => setVendorRevenue(val[0])}
-                  className="py-4"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>₹10,000 / mo</span>
-                  <span>₹5,00,000 / mo</span>
-                  <span>₹10,00,000 / mo</span>
-                </div>
+            <div className="space-y-6 max-w-xl mx-auto">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-semibold">Projected Monthly Sales:</span>
+                <span className="text-2xl font-extrabold text-primary">{formatMoney(vendorRevenue)}</span>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pt-4 border-t">
-                <div className="rounded-2xl bg-muted/70 p-4">
-                  <span className="text-xs text-muted-foreground block">Platform Fee (10%)</span>
+              <Slider
+                value={[vendorRevenue]}
+                min={10000}
+                max={1000000}
+                step={5000}
+                onValueChange={(vals) => setVendorRevenue(vals[0])}
+                className="my-4"
+              />
+
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>₹10,000</span>
+                <span>₹5,00,000</span>
+                <span>₹10,00,000</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div className="rounded-2xl bg-muted/70 p-4 text-center">
+                  <p className="text-xs text-muted-foreground font-medium">Platform Fee (10%)</p>
                   <span className="text-xl font-bold text-muted-foreground">{formatMoney(platformCommission)}</span>
-                  <span className="text-[11px] text-muted-foreground block mt-1">Includes payment gateway & platform ops</span>
                 </div>
-                <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4">
-                  <span className="text-xs text-emerald-700 dark:text-emerald-300 font-semibold block">Your Direct Net Payout (90%)</span>
-                  <span className="text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">{formatMoney(vendorTakeHome)}</span>
-                  <span className="text-[11px] text-emerald-700/80 dark:text-emerald-300/80 block mt-1">Deposited directly to your bank account</span>
+                <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-center">
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold">Your Net Payout (90%)</p>
+                  <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{formatMoney(vendorTakeHome)}</span>
                 </div>
               </div>
 
               <div className="text-center pt-2">
                 <Link to="/vendor">
-                  <Button size="lg" className="rounded-full px-8 font-semibold shadow-lg shadow-primary/20">
-                    Start Selling Today <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button size="lg" className="rounded-full px-8 font-bold shadow-lg shadow-primary/25">
+                    Start Selling Now — Open Free Store <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </div>
@@ -571,92 +525,76 @@ function Home() {
         </div>
       </section>
 
-      {/* HOW IT WORKS (3-STEP ANIMATED TIMELINE) */}
+      {/* HOW V2 BUSINESS WORKS TIMELINE */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20">
-            Process
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20 font-semibold">
+            Simple 3-Step Process
           </Badge>
           <h2 className="text-3xl font-bold tracking-tight">How V2 Business Works</h2>
-          <p className="text-sm text-muted-foreground mt-2">Simple, transparent, and seamless for everyone.</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Seamless workflow connecting Indian shoppers directly with independent creators.
+          </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3 relative">
           {[
             {
               step: "01",
-              title: "Discover Independent Sellers",
-              desc: "Explore thousands of products listed by real store owners with customer reviews and ratings.",
-              icon: Search,
+              title: "Discover Unique Stores",
+              desc: "Explore verified creators across electronics, handicrafts, fashion, and home goods.",
+              badge: "Explore",
             },
             {
               step: "02",
-              title: "Unified Secure Checkout",
-              desc: "Pay securely with Razorpay or Cashfree. Orders are automatically split by vendor in backend.",
-              icon: ShieldCheck,
+              title: "Unified Checkout",
+              desc: "Pay securely in Indian Rupee (INR) via UPI, Cards, NetBanking with zero hidden charges.",
+              badge: "Secure Pay",
             },
             {
               step: "03",
-              title: "Direct Vendor Dispatch",
-              desc: "Sellers pack and ship your orders with express couriers. Receive separate invoices per store.",
-              icon: Truck,
+              title: "Direct Doorstep Delivery",
+              desc: "Vendors dispatch automated shipments via Delhivery with live SMS and WhatsApp tracking.",
+              badge: "Express Track",
             },
-          ].map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15, duration: 0.5 }}
-              className="relative rounded-3xl border border-border bg-card p-6 shadow-sm"
-            >
-              <div className="text-3xl font-extrabold text-primary/30 mb-4">{s.step}</div>
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground mb-4 shadow-md">
-                <s.icon className="h-6 w-6" />
-              </div>
-              <h3 className="font-bold text-lg">{s.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-            </motion.div>
+          ].map((item, i) => (
+            <Card key={i} className="relative p-8 rounded-3xl border border-border shadow-sm hover:border-primary/50 transition-all">
+              <span className="text-4xl font-extrabold text-primary/20 absolute top-6 right-6">{item.step}</span>
+              <Badge variant="secondary" className="mb-4">{item.badge}</Badge>
+              <h3 className="font-bold text-xl mb-2">{item.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+            </Card>
           ))}
         </div>
       </section>
 
-      {/* CALL TO ACTION BANNER */}
+      {/* HIGH-IMPACT BOTTOM CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-emerald-600 to-teal-700 px-6 py-14 text-center text-primary-foreground shadow-2xl sm:px-12 sm:py-20"
-        >
+        <div className="relative rounded-3xl bg-gradient-to-br from-primary via-emerald-700 to-teal-900 p-10 sm:p-16 text-primary-foreground text-center overflow-hidden shadow-2xl">
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/10 blur-2xl" />
+          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
 
-          <h2 className="text-3xl font-extrabold sm:text-5xl">
-            Ready to Experience Modern Marketplace Shopping?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-primary-foreground/90 text-sm sm:text-base">
-            Join thousands of shoppers and sellers across India. Open your store or browse verified independent collections today.
-          </p>
-
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link to="/search">
-              <Button size="lg" className="rounded-full bg-white text-slate-900 hover:bg-slate-100 font-bold px-8 shadow-xl">
-                Browse Products
-              </Button>
-            </Link>
-            <Link to="/vendor">
-              <Button
-                size="lg"
-                variant="outline"
-                className="rounded-full border-2 border-white/80 bg-white/10 text-white hover:bg-white/20 font-bold px-8"
-              >
-                Become a Seller
-              </Button>
-            </Link>
+          <div className="relative z-10 max-w-2xl mx-auto space-y-6">
+            <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+              Ready to Experience the Future of Indian Commerce?
+            </h2>
+            <p className="text-primary-foreground/90 text-sm sm:text-base">
+              Join thousands of happy customers and 100+ growing store owners today.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
+              <Link to="/search">
+                <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-bold px-8 shadow-xl">
+                  Start Shopping Now
+                </Button>
+              </Link>
+              <Link to="/vendor">
+                <Button size="lg" variant="outline" className="rounded-full border-2 border-white/60 text-white hover:bg-white/10 font-bold px-8">
+                  Open a Store
+                </Button>
+              </Link>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </section>
     </div>
   );
