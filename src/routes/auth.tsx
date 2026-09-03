@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -16,11 +15,26 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Store, Eye, EyeOff, Mail, ArrowRight } from "lucide-react";
+import {
+  Store,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User as UserIcon,
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  ShoppingBag,
+  Sparkles,
+  Star,
+  CheckCircle2,
+  TrendingUp,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { login, storeSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
-
-import { V2LogoIcon } from "@/components/v2-logo";
+import { V2Logo, V2LogoIcon } from "@/components/v2-logo";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -28,7 +42,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Sign in — V2 Business" },
+      { title: "Authentication — V2 Business" },
       {
         name: "description",
         content: "Sign in or create your V2 Business account to shop or open your own store.",
@@ -42,6 +56,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const { redirect } = useSearch({ from: "/auth" });
   const target = (redirect && redirect.startsWith("/") ? redirect : "/") as string;
+
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [accountType, setAccountType] = useState<"customer" | "vendor">("customer");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +78,7 @@ function AuthPage() {
     setLoading(true);
     try {
       const res = await login(email, password);
-      toast.success("Welcome back!");
+      toast.success("Welcome back to V2 Business!");
       if (target && target !== "/" && target !== "/auth") {
         navigate({ to: target, replace: true });
       } else if (res.user?.role === "ADMIN" || (res.user as any)?.role === "admin") {
@@ -84,8 +101,12 @@ function AuthPage() {
     try {
       const res = await api.register({ email, password, name });
       storeSession(res);
-      toast.success("Account created — you're signed in.");
-      navigate({ to: target, replace: true });
+      toast.success("Account created successfully!");
+      if (accountType === "vendor") {
+        navigate({ to: "/vendor", replace: true });
+      } else {
+        navigate({ to: target, replace: true });
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign up failed");
     } finally {
@@ -126,196 +147,390 @@ function AuthPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md items-center px-4 py-10">
-      <Card className="w-full p-6 shadow-card">
-        <div className="mb-6 flex items-center gap-3">
-          <V2LogoIcon size={44} />
-          <div>
-            <h1 className="text-xl font-bold">Welcome to V2 Business</h1>
-            <p className="text-xs text-muted-foreground">Sign in or create your account</p>
+    <div className="relative min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden">
+      {/* Background Glows */}
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-3xl" />
+
+      {/* Main Split Creative Container */}
+      <div className="relative w-full max-w-5xl rounded-3xl border border-border/80 bg-card/95 shadow-2xl backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
+        {/* LEFT SHOWCASE HERO (Desktop) */}
+        <div className="lg:col-span-5 relative bg-gradient-to-br from-primary via-emerald-700 to-teal-900 p-8 sm:p-10 text-primary-foreground flex flex-col justify-between overflow-hidden">
+          {/* Decorative mesh glows */}
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
+
+          {/* Top Logo & Pill */}
+          <div className="relative z-10 space-y-4">
+            <Link to="/" className="inline-block">
+              <V2Logo size="md" textColor="text-white" />
+            </Link>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-yellow-300" />
+              <span>{mode === "signin" ? "Welcome Back to V2" : "Join Our Marketplace"}</span>
+            </motion.div>
+          </div>
+
+          {/* Dynamic Middle Headline & Benefits */}
+          <div className="relative z-10 my-8 space-y-6">
+            <motion.h2
+              key={mode}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight"
+            >
+              {mode === "signin"
+                ? "Your Gateway to Independent Creators & Fast Commerce."
+                : "Start Shopping or Launch Your Online Store Today."}
+            </motion.h2>
+
+            <div className="space-y-3.5 text-xs sm:text-sm text-primary-foreground/90">
+              <div className="flex items-center gap-3">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
+                  <ShoppingBag className="h-4 w-4" />
+                </div>
+                <span>Unified Multi-Vendor Cart & 1-Click Checkout</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
+                  <Zap className="h-4 w-4" />
+                </div>
+                <span>90% Direct Net Payouts for Verified Sellers</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <span>256-Bit Encrypted Payments & Buyer Protection</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Trust Card */}
+          <div className="relative z-10 rounded-2xl bg-black/20 p-4 backdrop-blur-md border border-white/10 flex items-center justify-between text-xs">
+            <div>
+              <div className="flex items-center gap-1 text-yellow-300 font-bold">
+                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+                <span className="text-white ml-1 font-semibold">4.9/5</span>
+              </div>
+              <p className="text-white/80 mt-0.5">Trusted by 100+ stores & 10,000+ buyers</p>
+            </div>
+            <Badge variant="outline" className="border-white/30 text-white text-[10px]">
+              Verified
+            </Badge>
           </div>
         </div>
 
-        <Button type="button" variant="outline" className="mb-4 w-full" onClick={googleSignIn}>
-          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-            <path
-              fill="#EA4335"
-              d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 3.5 14.7 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12S6.8 21.5 12 21.5c7 0 9.4-4.9 9.4-7.5 0-.5-.1-.9-.1-1.3H12z"
-            />
-          </svg>
-          Continue with Google
-        </Button>
+        {/* RIGHT INTERACTIVE FORM CONTAINER */}
+        <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
+          {/* Creative Segmented Mode Switcher */}
+          <div className="flex rounded-full bg-muted p-1 mb-6 shadow-inner max-w-sm mx-auto w-full">
+            <button
+              type="button"
+              onClick={() => setMode("signin")}
+              className={`flex-1 rounded-full py-2.5 text-xs sm:text-sm font-bold transition-all ${
+                mode === "signin"
+                  ? "bg-card text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("signup")}
+              className={`flex-1 rounded-full py-2.5 text-xs sm:text-sm font-bold transition-all ${
+                mode === "signup"
+                  ? "bg-card text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
 
-        <div className="mb-4 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">or</span>
-          <div className="h-px flex-1 bg-border" />
+          {/* Branded Google OAuth */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full h-11 rounded-2xl border-2 font-semibold mb-5 hover:bg-muted/70 transition-all shadow-sm"
+            onClick={googleSignIn}
+          >
+            <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
+              <path
+                fill="#EA4335"
+                d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 3.5 14.7 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12S6.8 21.5 12 21.5c7 0 9.4-4.9 9.4-7.5 0-.5-.1-.9-.1-1.3H12z"
+              />
+            </svg>
+            Continue with Google
+          </Button>
+
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs uppercase font-bold tracking-wider text-muted-foreground">or with email</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          {/* ANIMATED FORM CONTENT */}
+          <AnimatePresence mode="wait">
+            {mode === "signin" ? (
+              <motion.form
+                key="signin-form"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
+                onSubmit={signIn}
+                className="space-y-4"
+              >
+                <div>
+                  <Label htmlFor="signin-email" className="text-xs font-semibold">
+                    Email Address
+                  </Label>
+                  <div className="relative mt-1">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      required
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-11 rounded-2xl pl-10 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="signin-password" className="text-xs font-semibold">
+                      Password
+                    </Label>
+                    <button
+                      type="button"
+                      onClick={openForgotModal}
+                      className="text-xs text-primary font-semibold hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  <div className="relative mt-1">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signin-password"
+                      type={showSignInPassword ? "text" : "password"}
+                      required
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-11 rounded-2xl pl-10 pr-10 text-sm"
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowSignInPassword((p) => !p)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
+                  disabled={loading}
+                >
+                  {loading ? "Signing in…" : "Sign In to Your Account"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+
+                <p className="text-center text-xs text-muted-foreground pt-2">
+                  New to V2 Business?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("signup")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    Create a free account
+                  </button>
+                </p>
+              </motion.form>
+            ) : (
+              <motion.form
+                key="signup-form"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
+                onSubmit={signUp}
+                className="space-y-4"
+              >
+                {/* Account Type Selector */}
+                <div>
+                  <Label className="text-xs font-semibold mb-1.5 block">I want to:</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setAccountType("customer")}
+                      className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
+                        accountType === "customer"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      <span>Shop Products</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAccountType("vendor")}
+                      className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
+                        accountType === "vendor"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      <Store className="h-4 w-4" />
+                      <span>Sell / Open Store</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-name" className="text-xs font-semibold">
+                    Full Name
+                  </Label>
+                  <div className="relative mt-1">
+                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-name"
+                      required
+                      placeholder="e.g. Ramesh Kumar"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="h-11 rounded-2xl pl-10 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-email" className="text-xs font-semibold">
+                    Email Address
+                  </Label>
+                  <div className="relative mt-1">
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      required
+                      placeholder="name@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-11 rounded-2xl pl-10 text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="signup-password" className="text-xs font-semibold">
+                    Create Password (min. 8 chars)
+                  </Label>
+                  <div className="relative mt-1">
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="signup-password"
+                      type={showSignUpPassword ? "text" : "password"}
+                      required
+                      minLength={8}
+                      placeholder="Create a strong password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="h-11 rounded-2xl pl-10 pr-10 text-sm"
+                    />
+                    <button
+                      type="button"
+                      tabIndex={-1}
+                      onClick={() => setShowSignUpPassword((p) => !p)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
+                  disabled={loading}
+                >
+                  {loading ? "Creating Account…" : accountType === "vendor" ? "Create Store Account" : "Join Marketplace"}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+
+                <p className="text-center text-xs text-muted-foreground pt-2">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("signin")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    Sign in here
+                  </button>
+                </p>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </div>
+      </div>
 
-        <Tabs defaultValue="signin">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign in</TabsTrigger>
-            <TabsTrigger value="signup">Create account</TabsTrigger>
-          </TabsList>
-
-          {/* SIGN IN TAB */}
-          <TabsContent value="signin" className="mt-4">
-            <form onSubmit={signIn} className="space-y-3">
-              <div>
-                <Label htmlFor="e1">Email</Label>
-                <Input
-                  id="e1"
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="p1">Password</Label>
-                  <button
-                    type="button"
-                    onClick={openForgotModal}
-                    className="text-xs text-primary font-medium hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div className="relative mt-1">
-                  <Input
-                    id="p1"
-                    type={showSignInPassword ? "text" : "password"}
-                    required
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setShowSignInPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                    aria-label={showSignInPassword ? "Hide password" : "Show password"}
-                  >
-                    {showSignInPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Signing in..." : "Sign in"}
-              </Button>
-            </form>
-          </TabsContent>
-
-          {/* SIGN UP TAB */}
-          <TabsContent value="signup" className="mt-4">
-            <form onSubmit={signUp} className="space-y-3">
-              <div>
-                <Label htmlFor="n2">Full name</Label>
-                <Input
-                  id="n2"
-                  required
-                  placeholder="Your Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="e2">Email</Label>
-                <Input
-                  id="e2"
-                  type="email"
-                  required
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="p2">Password (min. 8 chars)</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="p2"
-                    type={showSignUpPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    placeholder="Create a strong password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pr-10"
-                  />
-                  <button
-                    type="button"
-                    tabIndex={-1}
-                    onClick={() => setShowSignUpPassword((prev) => !prev)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus:outline-none"
-                    aria-label={showSignUpPassword ? "Hide password" : "Show password"}
-                  >
-                    {showSignUpPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
-              </div>
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Creating..." : "Create account"}
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                Want to sell?{" "}
-                <Link to="/vendor" className="text-primary hover:underline">
-                  Open a store
-                </Link>{" "}
-                after signing up.
-              </p>
-            </form>
-          </TabsContent>
-        </Tabs>
-      </Card>
-
-      {/* FORGOT PASSWORD DIALOG */}
+      {/* FORGOT PASSWORD MODAL */}
       <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md rounded-3xl p-6">
           <DialogHeader>
-            <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
+            <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Mail className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-center text-xl">Forgot Password?</DialogTitle>
+            <DialogTitle className="text-center text-xl font-bold">Reset Your Password</DialogTitle>
             <DialogDescription className="text-center text-sm">
               {forgotSubmitted
-                ? "If an account exists with this email, you will receive password reset instructions shortly."
-                : "Enter your registered email address and we'll send you a link to reset your password."}
+                ? "Password reset link has been dispatched to your email."
+                : "Enter your registered email address and we'll send you an instant reset link."}
             </DialogDescription>
           </DialogHeader>
 
           {forgotSubmitted ? (
             <div className="space-y-4 pt-2">
-              <div className="rounded-lg bg-muted p-4 text-center text-sm text-muted-foreground">
-                Check your inbox at <span className="font-semibold text-foreground">{forgotEmail}</span>.
+              <div className="rounded-2xl bg-muted p-4 text-center text-sm text-muted-foreground">
+                Check your inbox at <span className="font-bold text-foreground">{forgotEmail}</span>.
               </div>
               <Button
                 type="button"
-                className="w-full"
+                className="w-full rounded-2xl font-bold"
                 onClick={() => {
                   setForgotOpen(false);
                   setForgotSubmitted(false);
                 }}
               >
-                Back to Sign in
+                Back to Sign In
               </Button>
             </div>
           ) : (
             <form onSubmit={handleForgotPassword} className="space-y-4 pt-2">
               <div>
-                <Label htmlFor="forgot-email">Email address</Label>
+                <Label htmlFor="forgot-email" className="text-xs font-semibold">
+                  Email Address
+                </Label>
                 <Input
                   id="forgot-email"
                   type="email"
@@ -323,20 +538,21 @@ function AuthPage() {
                   placeholder="name@example.com"
                   value={forgotEmail}
                   onChange={(e) => setForgotEmail(e.target.value)}
-                  className="mt-1"
+                  className="mt-1 h-11 rounded-2xl text-sm"
                 />
               </div>
 
-              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
+              <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between pt-2">
                 <Button
                   type="button"
                   variant="ghost"
+                  className="rounded-2xl"
                   onClick={() => setForgotOpen(false)}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={forgotLoading}>
-                  {forgotLoading ? "Sending..." : "Send Reset Link"}
+                <Button type="submit" className="rounded-2xl font-bold" disabled={forgotLoading}>
+                  {forgotLoading ? "Sending Link…" : "Send Reset Link"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </DialogFooter>
