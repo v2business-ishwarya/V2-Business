@@ -1,6 +1,10 @@
 export function formatMoney(n: number | string | null | undefined) {
   const v = Number(n ?? 0);
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(v);
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(v);
 }
 
 export function slugify(input: string) {

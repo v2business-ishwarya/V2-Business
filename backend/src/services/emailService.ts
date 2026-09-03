@@ -35,7 +35,7 @@ const emailTemplates = {
       <ul>
         <li><strong>Order ID:</strong> #${order.id}</li>
         <li><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</li>
-        <li><strong>Total:</strong> $${order.total.toFixed(2)}</li>
+        <li><strong>Total:</strong> ₹${order.total.toFixed(2)}</li>
         <li><strong>Status:</strong> ${order.status}</li>
       </ul>
       <p>We'll notify you when your order ships.</p>
