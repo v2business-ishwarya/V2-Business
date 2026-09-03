@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { formatMoney, slugify } from "@/lib/utils-app";
+import { V2LogoIcon } from "@/components/v2-logo";
 import * as React from "react";
 
 export const Route = createFileRoute("/")({
@@ -172,9 +173,7 @@ function Home() {
               {/* Top Banner inside visual */}
               <div className="flex items-center justify-between border-b pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground font-bold">
-                    <Store className="h-5 w-5" />
-                  </div>
+                  <V2LogoIcon size={40} />
                   <div>
                     <h3 className="font-bold text-sm">V2 Marketplace Hub</h3>
                     <p className="text-xs text-muted-foreground">Live Seller Activity</p>
