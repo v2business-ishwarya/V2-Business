@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Percent, TrendingUp, IndianRupee } from "lucide-react";
 import { formatMoney } from "@/lib/utils-app";
 
@@ -22,31 +22,36 @@ function AdminCommissionPage() {
   const { data: rawSettings = [] } = useQuery({
     queryKey: ["admin-settings"],
     queryFn: () => api.getAdminSettings(),
-    select: (data: any) => {
-      const list = Array.isArray(data) ? data : data?.data ?? [];
-      const s = list.find((d: any) => d.key === "PLATFORM_COMMISSION_RATE");
-      if (s?.value) {
-        if (typeof s.value === "object" && s.value.rate != null) {
-          setRate(String(parseFloat(s.value.rate) * 100));
-        } else if (typeof s.value === "number") {
-          setRate(String(s.value * 100));
-        } else if (typeof s.value === "string") {
-          try {
-            const parsed = JSON.parse(s.value);
-            if (parsed.rate != null) setRate(String(parseFloat(parsed.rate) * 100));
-          } catch {
-            setRate(s.value);
-          }
-        }
-      }
-      return list;
-    },
   });
 
   const { data: rawCommissions = [], isLoading } = useQuery({
     queryKey: ["admin-commissions"],
     queryFn: () => api.getAdminCommissions(),
   });
+
+  // Sync loaded commission setting into local input state safely via useEffect
+  useEffect(() => {
+    const list = Array.isArray(rawSettings) ? rawSettings : (rawSettings as any)?.data ?? [];
+    const s = list.find((d: any) => d.key === "PLATFORM_COMMISSION_RATE");
+    if (s?.value) {
+      if (typeof s.value === "object" && s.value.rate != null) {
+        setRate(String(parseFloat(s.value.rate) * 100));
+      } else if (typeof s.value === "number") {
+        setRate(String(s.value * 100));
+      } else if (typeof s.value === "string") {
+        try {
+          const parsed = JSON.parse(s.value);
+          if (parsed.rate != null) {
+            setRate(String(parseFloat(parsed.rate) * 100));
+          } else {
+            setRate(s.value);
+          }
+        } catch {
+          setRate(s.value);
+        }
+      }
+    }
+  }, [rawSettings]);
 
   const commissionsList: any[] = Array.isArray(rawCommissions)
     ? rawCommissions
