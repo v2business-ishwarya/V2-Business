@@ -116,13 +116,13 @@ export function V2Logo({
           >
             <span
               style={{ color: isWhite ? "#FFFFFF" : undefined }}
-              className={isWhite ? "text-white font-black tracking-tight" : "text-foreground font-black tracking-tight"}
+              className={isWhite ? "text-white font-black tracking-tight" : "text-emerald-800 dark:text-emerald-200 font-black tracking-tight"}
             >
               V2
             </span>
             <span
               style={{ color: isWhite ? "#A7F3D0" : undefined }}
-              className={isWhite ? "font-extrabold text-emerald-200" : "font-extrabold text-primary"}
+              className={isWhite ? "font-extrabold text-emerald-200" : "font-extrabold text-emerald-600 dark:text-emerald-400"}
             >
               Business
             </span>
@@ -130,7 +130,7 @@ export function V2Logo({
           <span
             style={{ color: isWhite ? "rgba(255, 255, 255, 0.9)" : undefined }}
             className={`text-[10px] uppercase font-bold tracking-widest mt-0.5 ${
-              isWhite ? "text-white/90" : "text-muted-foreground font-semibold"
+              isWhite ? "text-white/90" : "text-emerald-700/80 dark:text-emerald-300/80 font-semibold"
             }`}
           >
             Marketplace
