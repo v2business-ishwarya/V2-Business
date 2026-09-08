@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { EmptyState } from "@/components/empty-state";
 import { formatMoney, slugify } from "@/lib/utils-app";
+import { ImageUploader } from "@/components/image-uploader";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Package, Plus, Pencil, Trash2 } from "lucide-react";
@@ -41,6 +42,7 @@ type FormState = {
   stock: string;
   category: string;
   featured_image: string;
+  images: string[];
   brand: string;
   sku: string;
   isActive: boolean;
@@ -55,6 +57,7 @@ const empty: FormState = {
   stock: "10",
   category: "",
   featured_image: "",
+  images: [],
   brand: "",
   sku: "",
   isActive: true,
@@ -123,6 +126,12 @@ function VendorProducts() {
   };
 
   const openEdit = (p: any) => {
+    const pImages = Array.isArray(p.images) && p.images.length > 0
+      ? p.images
+      : p.featured_image
+      ? [p.featured_image]
+      : [];
+
     setForm({
       id: p.id,
       name: p.name,
@@ -132,7 +141,8 @@ function VendorProducts() {
       compareAtPrice: p.compareAtPrice != null ? String(p.compareAtPrice) : "",
       stock: String(p.stock),
       category: p.category ?? (cats[0]?.name || "General"),
-      featured_image: p.images?.[0] || p.featured_image || "",
+      featured_image: pImages[0] || p.featured_image || "",
+      images: pImages,
       brand: p.brand ?? "",
       sku: p.sku ?? "",
       isActive: p.isActive !== false,
@@ -149,7 +159,8 @@ function VendorProducts() {
       compareAtPrice: form.compareAtPrice ? Number(form.compareAtPrice) : undefined,
       stock: Number(form.stock) || 0,
       category: form.category || (cats[0]?.name || "General"),
-      images: form.featured_image ? [form.featured_image] : [],
+      featured_image: form.images[0] || form.featured_image || undefined,
+      images: form.images.length > 0 ? form.images : (form.featured_image ? [form.featured_image] : []),
       sku: form.sku || undefined,
       isActive: form.isActive,
     };
@@ -266,11 +277,14 @@ function VendorProducts() {
                 </div>
               </div>
               <div>
-                <Label>Product Image URL</Label>
-                <Input
-                  value={form.featured_image}
-                  onChange={(e) => setForm({ ...form, featured_image: e.target.value })}
-                  placeholder="https://images.unsplash.com/photo-..."
+                <Label className="mb-2 block font-semibold text-sm">Product Photos & Gallery</Label>
+                <ImageUploader
+                  value={form.images}
+                  onChange={(imgs) =>
+                    setForm({ ...form, images: imgs, featured_image: imgs[0] || "" })
+                  }
+                  maxImages={8}
+                  folderPrefix={`vendors/${vendor?.id || "general"}`}
                 />
               </div>
               <Button
