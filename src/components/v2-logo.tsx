@@ -114,7 +114,10 @@ export function V2Logo({
                 : "text-2xl"
             }`}
           >
-            <span style={{ color: "#FFFFFF" }} className={isWhite ? "text-white font-extrabold" : "text-foreground font-extrabold"}>
+            <span
+              style={{ color: isWhite ? "#FFFFFF" : undefined }}
+              className={isWhite ? "text-white font-black tracking-tight" : "text-foreground font-black tracking-tight"}
+            >
               V2
             </span>
             <span
@@ -127,7 +130,7 @@ export function V2Logo({
           <span
             style={{ color: isWhite ? "rgba(255, 255, 255, 0.9)" : undefined }}
             className={`text-[10px] uppercase font-bold tracking-widest mt-0.5 ${
-              isWhite ? "text-white/90" : "text-muted-foreground"
+              isWhite ? "text-white/90" : "text-muted-foreground font-semibold"
             }`}
           >
             Marketplace
