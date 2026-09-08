@@ -32,7 +32,6 @@ import {
   CheckCircle2,
   TrendingUp,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { login, storeSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { V2Logo, V2LogoIcon } from "@/components/v2-logo";
@@ -187,7 +186,7 @@ function AuthPage() {
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-3xl" />
 
       {/* Main Split Creative Container */}
-      <div className="relative w-full max-w-5xl rounded-3xl border border-border/80 bg-card/95 shadow-2xl backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[620px]">
+      <div className="relative w-full max-w-5xl rounded-3xl border border-border/80 bg-card shadow-2xl backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
         {/* LEFT SHOWCASE HERO (Desktop) */}
         <div className="lg:col-span-5 relative bg-gradient-to-br from-primary via-emerald-700 to-teal-900 p-8 sm:p-10 text-primary-foreground flex flex-col justify-between overflow-hidden">
           {/* Decorative mesh glows */}
@@ -208,17 +207,11 @@ function AuthPage() {
 
           {/* Dynamic Middle Headline & Benefits */}
           <div className="relative z-10 my-8 space-y-6">
-            <motion.h2
-              key={mode}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.4 }}
-              className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight"
-            >
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight transition-all duration-300">
               {mode === "signin"
                 ? "Your Gateway to Independent Creators & Fast Commerce."
                 : "Start Shopping or Launch Your Online Store Today."}
-            </motion.h2>
+            </h2>
 
             <div className="space-y-3.5 text-xs sm:text-sm text-primary-foreground/90">
               <div className="flex items-center gap-3">
@@ -262,15 +255,15 @@ function AuthPage() {
         </div>
 
         {/* RIGHT INTERACTIVE FORM CONTAINER */}
-        <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-center">
+        <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
           {/* Creative Segmented Mode Switcher */}
-          <div className="flex rounded-full bg-muted p-1 mb-6 shadow-inner max-w-sm mx-auto w-full">
+          <div className="flex rounded-full bg-muted p-1 mb-5 shadow-inner max-w-sm mx-auto w-full">
             <button
               type="button"
               onClick={() => setMode("signin")}
-              className={`flex-1 rounded-full py-2.5 text-xs sm:text-sm font-bold transition-all ${
+              className={`flex-1 rounded-full py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 mode === "signin"
-                  ? "bg-card text-foreground shadow-md"
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -279,9 +272,9 @@ function AuthPage() {
             <button
               type="button"
               onClick={() => setMode("signup")}
-              className={`flex-1 rounded-full py-2.5 text-xs sm:text-sm font-bold transition-all ${
+              className={`flex-1 rounded-full py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 mode === "signup"
-                  ? "bg-card text-foreground shadow-md"
+                  ? "bg-primary text-primary-foreground shadow-md"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -293,7 +286,7 @@ function AuthPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-11 rounded-2xl border-2 font-semibold mb-5 hover:bg-muted/70 transition-all shadow-sm"
+            className="w-full h-11 rounded-2xl border-2 font-semibold mb-4 hover:bg-muted/70 transition-all shadow-sm"
             onClick={googleSignIn}
           >
             <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
@@ -305,222 +298,204 @@ function AuthPage() {
             Continue with Google
           </Button>
 
-          <div className="mb-5 flex items-center gap-3">
+          <div className="mb-4 flex items-center gap-3">
             <div className="h-px flex-1 bg-border" />
             <span className="text-xs uppercase font-bold tracking-wider text-muted-foreground">or with email</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          {/* ANIMATED FORM CONTENT */}
-          <AnimatePresence mode="wait">
-            {mode === "signin" ? (
-              <motion.form
-                key="signin-form"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-                onSubmit={signIn}
-                className="space-y-4"
-              >
-                <div>
-                  <Label htmlFor="signin-email" className="text-xs font-semibold">
-                    Email Address
+          {/* FORM CONTENT */}
+          {mode === "signin" ? (
+            <form onSubmit={signIn} className="space-y-4">
+              <div>
+                <Label htmlFor="signin-email" className="text-xs font-semibold">
+                  Email Address
+                </Label>
+                <div className="relative mt-1">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signin-email"
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-11 rounded-2xl pl-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="signin-password" className="text-xs font-semibold">
+                    Password
                   </Label>
-                  <div className="relative mt-1">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      required
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-11 rounded-2xl pl-10 text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="signin-password" className="text-xs font-semibold">
-                      Password
-                    </Label>
-                    <button
-                      type="button"
-                      onClick={openForgotModal}
-                      className="text-xs text-primary font-semibold hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <div className="relative mt-1">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signin-password"
-                      type={showSignInPassword ? "text" : "password"}
-                      required
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-11 rounded-2xl pl-10 pr-10 text-sm"
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowSignInPassword((p) => !p)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
-                  disabled={loading}
-                >
-                  {loading ? "Signing in…" : "Sign In to Your Account"}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-
-                <p className="text-center text-xs text-muted-foreground pt-2">
-                  New to V2 Business?{" "}
                   <button
                     type="button"
-                    onClick={() => setMode("signup")}
-                    className="font-bold text-primary hover:underline"
+                    onClick={openForgotModal}
+                    className="text-xs text-primary font-semibold hover:underline"
                   >
-                    Create a free account
+                    Forgot password?
                   </button>
-                </p>
-              </motion.form>
-            ) : (
-              <motion.form
-                key="signup-form"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.25 }}
-                onSubmit={signUp}
-                className="space-y-4"
-              >
-                {/* Account Type Selector */}
-                <div>
-                  <Label className="text-xs font-semibold mb-1.5 block">I want to:</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setAccountType("customer")}
-                      className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
-                        accountType === "customer"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      <ShoppingBag className="h-4 w-4" />
-                      <span>Shop Products</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAccountType("vendor")}
-                      className={`flex items-center justify-center gap-2 rounded-xl border p-2.5 text-xs font-bold transition-all ${
-                        accountType === "vendor"
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border hover:bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      <Store className="h-4 w-4" />
-                      <span>Sell / Open Store</span>
-                    </button>
-                  </div>
                 </div>
-
-                <div>
-                  <Label htmlFor="signup-name" className="text-xs font-semibold">
-                    Full Name
-                  </Label>
-                  <div className="relative mt-1">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-name"
-                      required
-                      placeholder="e.g. Ramesh Kumar"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="h-11 rounded-2xl pl-10 text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="signup-email" className="text-xs font-semibold">
-                    Email Address
-                  </Label>
-                  <div className="relative mt-1">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      required
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-11 rounded-2xl pl-10 text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="signup-password" className="text-xs font-semibold">
-                    Create Password (min. 8 chars)
-                  </Label>
-                  <div className="relative mt-1">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="signup-password"
-                      type={showSignUpPassword ? "text" : "password"}
-                      required
-                      minLength={8}
-                      placeholder="Create a strong password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-11 rounded-2xl pl-10 pr-10 text-sm"
-                    />
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => setShowSignUpPassword((p) => !p)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    >
-                      {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
-                  disabled={loading}
-                >
-                  {loading ? "Creating Account…" : accountType === "vendor" ? "Create Store Account" : "Join Marketplace"}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-
-                <p className="text-center text-xs text-muted-foreground pt-2">
-                  Already have an account?{" "}
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signin-password"
+                    type={showSignInPassword ? "text" : "password"}
+                    required
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-11 rounded-2xl pl-10 pr-10 text-sm"
+                  />
                   <button
                     type="button"
-                    onClick={() => setMode("signin")}
-                    className="font-bold text-primary hover:underline"
+                    tabIndex={-1}
+                    onClick={() => setShowSignInPassword((p) => !p)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    Sign in here
+                    {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
-                </p>
-              </motion.form>
-            )}
-          </AnimatePresence>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
+                disabled={loading}
+              >
+                {loading ? "Signing in…" : "Sign In to Your Account"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <p className="text-center text-xs text-muted-foreground pt-1">
+                New to V2 Business?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signup")}
+                  className="font-bold text-primary hover:underline cursor-pointer"
+                >
+                  Create a free account
+                </button>
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={signUp} className="space-y-3.5">
+              {/* Account Type Selector */}
+              <div>
+                <Label className="text-xs font-semibold mb-1 block">I want to:</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("customer")}
+                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
+                      accountType === "customer"
+                        ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                        : "border-border hover:bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Shop Products</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType("vendor")}
+                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
+                      accountType === "vendor"
+                        ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
+                        : "border-border hover:bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    <Store className="h-4 w-4" />
+                    <span>Sell / Open Store</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="signup-name" className="text-xs font-semibold">
+                  Full Name
+                </Label>
+                <div className="relative mt-1">
+                  <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signup-name"
+                    required
+                    placeholder="e.g. Ramesh Kumar"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-10 rounded-xl pl-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="signup-email" className="text-xs font-semibold">
+                  Email Address
+                </Label>
+                <div className="relative mt-1">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signup-email"
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-10 rounded-xl pl-10 text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="signup-password" className="text-xs font-semibold">
+                  Create Password (min. 8 chars)
+                </Label>
+                <div className="relative mt-1">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="signup-password"
+                    type={showSignUpPassword ? "text" : "password"}
+                    required
+                    minLength={8}
+                    placeholder="Create a strong password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-10 rounded-xl pl-10 pr-10 text-sm"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowSignUpPassword((p) => !p)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-1"
+                disabled={loading}
+              >
+                {loading ? "Creating Account…" : accountType === "vendor" ? "Create Store Account" : "Join Marketplace"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <p className="text-center text-xs text-muted-foreground pt-1">
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => setMode("signin")}
+                  className="font-bold text-primary hover:underline cursor-pointer"
+                >
+                  Sign in here
+                </button>
+              </p>
+            </form>
+          )}
         </div>
       </div>
 
