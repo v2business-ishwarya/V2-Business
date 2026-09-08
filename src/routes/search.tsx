@@ -6,6 +6,7 @@ import { ProductCard } from "@/components/product-card";
 import { EmptyState } from "@/components/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -15,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, Store, ShieldCheck, MapPin, ExternalLink } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
@@ -82,6 +83,26 @@ function SearchPage() {
     filteredProducts.sort((a: any, b: any) => (Number(b.price) || 0) - (Number(a.price) || 0));
   }
 
+  // Extract matching stores from search query
+  const matchingStores = (() => {
+    if (!params.q) return [];
+    const storeMap = new Map();
+    (products.data ?? []).forEach((p: any) => {
+      const v = p.vendor || p.vendors;
+      if (v && v.id && !storeMap.has(v.id)) {
+        storeMap.set(v.id, {
+          id: v.id,
+          name: v.name,
+          slug: v.slug || v.id,
+          city: v.city || "Verified Location",
+          businessType: v.businessType || "physical_shop",
+          gstNumber: v.gstNumber,
+        });
+      }
+    });
+    return Array.from(storeMap.values());
+  })();
+
   const Filters = (
     <div className="space-y-6">
       <div>
@@ -138,10 +159,53 @@ function SearchPage() {
         <Input
           value={term}
           onChange={(e) => setTerm(e.target.value)}
-          placeholder="Search products, brands, categories..."
-          className="h-12 rounded-full pl-11 pr-4"
+          placeholder="Search products, brands, stores, categories..."
+          className="h-12 rounded-full pl-11 pr-4 text-sm"
         />
       </form>
+
+      {/* Matching Stores & Vendors Showcase Banner */}
+      {matchingStores.length > 0 && (
+        <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
+              <Store className="h-4 w-4" /> Matching Verified Stores ({matchingStores.length})
+            </span>
+            <Badge variant="outline" className="text-[10px] bg-white text-emerald-700">
+              Direct Seller Stores
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {matchingStores.map((store: any) => (
+              <Link
+                key={store.id}
+                to="/store/$slug"
+                params={{ slug: store.slug || store.id }}
+                className="flex items-center justify-between p-3.5 rounded-xl border border-border bg-card shadow-sm hover:border-primary/50 hover:shadow-md transition-all group"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                    <Store className="h-5 w-5" />
+                  </div>
+                  <div className="truncate text-xs">
+                    <div className="flex items-center gap-1">
+                      <p className="font-bold text-foreground text-sm truncate">{store.name}</p>
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {store.businessType === "home_cloud" ? "🏡 Home Studio" : "🏪 Retail Shop"} · {store.city}
+                    </p>
+                  </div>
+                </div>
+                <Button size="sm" variant="ghost" className="h-8 px-2 text-xs font-semibold shrink-0 group-hover:text-primary">
+                  Visit <ExternalLink className="ml-1 h-3 w-3" />
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-4 flex items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
@@ -196,3 +260,5 @@ function SearchPage() {
     </div>
   );
 }
+
+export default SearchPage;

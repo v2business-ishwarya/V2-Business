@@ -95,6 +95,8 @@ export const getAllProducts = asyncHandler(
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { description: { contains: search, mode: "insensitive" } },
+        { vendor: { name: { contains: search, mode: "insensitive" } } },
+        { category: { contains: search, mode: "insensitive" } },
       ];
     }
     if (req.query.category) {
