@@ -323,7 +323,7 @@ function VendorStore() {
           {/* 6. Settlement Bank Details */}
           <Card className="p-6 space-y-4">
             <h2 className="text-base font-bold flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> 6. Payout Bank Account (90% Direct Net Settlements)
+              <ShieldCheck className="h-5 w-5 text-primary" /> 6. Payout Bank Account (100% Direct Net Settlements)
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>

@@ -34,7 +34,7 @@ function TermsPage() {
           <p>
             By registering as a vendor, you agree to fulfill orders promptly and accurately.
             <ul>
-              <li><strong>Commission:</strong> A standard platform commission of 10% (unless modified by admin) will be deducted from your total order value.</li>
+              <li><strong>Commission & Subscriptions:</strong> 0% sales commission on orders. Standard flat store maintenance fee of ₹500/month applies.</li>
               <li><strong>Payments:</strong> Settlements are processed to your linked bank account after the delivery is successfully confirmed.</li>
               <li><strong>Delivery:</strong> You may choose to deliver items yourself or use our integrated partners (Delhivery, Shiprocket). You must adhere to the delivery timelines provided to the customer.</li>
             </ul>

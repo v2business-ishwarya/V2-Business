@@ -30,7 +30,7 @@ function AboutPage() {
 
           <h3>For Vendors</h3>
           <p>
-            We offer an industry-leading 10% platform commission rate, ensuring that the vast majority of your revenue stays in your pocket. 
+            We offer a 0% sales commission model with ₹500/month flat fee, ensuring that 100% of your product earnings stay directly in your pocket. 
             With automated invoicing, integrated logistics, and comprehensive analytics, we handle the heavy lifting so you can focus on making great products.
           </p>
 

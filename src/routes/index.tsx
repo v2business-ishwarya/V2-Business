@@ -209,8 +209,8 @@ function Home() {
                   <IndianRupee className="h-4 w-4" />
                 </div>
                 <div className="flex-1 text-xs">
-                  <p className="font-bold">Instant 90% Net Settlement</p>
-                  <p className="text-muted-foreground">₹1,349 credited to Seller Bank</p>
+                  <p className="font-bold">0% Commission Sales</p>
+                  <p className="text-muted-foreground">100% earnings credited to Seller Bank</p>
                 </div>
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
               </motion.div>
@@ -248,8 +248,8 @@ function Home() {
             {[
               { label: "Verified Sellers", val: "100+", icon: Store, color: "text-primary" },
               { label: "Curated Products", val: "10,000+", icon: Package, color: "text-emerald-500" },
-              { label: "Transparent Commission", val: "10% Flat", icon: IndianRupee, color: "text-amber-500" },
-              { label: "Direct Net Settlements", val: "90% Payouts", icon: Zap, color: "text-blue-500" },
+              { label: "Platform Commission", val: "0% Flat", icon: IndianRupee, color: "text-emerald-500" },
+              { label: "Direct Net Settlements", val: "100% Payouts", icon: Zap, color: "text-blue-500" },
             ].map((stat, i) => (
               <div
                 key={i}
@@ -443,8 +443,8 @@ function Home() {
                   icon: Store,
                 },
                 {
-                  title: "90% Direct Bank Settlements",
-                  desc: "Pay only 10% platform commission on completed orders. Retain 90% of your earnings.",
+                  title: "100% Direct Bank Settlements",
+                  desc: "Keep 100% of your earnings with 0% sales commission. Direct settlements to your bank account.",
                   icon: IndianRupee,
                 },
                 {
@@ -467,22 +467,23 @@ function Home() {
       </section>
 
       {/* LIVE VENDOR EARNINGS CALCULATOR / SIMULATOR */}
+      {/* TRANSPARENT 0% COMMISSION ADVANTAGE */}
       <section className="bg-gradient-to-br from-card via-surface-muted to-muted/50 py-16 border-t border-border/70">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <Card className="p-8 sm:p-12 shadow-xl border-2 border-primary/20">
-            <div className="text-center max-w-xl mx-auto mb-8">
-              <Badge variant="outline" className="mb-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-semibold">
-                Transparent Calculator
+          <Card className="p-8 sm:p-12 shadow-xl border-2 border-emerald-500/30 bg-gradient-to-br from-emerald-500/5 via-card to-teal-500/5">
+            <div className="text-center max-w-2xl mx-auto mb-8">
+              <Badge variant="outline" className="mb-2 bg-emerald-500/10 text-emerald-700 border-emerald-500/30 font-semibold gap-1">
+                <Sparkles className="h-3.5 w-3.5" /> 0% Commission Advantage
               </Badge>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Estimate Your Monthly Earnings</h2>
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Keep 100% of Every Sale You Make</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                See exactly how much you take home with our transparent 10% platform commission.
+                Zero percentage cuts on your orders. <strong>Free Vendor Joining Active</strong> + flat ₹500/month store maintenance.
               </p>
             </div>
 
-            <div className="space-y-6 max-w-xl mx-auto">
+            <div className="space-y-6 max-w-2xl mx-auto">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-semibold">Projected Monthly Sales:</span>
+                <span className="text-sm font-semibold">Your Estimated Monthly Sales:</span>
                 <span className="text-2xl font-extrabold text-primary">{formatMoney(vendorRevenue)}</span>
               </div>
 
@@ -501,21 +502,30 @@ function Home() {
                 <span>₹10,00,000</span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div className="rounded-2xl bg-muted/70 p-4 text-center">
-                  <p className="text-xs text-muted-foreground font-medium">Platform Fee (10%)</p>
-                  <span className="text-xl font-bold text-muted-foreground">{formatMoney(platformCommission)}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t">
+                <div className="rounded-2xl bg-muted/60 p-4 text-center border">
+                  <p className="text-xs text-muted-foreground font-medium">Other Marketplaces (15% Cut)</p>
+                  <p className="text-sm text-destructive line-through font-bold mt-0.5">- {formatMoney(vendorRevenue * 0.15)} Lost</p>
+                  <span className="text-lg font-bold text-muted-foreground block mt-1">
+                    {formatMoney(vendorRevenue * 0.85)} Payout
+                  </span>
                 </div>
-                <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-center">
-                  <p className="text-xs text-emerald-700 dark:text-emerald-400 font-bold">Your Net Payout (90%)</p>
-                  <span className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{formatMoney(vendorTakeHome)}</span>
+
+                <div className="rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 p-4 text-center shadow-sm">
+                  <p className="text-xs text-emerald-800 font-bold flex items-center justify-center gap-1">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> V2 Business (0% Commission)
+                  </p>
+                  <p className="text-sm text-emerald-700 font-bold mt-0.5">+ {formatMoney(vendorRevenue * 0.15)} Saved!</p>
+                  <span className="text-2xl font-extrabold text-emerald-700 block mt-1">
+                    {formatMoney(vendorRevenue)} Full Payout
+                  </span>
                 </div>
               </div>
 
               <div className="text-center pt-2">
                 <Link to="/vendor">
                   <Button size="lg" className="rounded-full px-8 font-bold shadow-lg shadow-primary/25">
-                    Start Selling Now — Open Free Store <ArrowRight className="ml-2 h-4 w-4" />
+                    Claim Free Joining — Open Seller Store <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
               </div>

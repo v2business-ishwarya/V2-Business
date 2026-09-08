@@ -231,7 +231,7 @@ function AuthPage() {
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
                   <Zap className="h-4 w-4" />
                 </div>
-                <span>90% Direct Net Payouts for Verified Sellers</span>
+                <span>0% Commission · Keep 100% of Your Sales Revenue</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">

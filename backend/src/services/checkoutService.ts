@@ -51,7 +51,7 @@ export class CheckoutService {
       const commissionSetting = await tx.marketplaceSettings.findUnique({
         where: { key: 'PLATFORM_COMMISSION_RATE' }
       });
-      let platformCommissionRate = 0.1; // Default 10%
+      let platformCommissionRate = 0.0; // Default 0% commission (100% earnings to seller)
       if (commissionSetting && commissionSetting.value) {
         const rate = parseFloat((commissionSetting.value as any).rate);
         if (!isNaN(rate)) {
