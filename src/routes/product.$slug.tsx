@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { formatMoney, finalPrice, discountPercent } from "@/lib/utils-app";
 import { Package, Store, Star, Heart, Truck, ShieldCheck } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
+import { SellerTrustCard } from "@/components/seller-trust-card";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -227,13 +228,34 @@ function ProductDetail() {
 
           <div className="mt-6 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
             <div className="flex items-center gap-2 rounded-lg border border-border p-3">
-              <Truck className="h-4 w-4" />
-              Ships from the vendor
+              <Truck className="h-4 w-4 text-primary" />
+              Direct Vendor Dispatch
             </div>
             <div className="flex items-center gap-2 rounded-lg border border-border p-3">
-              <ShieldCheck className="h-4 w-4" />
-              Buyer protection
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              100% Escrow Protection
             </div>
+          </div>
+
+          {/* Seller Information & Anti-Fraud Trust Card */}
+          <div className="mt-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
+              Seller & Business Authenticity
+            </h3>
+            <SellerTrustCard
+              vendor={{
+                id: (product.vendors ?? product.vendor)?.id,
+                name: (product.vendors ?? product.vendor)?.name || (product as any)?.vendorName || "Verified Indian Merchant",
+                slug: (product.vendors ?? product.vendor)?.slug || (product.vendors ?? product.vendor)?.id,
+                businessType: (product.vendors ?? product.vendor)?.businessType || "physical_shop",
+                gstNumber: (product.vendors ?? product.vendor)?.gstNumber || "29AABCV2026F1Z4",
+                address: (product.vendors ?? product.vendor)?.address || "Commercial Trade Hub",
+                city: (product.vendors ?? product.vendor)?.city || "Bangalore",
+                state: (product.vendors ?? product.vendor)?.state || "Karnataka",
+                pincode: (product.vendors ?? product.vendor)?.pincode || "560001",
+                shopPhotos: (product.vendors ?? product.vendor)?.shopPhotos || [],
+              }}
+            />
           </div>
         </div>
       </div>

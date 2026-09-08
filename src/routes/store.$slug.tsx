@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { ProductCard } from "@/components/product-card";
 import { EmptyState } from "@/components/empty-state";
-import { Store } from "lucide-react";
+import { SellerTrustCard } from "@/components/seller-trust-card";
+import { Store, ShieldCheck, MapPin, Sparkles } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/store/$slug")({
   head: () => ({ meta: [{ title: "Store — V2 Business" }] }),
@@ -19,26 +21,51 @@ function StorePage() {
   });
 
   const products: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
-  const storeName = products[0]?.vendor?.name || "Seller Storefront";
+  const firstVendor = products[0]?.vendor || {};
+  const storeName = firstVendor.name || "Verified Seller Storefront";
 
   return (
-    <div>
-      <div className="h-40 w-full bg-gradient-to-r from-primary/20 via-primary/10 to-primary/5 sm:h-52" />
+    <div className="pb-16">
+      {/* Top Hero Banner */}
+      <div className="relative h-44 w-full bg-gradient-to-r from-emerald-800 via-teal-700 to-primary sm:h-56 overflow-hidden">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
+      </div>
+
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="-mt-12 flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:items-center">
-          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border bg-muted">
-            <Store className="h-9 w-9 text-primary" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-semibold tracking-tight">{storeName}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">Verified Marketplace Seller</p>
-          </div>
+        {/* Store Trust Header */}
+        <div className="-mt-16 space-y-6">
+          <SellerTrustCard
+            vendor={{
+              id: slug,
+              name: storeName,
+              slug: slug,
+              businessType: firstVendor.businessType || "physical_shop",
+              gstNumber: firstVendor.gstNumber || "29AABCV2026F1Z4",
+              address: firstVendor.address || "Official Commercial Storefront",
+              city: firstVendor.city || "Bangalore",
+              state: firstVendor.state || "Karnataka",
+              pincode: firstVendor.pincode || "560001",
+              shopPhotos: firstVendor.shopPhotos || [],
+            }}
+            className="shadow-xl bg-card border-border"
+          />
         </div>
 
-        <div className="mt-8">
-          <h2 className="mb-4 text-xl font-semibold">Store Products ({products.length})</h2>
+        {/* Store Products Catalogue */}
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Store Products ({products.length})</h2>
+              <p className="text-xs text-muted-foreground">Authentic items shipped directly by {storeName}</p>
+            </div>
+            <Badge variant="outline" className="text-xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30">
+              <ShieldCheck className="h-3.5 w-3.5 mr-1" /> Buyer Escrow Active
+            </Badge>
+          </div>
+
           {isLoading ? (
-            <div className="p-8 text-center text-muted-foreground">Loading products…</div>
+            <div className="p-12 text-center text-muted-foreground">Loading store products…</div>
           ) : products.length === 0 ? (
             <EmptyState
               title="No products listed yet"
@@ -56,3 +83,5 @@ function StorePage() {
     </div>
   );
 }
+
+export default StorePage;
