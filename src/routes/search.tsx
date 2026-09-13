@@ -20,6 +20,8 @@ import { Search, SlidersHorizontal, Store, ShieldCheck, MapPin, ExternalLink } f
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 
+import { MARKETPLACE_CATEGORIES, getCategoryBySlug } from "@/data/categories";
+
 const searchSchema = z.object({
   q: z.string().optional(),
   category: z.string().optional(),
@@ -43,15 +45,11 @@ function SearchPage() {
   const [term, setTerm] = useState(params.q ?? "");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [sort, setSort] = useState(params.sort ?? "new");
+  const [categoryFilterSearch, setCategoryFilterSearch] = useState("");
 
   useEffect(() => {
     setTerm(params.q ?? "");
   }, [params.q]);
-
-  const cats = useQuery({
-    queryKey: ["all-cats"],
-    queryFn: () => api.getCategories(),
-  });
 
   const products = useQuery({
     queryKey: ["search-products", params.q, params.category, params.vendor, sort],
@@ -67,8 +65,30 @@ function SearchPage() {
     },
   });
 
-  const catList: any[] = Array.isArray(cats.data) ? cats.data : [];
+  const catList = MARKETPLACE_CATEGORIES;
+  const filteredCategoryList = catList.filter((c) =>
+    c.name.toLowerCase().includes(categoryFilterSearch.toLowerCase().trim())
+  );
+
   let filteredProducts: any[] = products.data ?? [];
+
+  // Filter by category client-side fallback if category param is active
+  if (params.category) {
+    const targetSlug = params.category.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    filteredProducts = filteredProducts.filter((p: any) => {
+      if (!p.category && !p.categories) return false;
+      const pCats = Array.isArray(p.categories) ? p.categories : [p.category];
+      return pCats.some((catStr: string) => {
+        if (!catStr) return false;
+        const norm = catStr.toLowerCase().replace(/[^a-z0-9]/g, "-");
+        return (
+          norm === targetSlug ||
+          catStr.toLowerCase().includes(params.category!.toLowerCase()) ||
+          params.category!.toLowerCase().includes(catStr.toLowerCase())
+        );
+      });
+    });
+  }
 
   // Filter by price range
   filteredProducts = filteredProducts.filter((p: any) => {
@@ -106,31 +126,74 @@ function SearchPage() {
   const Filters = (
     <div className="space-y-6">
       <div>
-        <Label className="text-xs uppercase text-muted-foreground font-semibold">Category</Label>
-        <div className="mt-2 space-y-1">
+        <div className="flex items-center justify-between">
+          <Label className="text-xs uppercase text-muted-foreground font-bold tracking-wider">
+            All Categories ({catList.length})
+          </Label>
+          {params.category && (
+            <Link
+              to="/search"
+              search={{ q: params.q }}
+              className="text-[11px] text-primary hover:underline font-semibold"
+            >
+              Clear
+            </Link>
+          )}
+        </div>
+
+        {/* Quick category search filter */}
+        <div className="mt-2 mb-2">
+          <Input
+            placeholder="Filter categories..."
+            value={categoryFilterSearch}
+            onChange={(e) => setCategoryFilterSearch(e.target.value)}
+            className="h-8 text-xs rounded-xl bg-muted/50"
+          />
+        </div>
+
+        <div className="mt-1 space-y-0.5 max-h-[360px] overflow-y-auto pr-1">
           <Link
             to="/search"
             search={{ q: params.q }}
-            className={`block rounded-md px-3 py-1.5 text-sm hover:bg-muted ${!params.category ? "bg-primary text-primary-foreground font-medium" : ""}`}
+            className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-colors hover:bg-muted ${
+              !params.category ? "bg-primary text-primary-foreground font-bold" : "text-foreground"
+            }`}
           >
-            All Categories
+            <span>All Categories</span>
+            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 font-bold">
+              {catList.length}
+            </Badge>
           </Link>
-          {catList.map((c: any) => (
-            <Link
-              key={c.id || c.name}
-              to="/search"
-              search={{ q: params.q, category: c.name }}
-              className={`block rounded-md px-3 py-1.5 text-sm hover:bg-muted ${params.category === c.name ? "bg-primary text-primary-foreground font-medium" : ""}`}
-            >
-              {c.name}
-            </Link>
-          ))}
+          {filteredCategoryList.map((c) => {
+            const isSelected =
+              params.category === c.name ||
+              params.category === c.slug;
+            return (
+              <Link
+                key={c.id}
+                to="/search"
+                search={{ q: params.q, category: c.name }}
+                className={`flex items-center justify-between rounded-xl px-3 py-1.5 text-xs transition-colors hover:bg-muted group ${
+                  isSelected ? "bg-primary text-primary-foreground font-bold" : "text-foreground/90 font-medium"
+                }`}
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <div className="h-5 w-5 rounded-md overflow-hidden bg-muted shrink-0 border border-border/40">
+                    <img src={c.imageUrl} alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <span className="truncate">{c.name}</span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </div>
 
-      <div>
-        <Label className="text-xs uppercase text-muted-foreground font-semibold">Price Range</Label>
-        <div className="mt-3">
+      <div className="pt-2 border-t border-border/60">
+        <Label className="text-xs uppercase text-muted-foreground font-bold tracking-wider">
+          Price Range
+        </Label>
+        <div className="mt-3 space-y-2">
           <Slider
             min={0}
             max={50000}
@@ -138,9 +201,10 @@ function SearchPage() {
             value={priceRange}
             onValueChange={(v) => setPriceRange(v as [number, number])}
           />
-          <p className="mt-2 text-xs text-muted-foreground">
-            ₹{priceRange[0]} – ₹{priceRange[1]}
-          </p>
+          <div className="flex items-center justify-between text-xs font-semibold text-muted-foreground">
+            <span>₹{priceRange[0]}</span>
+            <span>₹{priceRange[1]}</span>
+          </div>
         </div>
       </div>
     </div>
