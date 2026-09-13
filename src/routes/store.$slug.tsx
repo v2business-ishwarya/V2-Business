@@ -8,13 +8,13 @@ import { Store, ShieldCheck, MapPin, Sparkles, Search, Tag, ArrowLeft, Star, Pac
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getVendorByIdOrSlug, MASTER_VENDORS } from "@/data/categories";
+import { getVendorByIdOrSlug } from "@/data/categories";
 import { useState, useMemo } from "react";
 
 export const Route = createFileRoute("/store/$slug")({
   head: ({ params }) => {
     const v = getVendorByIdOrSlug(params.slug);
-    const title = v?.name || "Verified Seller Storefront";
+    const title = v?.name || "Seller Storefront";
     return {
       meta: [
         { title: `${title} — Official Storefront on V2 Business` },
@@ -40,42 +40,18 @@ function StorePage() {
   });
 
   const apiProducts: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
-
-  // Merge products from API and vendor's featured catalog
-  const storeProducts = useMemo(() => {
-    const list = [...apiProducts];
-    if (vendorMeta?.featuredProducts) {
-      vendorMeta.featuredProducts.forEach((fp) => {
-        if (!list.some((p) => p.id === fp.id)) {
-          list.push({
-            ...fp,
-            slug: fp.id,
-            vendor: {
-              id: vendorMeta.id,
-              name: vendorMeta.name,
-              slug: vendorMeta.slug,
-              businessType: vendorMeta.businessType,
-              gstNumber: vendorMeta.gstNumber,
-              city: vendorMeta.city,
-              state: vendorMeta.state,
-            },
-          });
-        }
-      });
-    }
-    return list;
-  }, [apiProducts, vendorMeta]);
+  const storeProducts = apiProducts;
 
   const firstVendor = apiProducts[0]?.vendor || {};
-  const storeName = vendorMeta?.name || firstVendor.name || "Verified Seller Storefront";
+  const storeName = vendorMeta?.name || firstVendor.name || "Seller Storefront";
   const businessType = vendorMeta?.businessType || firstVendor.businessType || "physical_shop";
   const gstNumber = vendorMeta?.gstNumber || firstVendor.gstNumber || "";
-  const address = vendorMeta?.address || firstVendor.address || "Official Commercial Storefront";
-  const city = vendorMeta?.city || firstVendor.city || "Bangalore";
-  const state = vendorMeta?.state || firstVendor.state || "Karnataka";
-  const pincode = vendorMeta?.pincode || firstVendor.pincode || "560001";
+  const address = vendorMeta?.address || firstVendor.address || "";
+  const city = vendorMeta?.city || firstVendor.city || "";
+  const state = vendorMeta?.state || firstVendor.state || "";
+  const pincode = vendorMeta?.pincode || firstVendor.pincode || "";
   const shopPhotos = vendorMeta?.shopPhotos || firstVendor.shopPhotos || [];
-  const categories = vendorMeta?.categories || [firstVendor.category || "General Products"];
+  const categories = vendorMeta?.categories || (firstVendor.category ? [firstVendor.category] : []);
 
   // Filter products by selected category and search text
   const filteredProducts = useMemo(() => {

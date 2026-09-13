@@ -53,7 +53,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
 
   const isPhysical = vendor.businessType !== "home_cloud";
   const hasGst = Boolean(vendor.gstNumber && vendor.gstNumber.trim().length >= 10);
-  const locationText = [vendor.city, vendor.state].filter(Boolean).join(", ") || vendor.address || "Verified Indian Seller";
+  const locationText = [vendor.city, vendor.state].filter(Boolean).join(", ") || vendor.address || "Location pending update";
   const photos = vendor.shopPhotos && vendor.shopPhotos.length > 0 ? vendor.shopPhotos : [];
   const primaryPhoto = photos[0] || null;
 
@@ -76,7 +76,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
             <div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="font-bold text-sm text-foreground">
-                  {vendor.name || "Verified Marketplace Vendor"}
+                  {vendor.name || "Seller Store"}
                 </span>
                 <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white gap-1 text-[10px] px-2 py-0.2 shadow-sm font-semibold">
                   <ShieldCheck className="h-3 w-3" /> 100% Genuine

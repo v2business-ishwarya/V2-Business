@@ -55,27 +55,27 @@ function CategoryPage() {
   const categoryVendors = useMemo(() => {
     const list = getVendorsForCategory(slug);
 
-    // Merge any unique vendors from DB products
+    // Merge any unique vendors from real DB products
     apiProducts.forEach((p) => {
       const v = p.vendor || p.vendors;
       if (v && v.id && !list.some((existing) => existing.id === v.id || existing.slug === v.slug)) {
         list.push({
           id: v.id,
-          name: v.name || "Verified Seller Store",
+          name: v.name || "Seller Store",
           slug: v.slug || v.id,
-          tagline: `Seller in ${title}`,
-          description: "Verified independent seller store on V2 Business Marketplace.",
+          tagline: v.tagline || "",
+          description: v.description || "",
           businessType: v.businessType || "physical_shop",
           gstNumber: v.gstNumber || "",
-          address: v.address || "Commercial Storefront",
-          city: v.city || "Bangalore",
-          state: v.state || "Karnataka",
-          pincode: v.pincode || "560001",
+          address: v.address || "",
+          city: v.city || "",
+          state: v.state || "",
+          pincode: v.pincode || "",
           shopPhotos: v.shopPhotos || [],
           categories: [title],
-          rating: 4.9,
-          reviewCount: 45,
-          joinedYear: 2024,
+          rating: 5.0,
+          reviewCount: 0,
+          joinedYear: 2026,
         });
       }
     });
@@ -83,35 +83,8 @@ function CategoryPage() {
     return list;
   }, [slug, apiProducts, title]);
 
-  // 2. Aggregate all products (from DB + vendor featured products)
-  const allProducts = useMemo(() => {
-    const list = [...apiProducts];
-
-    // If DB has no/few products, also include featured products from vendors
-    categoryVendors.forEach((v) => {
-      if (v.featuredProducts) {
-        v.featuredProducts.forEach((fp) => {
-          if (!list.some((p) => p.id === fp.id)) {
-            list.push({
-              ...fp,
-              slug: fp.id,
-              vendor: {
-                id: v.id,
-                name: v.name,
-                slug: v.slug,
-                businessType: v.businessType,
-                gstNumber: v.gstNumber,
-                city: v.city,
-                state: v.state,
-              },
-            });
-          }
-        });
-      }
-    });
-
-    return list;
-  }, [apiProducts, categoryVendors]);
+  // 2. Real products from API
+  const allProducts = apiProducts;
 
   // Filter vendors & products by search query
   const filteredVendors = useMemo(() => {
@@ -282,8 +255,23 @@ function CategoryPage() {
             </div>
 
             {filteredVendors.length === 0 ? (
-              <div className="p-8 rounded-2xl border border-dashed text-center text-muted-foreground text-xs">
-                No vendors found matching "{searchQuery}".
+              <div className="p-8 rounded-2xl border border-dashed text-center bg-card/50 space-y-2">
+                <Store className="h-8 w-8 text-muted-foreground mx-auto" />
+                <p className="font-semibold text-sm text-foreground">
+                  {searchQuery ? `No stores found matching "${searchQuery}"` : `No registered sellers in ${title} yet`}
+                </p>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  {searchQuery
+                    ? "Try searching for a different store name or city."
+                    : `Be the first verified merchant to list and sell ${title} on V2 Business Marketplace.`}
+                </p>
+                <div className="pt-2">
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold">
+                      Become a Seller in this Department
+                    </Button>
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

@@ -245,14 +245,14 @@ function ProductDetail() {
             <SellerTrustCard
               vendor={{
                 id: (product.vendors ?? product.vendor)?.id,
-                name: (product.vendors ?? product.vendor)?.name || (product as any)?.vendorName || "Verified Indian Merchant",
+                name: (product.vendors ?? product.vendor)?.name || (product as any)?.vendorName || "Seller Store",
                 slug: (product.vendors ?? product.vendor)?.slug || (product.vendors ?? product.vendor)?.id,
                 businessType: (product.vendors ?? product.vendor)?.businessType || "physical_shop",
-                gstNumber: (product.vendors ?? product.vendor)?.gstNumber || "29AABCV2026F1Z4",
-                address: (product.vendors ?? product.vendor)?.address || "Commercial Trade Hub",
-                city: (product.vendors ?? product.vendor)?.city || "Bangalore",
-                state: (product.vendors ?? product.vendor)?.state || "Karnataka",
-                pincode: (product.vendors ?? product.vendor)?.pincode || "560001",
+                gstNumber: (product.vendors ?? product.vendor)?.gstNumber || "",
+                address: (product.vendors ?? product.vendor)?.address || "",
+                city: (product.vendors ?? product.vendor)?.city || "",
+                state: (product.vendors ?? product.vendor)?.state || "",
+                pincode: (product.vendors ?? product.vendor)?.pincode || "",
                 shopPhotos: (product.vendors ?? product.vendor)?.shopPhotos || [],
               }}
             />

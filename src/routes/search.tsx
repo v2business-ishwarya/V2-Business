@@ -94,7 +94,7 @@ function SearchPage() {
           id: v.id,
           name: v.name,
           slug: v.slug || v.id,
-          city: v.city || "Verified Location",
+          city: v.city || "",
           businessType: v.businessType || "physical_shop",
           gstNumber: v.gstNumber,
         });

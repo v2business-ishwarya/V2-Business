@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MASTER_VENDORS, MARKETPLACE_CATEGORIES, CategoryVendor } from "@/data/categories";
+import { MARKETPLACE_CATEGORIES, CategoryVendor } from "@/data/categories";
 import { useState, useMemo } from "react";
 
 export const Route = createFileRoute("/vendors")({
@@ -30,9 +30,9 @@ function VendorsList() {
 
   const products: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
 
-  // Merge MASTER_VENDORS, local registered vendors, and DB vendors
+  // Use only real registered vendors from DB products & registered store profiles
   const allVendors = useMemo(() => {
-    const list: CategoryVendor[] = [...MASTER_VENDORS];
+    const list: CategoryVendor[] = [];
 
     // Read custom local storage vendors
     try {
