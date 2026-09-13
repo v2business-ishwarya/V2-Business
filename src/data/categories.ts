@@ -30,7 +30,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Clothing & Fashion",
     "slug": "clothing-fashion",
     "description": "Ethnic wear, western trends, designer sarees, menswear & kidswear",
-    "imageUrl": "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=600&q=80",
     "itemCount": "8,200+ items",
     "popularTags": [
       "Ethnic Wear",
@@ -45,7 +45,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Jewellery & Accessories",
     "slug": "jewellery-accessories",
     "description": "Fine gold & silver jewellery, fashion accessories, watches & gemstones",
-    "imageUrl": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
     "itemCount": "3,100+ items",
     "popularTags": [
       "Gold Plated",
@@ -150,7 +150,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Restaurants & Food",
     "slug": "restaurants-food",
     "description": "Gourmet spices, snacks, sweets, ready mixes & local regional culinary delicacies",
-    "imageUrl": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,700+ items",
     "popularTags": [
       "Artisanal Snacks",
@@ -165,7 +165,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Automobile",
     "slug": "automobile",
     "description": "Car accessories, bike spare parts, helmets, riding gear & auto care essentials",
-    "imageUrl": "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,400+ items",
     "popularTags": [
       "Helmets",
@@ -180,7 +180,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Education & Coaching",
     "slug": "education-coaching",
     "description": "Study modules, exam preparation materials, course guides & learning kits",
-    "imageUrl": "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
     "itemCount": "950+ items",
     "popularTags": [
       "Exam Prep",
@@ -210,7 +210,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Books & Stationery",
     "slug": "books-stationery",
     "description": "Bestseller novels, academic textbooks, diaries, pens, art & craft supplies",
-    "imageUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=600&q=80",
     "itemCount": "3,600+ items",
     "popularTags": [
       "Bestsellers",
@@ -225,7 +225,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Hardware & Construction",
     "slug": "hardware-construction",
     "description": "Power tools, safety equipment, fasteners, plumbing, electricals & building materials",
-    "imageUrl": "https://images.unsplash.com/photo-1581783898377-1c85bf937427?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,800+ items",
     "popularTags": [
       "Power Drills",
@@ -237,6 +237,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   },
   {
     "id": "cat_agriculture",
+    "name": "Agriculture & Farming",
     "slug": "agriculture-farming",
     "description": "High-yield seeds, bio-fertilizers, drip irrigation, tools & farm equipment",
     "imageUrl": "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=600&q=80",
@@ -247,15 +248,14 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
       "Gardening Tools",
       "Drip Pipes"
     ],
-    "featured": false,
-    "name": "Agriculture & Farming"
+    "featured": false
   },
   {
     "id": "cat_religious",
     "name": "Religious & Pooja",
     "slug": "religious-pooja",
     "description": "Brass diyas, agarbatti, pooja samagri, temple decor, idols & festive essentials",
-    "imageUrl": "https://images.unsplash.com/photo-1609803384069-1cac59463b96?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1606293926075-69a00dbfde81?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,650+ items",
     "popularTags": [
       "Brass Diyas",
@@ -270,7 +270,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Flowers & Gifts",
     "slug": "flowers-gifts",
     "description": "Fresh flower bouquets, gift hampers, personalized keepsakes & festival combos",
-    "imageUrl": "https://images.unsplash.com/photo-1526047932273-341f2a7631f9?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,500+ items",
     "popularTags": [
       "Rose Bouquets",
@@ -285,7 +285,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Optical & Eyewear",
     "slug": "optical-eyewear",
     "description": "Polarized sunglasses, blue-light computer glasses, contact lenses & frame styles",
-    "imageUrl": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,350+ items",
     "popularTags": [
       "Blue Light Glasses",
@@ -330,7 +330,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Travel & Transport",
     "slug": "travel-transport",
     "description": "Hard-top trolley luggage, travel backpacks, passport organizers & accessories",
-    "imageUrl": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1565026057447-bc90a3dceb87?auto=format&fit=crop&w=600&q=80",
     "itemCount": "890+ items",
     "popularTags": [
       "Trolley Bags",
@@ -358,6 +358,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   {
     "id": "cat_repair",
     "name": "Repair & Maintenance",
+    "slug": "repair-maintenance",
     "description": "Spare components, soldering kits, diagnostic testers & repair accessories",
     "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
     "itemCount": "740+ items",
@@ -367,15 +368,14 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
       "Mobile Screwdrivers",
       "Lubricants"
     ],
-    "featured": false,
-    "slug": "repair-maintenance"
+    "featured": false
   },
   {
     "id": "cat_printing",
     "name": "Printing & Business Services",
     "slug": "printing-business-services",
     "description": "Custom business cards, packaging boxes, printed labels, flyers & merchandise",
-    "imageUrl": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,600+ items",
     "popularTags": [
       "Custom Boxes",
@@ -435,7 +435,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Entertainment & Recreation",
     "slug": "entertainment-recreation",
     "description": "Board games, gaming consoles, musical instruments, hobby kits & audio vinyls",
-    "imageUrl": "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,150+ items",
     "popularTags": [
       "Acoustic Guitars",
@@ -450,7 +450,7 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
     "name": "Other / Specialty Shops",
     "slug": "other-specialty-shops",
     "description": "Rare collectibles, antique items, unique custom handmade artifacts & specialty crafts",
-    "imageUrl": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80",
     "itemCount": "1,450+ items",
     "popularTags": [
       "Antiques",
@@ -476,4 +476,18 @@ export function getCategoryByName(name: string): MarketplaceCategory | undefined
   return MARKETPLACE_CATEGORIES.find(
     (c) => c.name.toLowerCase() === normalized || c.slug === normalized
   );
+}
+
+export function resolveCategoryInfo(nameOrSlug: string): MarketplaceCategory {
+  const match = getCategoryByName(nameOrSlug) || getCategoryBySlug(nameOrSlug);
+  if (match) return match;
+  return {
+    id: 'cat_general',
+    name: nameOrSlug || 'General Products',
+    slug: (nameOrSlug || 'general').toLowerCase().replace(/\s+/g, '-'),
+    description: 'Explore curated products and independent stores',
+    imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
+    itemCount: 'Active',
+    popularTags: ['Verified Stores']
+  };
 }

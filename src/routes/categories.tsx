@@ -32,26 +32,10 @@ function CategoriesList() {
     queryFn: () => api.getCategories(),
   });
 
-  const dynamicCats: any[] = Array.isArray(rawCats) ? rawCats : [];
-
-  // Merge static curated 30 categories with any dynamic backend categories
+  // Master 30 marketplace categories
   const allCategories: MarketplaceCategory[] = useMemo(() => {
-    const list = [...MARKETPLACE_CATEGORIES];
-    for (const dc of dynamicCats) {
-      if (!list.some((c) => c.name.toLowerCase() === dc.name.toLowerCase())) {
-        list.push({
-          id: dc.id || `dyn_${dc.slug || slugify(dc.name)}`,
-          name: dc.name,
-          slug: dc.slug || slugify(dc.name),
-          description: dc.description || "Browse store products in this category",
-          imageUrl: dc.imageUrl || dc.image_url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80",
-          itemCount: "Active",
-          popularTags: ["Verified Stores"],
-        });
-      }
-    }
-    return list;
-  }, [dynamicCats]);
+    return MARKETPLACE_CATEGORIES;
+  }, []);
 
   const filteredCategories = useMemo(() => {
     let result = allCategories;
@@ -163,6 +147,10 @@ function CategoriesList() {
                     src={c.imageUrl}
                     alt={c.name}
                     loading="lazy"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80";
+                    }}
                     className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
                   {/* Subtle dark gradient overlay */}

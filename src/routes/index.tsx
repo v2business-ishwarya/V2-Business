@@ -292,9 +292,12 @@ function Home() {
                   {/* Category Image Container */}
                   <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
                     <img
-                      src={c.imageUrl || c.image_url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80"}
+                      src={c.imageUrl || c.image_url || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80"}
                       alt={c.name}
                       loading="lazy"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80";
+                      }}
                       className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     />
                     {/* Gradient shadow overlay for legibility */}
