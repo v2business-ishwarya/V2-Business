@@ -315,12 +315,12 @@ function Home() {
             </div>
           </div>
 
-          {/* Flash Deal Cards Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Flash Deal Cards Grid: 3x3 (9 items) on Mobile, 8 items (4x2) on PC */}
+          <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
             {[
               {
                 title: "Wireless ANC Bluetooth Earbuds",
-                store: "Sri Sai Tech & Mobiles",
+                store: "Sri Sai Tech",
                 price: 1299,
                 originalPrice: 2499,
                 discount: "48% OFF",
@@ -330,7 +330,7 @@ function Home() {
               },
               {
                 title: "Pure Kanchipuram Bridal Silk Saree",
-                store: "Anand Silk Emporium",
+                store: "Anand Silks",
                 price: 4299,
                 originalPrice: 8500,
                 discount: "49% OFF",
@@ -339,8 +339,8 @@ function Home() {
                 slug: "clothing-fashion",
               },
               {
-                title: "Cold-Pressed Wood Churned Sesame Oil (1L)",
-                store: "Godavari Fresh Organics",
+                title: "Cold-Pressed Wood Sesame Oil (1L)",
+                store: "Godavari Organics",
                 price: 349,
                 originalPrice: 499,
                 discount: "30% OFF",
@@ -349,8 +349,8 @@ function Home() {
                 slug: "grocery-supermarkets",
               },
               {
-                title: "Smart Stainless Steel Vacuum Flask (1L)",
-                store: "Rajahmundry Home Needs",
+                title: "Smart Stainless Vacuum Flask (1L)",
+                store: "Rajahmundry Home",
                 price: 599,
                 originalPrice: 1199,
                 discount: "50% OFF",
@@ -358,38 +358,91 @@ function Home() {
                   "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=95",
                 slug: "home-furniture",
               },
+              {
+                title: "Organic Sandalwood Face Ubtan",
+                store: "Veda Naturals",
+                price: 249,
+                originalPrice: 499,
+                discount: "50% OFF",
+                image:
+                  "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=800&q=95",
+                slug: "beauty-personal-care",
+              },
+              {
+                title: "20000mAh Fast Charging Power Bank",
+                store: "TechZone Mobile",
+                price: 899,
+                originalPrice: 1799,
+                discount: "50% OFF",
+                image:
+                  "https://images.unsplash.com/photo-1609592426868-80f4a7c06a3e?auto=format&fit=crop&w=800&q=95",
+                slug: "mobile-telecom",
+              },
+              {
+                title: "Handmade Leather Comfort Chappal",
+                store: "Godavari Footwear",
+                price: 499,
+                originalPrice: 999,
+                discount: "50% OFF",
+                image:
+                  "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=800&q=95",
+                slug: "footwear",
+              },
+              {
+                title: "22K Gold Plated Temple Choker Set",
+                store: "Sri Godavari Gold",
+                price: 1499,
+                originalPrice: 2999,
+                discount: "50% OFF",
+                image:
+                  "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=800&q=95",
+                slug: "jewellery-accessories",
+              },
+              {
+                title: "Dry Fruit & Roasted Nuts Combo (500g)",
+                store: "Royal Dry Fruits",
+                price: 399,
+                originalPrice: 699,
+                discount: "42% OFF",
+                image:
+                  "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=95",
+                slug: "grocery-supermarkets",
+                isMobileOnly: true,
+              },
             ].map((deal, idx) => (
               <Link
                 key={idx}
                 to="/category/$slug"
                 params={{ slug: deal.slug }}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-card p-3 shadow-xs hover:border-amber-500/50 hover:shadow-lg transition-all duration-300"
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2 sm:p-3 shadow-2xs hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 ${
+                  (deal as any).isMobileOnly ? "block sm:hidden" : ""
+                }`}
               >
-                <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-muted">
+                <div className="relative aspect-square sm:aspect-4/3 w-full overflow-hidden rounded-lg sm:rounded-xl bg-muted">
                   <img
                     src={deal.image}
                     alt={deal.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <Badge className="absolute top-2 left-2 bg-red-600 text-white font-black text-[9px] uppercase px-1.5 py-0.5">
+                  <Badge className="absolute top-1 left-1 sm:top-2 sm:left-2 bg-red-600 text-white font-black text-[8px] sm:text-[9px] uppercase px-1 py-0.2 sm:px-1.5 sm:py-0.5">
                     {deal.discount}
                   </Badge>
                 </div>
-                <div className="pt-2.5 space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                <div className="pt-1.5 sm:pt-2.5 space-y-0.5 sm:space-y-1">
+                  <p className="text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 truncate">
                     {deal.store}
                   </p>
-                  <h3 className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                  <h3 className="text-[10px] sm:text-xs font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
                     {deal.title}
                   </h3>
-                  <div className="flex items-baseline gap-2 pt-1">
-                    <span className="text-sm font-black text-foreground">₹{deal.price}</span>
-                    <span className="text-[11px] text-muted-foreground line-through">₹{deal.originalPrice}</span>
+                  <div className="flex items-baseline gap-1 sm:gap-2 pt-0.5 sm:pt-1">
+                    <span className="text-xs sm:text-sm font-black text-foreground">₹{deal.price}</span>
+                    <span className="text-[9px] sm:text-[11px] text-muted-foreground line-through">₹{deal.originalPrice}</span>
                   </div>
                 </div>
-                <div className="mt-2.5 pt-2 border-t border-border/60 flex items-center justify-between text-[11px] font-bold text-primary">
-                  <span>Claim Deal</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+                <div className="mt-1.5 sm:mt-2.5 pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between text-[9px] sm:text-[11px] font-bold text-primary">
+                  <span>Claim</span>
+                  <ChevronRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 </div>
               </Link>
             ))}
@@ -535,42 +588,81 @@ function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Boutique Edit Grid: 3x3 (9 items) on Mobile, 8 items (4x2) on PC */}
+        <div className="grid grid-cols-3 sm:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-5">
           {[
             {
               title: "Bridal & Heritage Silks",
-              desc: "Authentic Uppada, Gadwal & Kanchipuram masterweaves",
+              desc: "Uppada, Gadwal & Kanchipuram weaves",
               img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=95",
-              tag: "HANDLOOM AUTHENTIC",
+              tag: "HANDLOOM",
               slug: "clothing-fashion",
             },
             {
-              title: "Smart Electronics & Mobiles",
-              desc: "Latest 5G smartphones, smart TVs & home audio",
+              title: "Smart Tech & Mobiles",
+              desc: "5G smartphones, TVs & audio systems",
               img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=95",
-              tag: "GENUINE WARRANTY",
+              tag: "TECH HUB",
               slug: "electronics-home-appliances",
             },
             {
-              title: "Ayurveda & Luxury Fragrance",
-              desc: "Pure sandalwood, natural perfumes & herbal skin wellness",
+              title: "Ayurveda & Perfumes",
+              desc: "Pure sandalwood & natural beauty care",
               img: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=95",
-              tag: "ORGANIC GLOW",
+              tag: "ORGANIC",
               slug: "beauty-personal-care",
             },
             {
-              title: "Godavari Gourmet Staples",
-              desc: "Farm fresh cold pressed oils, organic spices & sweets",
+              title: "Godavari Gourmet Foods",
+              desc: "Wood pressed oils, spices & sweets",
               img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1000&q=95",
-              tag: "FARM TO KITCHEN",
+              tag: "GOURMET",
               slug: "grocery-supermarkets",
+            },
+            {
+              title: "Temple & Fine Jewellery",
+              desc: "Hallmark gold & certified silver deities",
+              img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=95",
+              tag: "JEWELLERY",
+              slug: "jewellery-accessories",
+            },
+            {
+              title: "Artisanal Brass Craft",
+              desc: "Royal peacock diyas & handcrafted idols",
+              img: "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=1000&q=95",
+              tag: "HANDMADE",
+              slug: "home-furniture",
+            },
+            {
+              title: "Ethnic Footwear & Mojris",
+              desc: "Pure leather handcrafted comfort footwear",
+              img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=1000&q=95",
+              tag: "FOOTWEAR",
+              slug: "footwear",
+            },
+            {
+              title: "Godavari Coastal Treats",
+              desc: "Famous cashews, pickles & local snacks",
+              img: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1000&q=95",
+              tag: "SNACKS",
+              slug: "restaurants-food",
+            },
+            {
+              title: "Designer Men's Ethnic",
+              desc: "Silk dhotis, festive kurtas & blazers",
+              img: "https://images.unsplash.com/photo-1603252109303-2751441ec157?auto=format&fit=crop&w=1000&q=95",
+              tag: "ETHNIC",
+              slug: "clothing-fashion",
+              isMobileOnly: true,
             },
           ].map((edit, idx) => (
             <Link
               key={idx}
               to="/category/$slug"
               params={{ slug: edit.slug }}
-              className="group relative h-80 rounded-3xl overflow-hidden border border-border bg-card shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl"
+              className={`group relative h-44 sm:h-80 rounded-2xl sm:rounded-3xl overflow-hidden border border-border bg-card shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
+                (edit as any).isMobileOnly ? "block sm:hidden" : ""
+              }`}
             >
               <img
                 src={edit.img}
@@ -578,17 +670,17 @@ function Home() {
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-              <div className="absolute top-3.5 left-3.5">
-                <Badge className="bg-amber-500 text-black font-black text-[9px] uppercase tracking-wider">
+              <div className="absolute top-2 left-2 sm:top-3.5 sm:left-3.5">
+                <Badge className="bg-amber-500 text-black font-black text-[7px] sm:text-[9px] uppercase tracking-wider px-1 py-0.2 sm:px-2 sm:py-0.5">
                   {edit.tag}
                 </Badge>
               </div>
-              <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
-                <h3 className="text-base font-extrabold leading-tight">{edit.title}</h3>
-                <p className="text-xs text-white/80 line-clamp-2">{edit.desc}</p>
-                <div className="pt-2 flex items-center text-xs font-bold text-amber-300 gap-1">
-                  <span>Explore Boutique</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
+              <div className="absolute bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-4 text-white space-y-0.5 sm:space-y-1">
+                <h3 className="text-[11px] sm:text-base font-extrabold leading-tight line-clamp-1 sm:line-clamp-2">{edit.title}</h3>
+                <p className="text-[8px] sm:text-xs text-white/80 line-clamp-1 sm:line-clamp-2">{edit.desc}</p>
+                <div className="pt-0.5 sm:pt-2 flex items-center text-[9px] sm:text-xs font-bold text-amber-300 gap-0.5 sm:gap-1">
+                  <span>Explore</span>
+                  <ChevronRight className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5" />
                 </div>
               </div>
             </Link>
