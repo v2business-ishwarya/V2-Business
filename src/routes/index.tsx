@@ -127,7 +127,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* 1. TOP SUB-NAV CATEGORY BAR (Nykaa Style) */}
-      <div className="border-b border-border/70 bg-card/75 backdrop-blur-md sticky top-[57px] z-30 shadow-2xs">
+      <div className="border-b border-border/70 bg-card/75 backdrop-blur-md sticky top-[96px] sm:top-[57px] z-30 shadow-2xs">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-4 py-2 text-xs font-semibold scrollbar-none sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
             {QUICK_NAV_CATS.map((cat) => (

@@ -198,10 +198,10 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* 4. Search Bar with Location Pill */}
-        <div ref={searchContainerRef} className="relative flex-1 min-w-0 max-w-2xl mx-1 sm:mx-2">
+        {/* 4. Desktop Search Bar with Location Pill (Hidden on Mobile) */}
+        <div ref={searchContainerRef} className="relative hidden sm:block flex-1 min-w-0 max-w-2xl mx-2">
           <form onSubmit={submit} className="flex items-center rounded-full border border-border bg-surface-muted/90 p-1 shadow-inner focus-within:ring-2 focus-within:ring-primary/40 transition-all">
-            {/* Fixed Rajahmundry Location Badge (No dropdown) */}
+            {/* Fixed Rajahmundry Location Badge */}
             <div className="flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-xs font-bold text-foreground shadow-2xs border border-border/60 shrink-0">
               <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
               <span>Rajahmundry</span>
@@ -218,7 +218,7 @@ export function SiteHeader() {
                 onFocus={() => {
                   if (q.trim().length >= 2) setShowDropdown(true);
                 }}
-                placeholder="Search products, stores, categories in Rajahmundry..."
+                placeholder="Search products, stores, categories..."
                 className="h-9 w-full border-0 bg-transparent px-3 text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/70"
               />
             </div>
@@ -234,7 +234,7 @@ export function SiteHeader() {
             </Button>
           </form>
 
-          {/* Live Autocomplete Dropdown */}
+          {/* Live Autocomplete Dropdown (Desktop) */}
           {showDropdown && q.trim().length >= 2 && (
             <div className="absolute top-12 left-0 right-0 z-50 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-3 max-h-[420px] overflow-y-auto">
               {isSearching ? (
@@ -243,7 +243,7 @@ export function SiteHeader() {
                 </div>
               ) : (
                 <>
-                  {/* Matching Stores & Shops */}
+                  {/* Matching Stores */}
                   {searchResults?.stores && searchResults.stores.length > 0 && (
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between px-2">
@@ -352,8 +352,13 @@ export function SiteHeader() {
           )}
         </div>
 
-        {/* 5. Right Actions: Wishlist, Cart, Sign In / Account */}
-        <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
+        {/* 5. Right Actions: Location Pill (Mobile), Wishlist, Cart, Sign In / Account */}
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Mobile Location Indicator */}
+          <div className="flex sm:hidden items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-1 text-[11px] font-bold text-amber-700 dark:text-amber-300 shrink-0">
+            <MapPin className="h-3 w-3 text-amber-600 shrink-0" />
+            <span className="truncate max-w-[85px]">Rajahmundry</span>
+          </div>
           {user && (
             <Link to="/account/wishlist" className="hidden sm:inline-flex">
               <Button variant="ghost" size="icon" aria-label="Wishlist" className="rounded-full">
@@ -538,6 +543,109 @@ export function SiteHeader() {
             </SheetContent>
           </Sheet>
         </div>
+      </div>
+
+      {/* Mobile Dedicated Search Bar (Visible only on < sm) */}
+      <div className="block sm:hidden px-3 pb-2.5 pt-0">
+        <form onSubmit={submit} className="relative flex items-center rounded-full border border-border bg-surface-muted/90 p-1 shadow-inner focus-within:ring-2 focus-within:ring-primary/40 transition-all">
+          <div className="relative flex-1 min-w-0">
+            <Input
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => {
+                if (q.trim().length >= 2) setShowDropdown(true);
+              }}
+              placeholder="Search across 29 categories in Rajahmundry..."
+              className="h-8.5 w-full border-0 bg-transparent px-3 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/70"
+            />
+          </div>
+          <Button
+            type="submit"
+            size="sm"
+            className="h-7.5 rounded-full px-3 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1"
+          >
+            <Search className="h-3.5 w-3.5" />
+          </Button>
+        </form>
+
+        {/* Live Autocomplete Dropdown (Mobile) */}
+        {showDropdown && q.trim().length >= 2 && (
+          <div className="mt-1.5 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-2.5 max-h-[350px] overflow-y-auto">
+            {isSearching ? (
+              <div className="p-3 text-center text-xs text-muted-foreground">
+                Searching products & stores...
+              </div>
+            ) : (
+              <>
+                {searchResults?.stores && searchResults.stores.length > 0 && (
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
+                      <Store className="h-3 w-3 text-primary" /> Verified Stores
+                    </span>
+                    {searchResults.stores.map((store: any) => (
+                      <div
+                        key={store.id}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate({ to: "/store/$slug", params: { slug: store.slug || store.id } });
+                        }}
+                        className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 truncate text-xs">
+                          <Store className="h-3.5 w-3.5 text-primary shrink-0" />
+                          <span className="font-bold text-foreground truncate">{store.name}</span>
+                        </div>
+                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-700">
+                          Visit
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {searchResults?.products && searchResults.products.length > 0 && (
+                  <div className="space-y-1 pt-1 border-t border-border/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">
+                      Matching Products
+                    </span>
+                    {searchResults.products.map((product: any) => (
+                      <div
+                        key={product.id}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate({ to: "/product/$slug", params: { slug: product.slug || product.id } });
+                        }}
+                        className="flex items-center justify-between p-1.5 rounded-xl hover:bg-muted/70 cursor-pointer"
+                      >
+                        <span className="truncate text-xs font-semibold text-foreground pr-2">
+                          {product.name}
+                        </span>
+                        <span className="font-bold text-xs text-primary shrink-0">
+                          {formatMoney(product.price)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-1.5 border-t border-border/60">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={submit}
+                    className="w-full text-xs font-bold rounded-xl h-7"
+                  >
+                    View results for "{q}"
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </header>
   );
