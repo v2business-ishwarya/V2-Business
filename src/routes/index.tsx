@@ -157,14 +157,33 @@ function Home() {
         </div>
       </div>
 
-      {/* 2. NYKAA STYLE ANNOUNCEMENT TICKER */}
-      <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-1.5 px-4 shadow-sm overflow-hidden">
-        <div className="mx-auto max-w-7xl flex items-center justify-center text-center text-xs font-extrabold tracking-wider uppercase gap-3">
-          <span>✨ 29 RETAIL CATEGORIES ACROSS RAJAHMUNDRY ARE LIVE ON V2 BUSINESS!</span>
-          <span className="hidden sm:inline">|</span>
-          <span className="hidden sm:inline">FREE LOCAL DELIVERY ON ORDERS ABOVE ₹499</span>
-          <span className="hidden md:inline">|</span>
-          <span className="hidden md:inline">100% VERIFIED LOCAL MERCHANTS ✨</span>
+      {/* 2. ANNOUNCEMENT TICKER WITH SMOOTH CONTINUOUS SCROLL ANIMATION */}
+      <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-1.5 shadow-sm overflow-hidden whitespace-nowrap select-none">
+        <div className="animate-marquee flex items-center text-xs font-extrabold tracking-wider uppercase">
+          <div className="flex items-center gap-8 px-4 shrink-0">
+            <span>✨ 29 RETAIL CATEGORIES ARE LIVE ON V2 BUSINESS!</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>⚡ FREE DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🛡️ 100% VERIFIED MERCHANTS & DIRECT LOCAL PRICES</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🚀 FAST HOME DELIVERY ACROSS MULTIPLE CITIES</span>
+            <span className="text-yellow-200/80">✦</span>
+          </div>
+          <div className="flex items-center gap-8 px-4 shrink-0" aria-hidden="true">
+            <span>✨ 29 RETAIL CATEGORIES ARE LIVE ON V2 BUSINESS!</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>⚡ FREE DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🛡️ 100% VERIFIED MERCHANTS & DIRECT LOCAL PRICES</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🚀 FAST HOME DELIVERY ACROSS MULTIPLE CITIES</span>
+            <span className="text-yellow-200/80">✦</span>
+          </div>
         </div>
       </div>
 
