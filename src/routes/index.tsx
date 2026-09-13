@@ -13,6 +13,7 @@ import {
   Truck,
   IndianRupee,
   ChevronRight,
+  ChevronLeft,
   Star,
   Flame,
   CreditCard,
@@ -47,6 +48,62 @@ const QUICK_NAV_CATS = [
   { name: "Home & Furniture", slug: "home-furniture" },
   { name: "Footwear", slug: "footwear" },
   { name: "Restaurants", slug: "restaurants-food" },
+];
+
+// Interactive Hero Carousel Slides
+const HERO_SLIDES = [
+  {
+    id: "slide-1",
+    tag: "🔥 GRAND MARKETPLACE FESTIVAL",
+    title: "Mega Deals Up to 70% Off",
+    highlight: "Across 29 Retail Categories",
+    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified merchants.",
+    ctaText: "Shop All Deals",
+    targetLink: "/search",
+    bgImage:
+      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-neutral-950/95 via-amber-950/75 to-transparent",
+    badgeColor: "bg-gradient-to-r from-amber-500 to-yellow-500 text-black",
+  },
+  {
+    id: "slide-2",
+    tag: "✨ 100% BIS HALLMARKED",
+    title: "Heritage Gold & Certified Diamonds",
+    highlight: "Direct Jeweller Rates",
+    subtitle: "Exquisite bridal sets, daily wear certified gold, pure silver & solitaires with insured delivery.",
+    ctaText: "Explore Jewellery",
+    targetLink: "/category/jewellery-accessories",
+    bgImage:
+      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-neutral-950/95 via-yellow-950/70 to-transparent",
+    badgeColor: "bg-yellow-400 text-black",
+  },
+  {
+    id: "slide-3",
+    tag: "⚡ NEXT-GEN GADGETS",
+    title: "Smartphones, Laptops & Smart Living",
+    highlight: "Extra 10% Instant UPI Discount",
+    subtitle: "Upgrade your lifestyle with genuine brand warranty, instant doorstep delivery, and best local prices.",
+    ctaText: "Explore Electronics",
+    targetLink: "/category/electronics-home-appliances",
+    bgImage:
+      "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-neutral-950/95 via-blue-950/70 to-transparent",
+    badgeColor: "bg-indigo-500 text-white",
+  },
+  {
+    id: "slide-4",
+    tag: "👗 NEW SEASON FASHION",
+    title: "Pure Silk Sarees & Designer Ethnic",
+    highlight: "Wholesale Merchant Prices",
+    subtitle: "Handcrafted traditional sarees, festive lehengas, kurtis, and men's ethnic collections.",
+    ctaText: "Shop Fashion",
+    targetLink: "/category/clothing-fashion",
+    bgImage:
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-neutral-950/95 via-rose-950/70 to-transparent",
+    badgeColor: "bg-rose-500 text-white",
+  },
 ];
 
 // Multi-category 3 Hero Banner Cards (Starting with Jewellery, Toys, Clothing)
@@ -95,6 +152,52 @@ const HERO_BANNERS = [
 function Home() {
   const navigate = useNavigate();
   const { user } = useSession();
+
+  // Hero carousel state
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const [isPaused, setIsPaused] = React.useState(false);
+
+  // Auto-advance slides every 5 seconds when not hovered
+  React.useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isPaused]);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  };
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+  };
+
+  // Mobile Touch swipe support
+  const [touchStart, setTouchStart] = React.useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = React.useState<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    if (distance > minSwipeDistance) {
+      nextSlide();
+    } else if (distance < -minSwipeDistance) {
+      prevSlide();
+    }
+  };
 
   // Live countdown timer for Flash Drops
   const [timeLeft, setTimeLeft] = React.useState({
@@ -186,6 +289,117 @@ function Home() {
           </div>
         </div>
       </div>
+
+      {/* 2.5 INTERACTIVE HERO GALLERY SLIDER / CAROUSEL */}
+      <section className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
+        <div
+          className="relative h-[220px] sm:h-[300px] md:h-[360px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
+          {/* Slide items */}
+          {HERO_SLIDES.map((slide, index) => {
+            const isActive = index === currentSlide;
+            return (
+              <div
+                key={slide.id}
+                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                  isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                }`}
+              >
+                {/* Background Image */}
+                <img
+                  src={slide.bgImage}
+                  alt={slide.title}
+                  className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
+                />
+
+                {/* Dark & Vibrant Gradient Overlay for text contrast */}
+                <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 max-w-2xl text-white">
+                  {/* Badge */}
+                  <div className="mb-1.5 sm:mb-2.5">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase shadow-md ${slide.badgeColor}`}
+                    >
+                      {slide.tag}
+                    </span>
+                  </div>
+
+                  {/* Headline */}
+                  <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-2 drop-shadow-sm">
+                    {slide.title}
+                    <span className="block text-amber-300 font-extrabold mt-0.5">
+                      {slide.highlight}
+                    </span>
+                  </h2>
+
+                  {/* Subtitle */}
+                  <p className="hidden sm:block text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-lg">
+                    {slide.subtitle}
+                  </p>
+
+                  {/* CTA Button */}
+                  <div className="mt-1">
+                    <Link to={slide.targetLink}>
+                      <Button
+                        size="sm"
+                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-4 sm:px-6 h-8 sm:h-9 shadow-lg gap-1.5 hover:scale-105 transition-transform"
+                      >
+                        <span>{slide.ctaText}</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Left Arrow Button */}
+          <button
+            type="button"
+            onClick={prevSlide}
+            aria-label="Previous Slide"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+          >
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+
+          {/* Right Arrow Button */}
+          <button
+            type="button"
+            onClick={nextSlide}
+            aria-label="Next Slide"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+          >
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+
+          {/* Bottom Slide Indicators */}
+          <div className="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+            {HERO_SLIDES.map((slide, idx) => (
+              <button
+                type="button"
+                key={slide.id}
+                onClick={() => setCurrentSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentSlide
+                    ? "w-6 sm:w-8 bg-amber-400"
+                    : "w-2 bg-white/40 hover:bg-white/70"
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* 3. HERO SHOWCASE: MULTI-CATEGORY HIGHLIGHTS (Decreased Compact Size) */}
       <section className="mx-auto max-w-7xl px-4 pt-4 pb-5 sm:px-6 lg:px-8">
