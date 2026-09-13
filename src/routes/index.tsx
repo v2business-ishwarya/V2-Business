@@ -37,16 +37,16 @@ export const Route = createFileRoute("/")({
 
 // Curated Top Quick Bar Categories across 29 retail sectors
 const QUICK_NAV_CATS = [
-  { name: "Electronics & Gadgets", slug: "electronics-home-appliances" },
-  { name: "Clothing & Fashion", slug: "clothing-fashion" },
-  { name: "Grocery & Mart", slug: "grocery-supermarkets" },
-  { name: "Beauty & Fragrance", slug: "beauty-personal-care" },
-  { name: "Mobile & Telecom", slug: "mobile-telecom" },
-  { name: "Home & Furniture", slug: "home-furniture" },
-  { name: "Footwear", slug: "footwear" },
-  { name: "Jewellery & Accessories", slug: "jewellery-accessories" },
-  { name: "Restaurants & Food", slug: "restaurants-food" },
-  { name: "Health & Pharmacy", slug: "pharmacy-healthcare" },
+  { name: "Nxt-Gen Electronics", slug: "electronics-home-appliances" },
+  { name: "Designer Fashion", slug: "clothing-fashion" },
+  { name: "Daily Supermarket", slug: "grocery-supermarkets" },
+  { name: "Beauty & Glam", slug: "beauty-personal-care" },
+  { name: "Smart Mobiles & 5G", slug: "mobile-telecom" },
+  { name: "Home & Living", slug: "home-furniture" },
+  { name: "Footwear Lounge", slug: "footwear" },
+  { name: "Fine Jewellery", slug: "jewellery-accessories" },
+  { name: "Dine-in & Foods", slug: "restaurants-food" },
+  { name: "Pharmacy & Wellness", slug: "pharmacy-healthcare" },
 ];
 
 // Multi-category 3 Hero Banner Cards
@@ -516,51 +516,118 @@ function Home() {
         </div>
       </section>
 
-      {/* 5. CIRCULAR STORY CATEGORIES (Nykaa Style Category Bubbles) */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
+      {/* 5. COMPACT CATEGORY SHOWCASE */}
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg sm:text-2xl font-black text-foreground">
+            <h2 className="text-base sm:text-xl font-black text-foreground">
               Shop by Category
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Explore 29 verified departments across Rajahmundry
             </p>
           </div>
           <Link
             to="/categories"
-            className="text-xs sm:text-sm font-bold text-primary hover:underline flex items-center gap-1"
+            className="text-xs font-bold text-primary hover:underline flex items-center gap-1"
           >
-            View All <ChevronRight className="h-4 w-4" />
+            All (29) <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        {/* Luxury Category Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-          {MARKETPLACE_CATEGORIES.slice(0, 8).map((cat) => (
+        {/* Compact Modern Category Grid */}
+        <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-2 sm:gap-3">
+          {[
+            {
+              name: "Nxt-Gen Electronics",
+              shortName: "Electronics",
+              slug: "electronics-home-appliances",
+              imageUrl:
+                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Designer Fashion",
+              shortName: "Fashion",
+              slug: "clothing-fashion",
+              imageUrl:
+                "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Daily Supermarket",
+              shortName: "Groceries",
+              slug: "grocery-supermarkets",
+              imageUrl:
+                "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Beauty & Glam",
+              shortName: "Beauty",
+              slug: "beauty-personal-care",
+              imageUrl:
+                "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Smart Mobiles & 5G",
+              shortName: "Mobiles",
+              slug: "mobile-telecom",
+              imageUrl:
+                "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Home & Living",
+              shortName: "Home Decor",
+              slug: "home-furniture",
+              imageUrl:
+                "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Footwear Lounge",
+              shortName: "Footwear",
+              slug: "footwear",
+              imageUrl:
+                "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Fine Jewellery",
+              shortName: "Jewellery",
+              slug: "jewellery-accessories",
+              imageUrl:
+                "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Dine-in & Foods",
+              shortName: "Restaurants",
+              slug: "restaurants-food",
+              imageUrl:
+                "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Pharmacy & Wellness",
+              shortName: "Pharmacy",
+              slug: "pharmacy-healthcare",
+              imageUrl:
+                "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80",
+            },
+          ].map((cat) => (
             <Link
-              key={cat.id}
+              key={cat.slug}
               to="/category/$slug"
               params={{ slug: cat.slug }}
-              className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-border/70 bg-card p-2.5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
+              className="group flex flex-col items-center p-1 sm:p-1.5 transition-all"
             >
-              <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
+              <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-2xl overflow-hidden bg-muted border border-border/80 group-hover:border-amber-500 group-hover:shadow-md transition-all group-hover:scale-105">
                 <img
                   src={cat.imageUrl}
                   alt={cat.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <div className="mt-2.5 w-full text-center">
-                <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
-                  {cat.name}
-                </span>
-                <span className="text-[10px] font-medium text-muted-foreground group-hover:text-primary transition-colors">
-                  Explore &rarr;
-                </span>
-              </div>
+              <span className="mt-1.5 block text-[10px] sm:text-xs font-bold text-center text-foreground group-hover:text-primary transition-colors line-clamp-1 max-w-[70px] sm:max-w-none">
+                <span className="hidden sm:inline">{cat.name}</span>
+                <span className="inline sm:hidden">{cat.shortName}</span>
+              </span>
             </Link>
           ))}
         </div>
