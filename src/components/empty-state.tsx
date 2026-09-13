@@ -1,5 +1,6 @@
-import { type ReactNode } from "react";
+import React, { type ReactNode } from "react";
 import { PackageOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function EmptyState({
   icon,
@@ -11,7 +12,7 @@ export function EmptyState({
   icon?: ReactNode;
   title: string;
   description?: string;
-  action?: ReactNode;
+  action?: ReactNode | { label: string; onClick?: () => void };
   className?: string;
 }) {
   return (
@@ -25,7 +26,24 @@ export function EmptyState({
       {description && (
         <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">{description}</p>
       )}
-      {action && <div className="mt-5 flex justify-center">{action}</div>}
+      {action && (
+        <div className="mt-5 flex justify-center">
+          {React.isValidElement(action) ? (
+            action
+          ) : typeof action === "object" && action !== null && "label" in action ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(action as any).onClick}
+              className="rounded-xl font-semibold text-xs"
+            >
+              {(action as any).label}
+            </Button>
+          ) : (
+            (action as ReactNode)
+          )}
+        </div>
+      )}
     </div>
   );
 }

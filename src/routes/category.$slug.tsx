@@ -428,12 +428,13 @@ function CategoryPage() {
               <EmptyState
                 title={`No products listed in ${title} yet`}
                 description="Vendors are continuously uploading items. Check back soon or browse other departments."
-                action={{
-                  label: "Explore All Categories",
-                  onClick: () => {
-                    window.location.href = "/categories";
-                  },
-                }}
+                action={
+                  <Link to="/categories">
+                    <Button variant="outline" size="sm" className="rounded-xl text-xs font-bold">
+                      Explore All Categories
+                    </Button>
+                  </Link>
+                }
               />
             ) : (
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
