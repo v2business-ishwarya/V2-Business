@@ -182,53 +182,59 @@ function AuthPage() {
   return (
     <div className="relative min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden">
       {/* Background Glows */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-primary/15 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 -left-40 h-[500px] w-[500px] rounded-full bg-amber-500/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-yellow-500/10 blur-3xl" />
 
       {/* Main Split Creative Container */}
       <div className="relative w-full max-w-5xl rounded-3xl border border-border/80 bg-card shadow-2xl backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
         {/* LEFT SHOWCASE HERO (Desktop) */}
-        <div className="lg:col-span-5 relative bg-gradient-to-br from-primary via-emerald-700 to-teal-900 p-8 sm:p-10 text-primary-foreground flex flex-col justify-between overflow-hidden">
-          {/* Decorative mesh glows */}
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
+        <div className="lg:col-span-5 relative p-8 sm:p-10 flex flex-col justify-between overflow-hidden bg-amber-50/50">
+          {/* Background Silk Image with subtle warm golden overlay */}
+          <img
+            src="/auth-gold-silk-bg.jpg"
+            alt="Gold Silk"
+            className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-amber-900/10 to-white/20 pointer-events-none" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-300/25 blur-2xl" />
+          <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-700/25 blur-2xl" />
 
           {/* Top Logo & Pill */}
           <div className="relative z-10 flex flex-wrap items-center gap-4">
             <Link to="/" className="inline-block">
-              <V2Logo size="md" textColor="text-white" isLightOnDark={true} />
+              <V2Logo size="lg" />
             </Link>
 
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-black/25 border border-white/30 px-3.5 py-1 text-xs font-bold text-white shadow-sm">
-              <Sparkles className="h-3.5 w-3.5 text-yellow-300" />
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-900/80 backdrop-blur-md border border-amber-400/40 px-3.5 py-1 text-xs font-bold text-amber-100 shadow-sm">
+              <Sparkles className="h-3.5 w-3.5 text-amber-300" />
               <span>{mode === "signin" ? "Welcome Back to V2" : "Join Our Marketplace"}</span>
             </div>
           </div>
 
           {/* Dynamic Middle Headline & Benefits */}
           <div className="relative z-10 my-8 space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight transition-all duration-300">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-stone-900 transition-all duration-300 drop-shadow-xs">
               {mode === "signin"
                 ? "Your Gateway to Independent Creators & Fast Commerce."
                 : "Start Shopping or Launch Your Online Store Today."}
             </h2>
 
-            <div className="space-y-3.5 text-xs sm:text-sm text-primary-foreground/90">
+            <div className="space-y-3.5 text-xs sm:text-sm text-stone-800 font-medium">
               <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
-                  <ShoppingBag className="h-4 w-4" />
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
+                  <ShoppingBag className="h-4 w-4 text-amber-800" />
                 </div>
                 <span>Unified Multi-Vendor Cart & 1-Click Checkout</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
-                  <Zap className="h-4 w-4" />
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
+                  <Zap className="h-4 w-4 text-amber-800" />
                 </div>
                 <span>0% Commission · Keep 100% of Your Sales Revenue</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/20">
-                  <ShieldCheck className="h-4 w-4" />
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
+                  <ShieldCheck className="h-4 w-4 text-amber-800" />
                 </div>
                 <span>256-Bit Encrypted Payments & Buyer Protection</span>
               </div>
@@ -236,19 +242,19 @@ function AuthPage() {
           </div>
 
           {/* Bottom Trust Card */}
-          <div className="relative z-10 rounded-2xl bg-black/20 p-4 backdrop-blur-md border border-white/10 flex items-center justify-between text-xs">
+          <div className="relative z-10 rounded-2xl bg-stone-900/85 p-4 backdrop-blur-md border border-amber-400/30 flex items-center justify-between text-xs shadow-lg">
             <div>
-              <div className="flex items-center gap-1 text-yellow-300 font-bold">
-                <Star className="h-3.5 w-3.5 fill-yellow-300" />
-                <Star className="h-3.5 w-3.5 fill-yellow-300" />
-                <Star className="h-3.5 w-3.5 fill-yellow-300" />
-                <Star className="h-3.5 w-3.5 fill-yellow-300" />
-                <Star className="h-3.5 w-3.5 fill-yellow-300" />
+              <div className="flex items-center gap-1 text-amber-400 font-bold">
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
                 <span className="text-white ml-1 font-semibold">4.9/5</span>
               </div>
-              <p className="text-white/80 mt-0.5">Trusted by 100+ stores & 10,000+ buyers</p>
+              <p className="text-stone-300 mt-0.5">Trusted by 100+ stores & 10,000+ buyers</p>
             </div>
-            <Badge variant="outline" className="border-white/30 text-white text-[10px]">
+            <Badge variant="outline" className="border-amber-400/40 text-amber-200 bg-amber-950/40 text-[10px] font-semibold">
               Verified
             </Badge>
           </div>
