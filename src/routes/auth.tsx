@@ -189,25 +189,25 @@ function AuthPage() {
 
       {/* Main Split Creative Container */}
       <div className="relative w-full max-w-5xl rounded-3xl border border-border/80 bg-card shadow-2xl backdrop-blur-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
-        {/* LEFT SHOWCASE HERO (Desktop) */}
-        <div className="lg:col-span-5 relative p-8 sm:p-10 flex flex-col justify-between overflow-hidden bg-amber-50/50">
+        {/* LEFT SHOWCASE HERO (Desktop Only - lg:flex) */}
+        <div className="hidden lg:flex lg:col-span-5 relative p-8 sm:p-10 flex-col justify-between overflow-hidden bg-amber-50/50">
           {/* Background Silk Image with subtle warm golden overlay */}
           <img
             src="/auth-gold-silk-bg.jpg"
             alt="Gold Silk"
             className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-amber-950/40 via-amber-900/10 to-white/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-900/40 to-stone-900/20 pointer-events-none" />
           <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-300/25 blur-2xl" />
           <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-amber-700/25 blur-2xl" />
 
           {/* Top Logo & Pill */}
           <div className="relative z-10 flex flex-wrap items-center gap-4">
-            <Link to="/" className="inline-block">
+            <Link to="/" className="inline-block bg-white/90 px-3 py-1.5 rounded-xl shadow-md backdrop-blur-xs">
               <V2Logo size="lg" />
             </Link>
 
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-900/80 backdrop-blur-md border border-amber-400/40 px-3.5 py-1 text-xs font-bold text-amber-100 shadow-sm">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-stone-900/90 backdrop-blur-md border border-amber-400/40 px-3.5 py-1 text-xs font-bold text-amber-100 shadow-md">
               <Sparkles className="h-3.5 w-3.5 text-amber-300" />
               <span>{mode === "signin" ? "Welcome Back to V2" : "Join Our Marketplace"}</span>
             </div>
@@ -215,28 +215,28 @@ function AuthPage() {
 
           {/* Dynamic Middle Headline & Benefits */}
           <div className="relative z-10 my-8 space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-stone-900 transition-all duration-300 drop-shadow-xs">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-white transition-all duration-300 drop-shadow-md">
               {mode === "signin"
                 ? "Your Gateway to Independent Creators & Fast Commerce."
                 : "Start Shopping or Launch Your Online Store Today."}
             </h2>
 
-            <div className="space-y-3.5 text-xs sm:text-sm text-stone-800 font-medium">
-              <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
-                  <ShoppingBag className="h-4 w-4 text-amber-800" />
+            <div className="space-y-3.5 text-xs sm:text-sm text-stone-100 font-medium">
+              <div className="flex items-center gap-3 bg-stone-950/60 p-2.5 rounded-xl backdrop-blur-xs border border-white/10">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-500 text-stone-950 font-bold">
+                  <ShoppingBag className="h-4 w-4" />
                 </div>
                 <span>Unified Multi-Vendor Cart & 1-Click Checkout</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
-                  <Zap className="h-4 w-4 text-amber-800" />
+              <div className="flex items-center gap-3 bg-stone-950/60 p-2.5 rounded-xl backdrop-blur-xs border border-white/10">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-500 text-stone-950 font-bold">
+                  <Zap className="h-4 w-4" />
                 </div>
                 <span>0% Commission · Keep 100% of Your Sales Revenue</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
-                  <ShieldCheck className="h-4 w-4 text-amber-800" />
+              <div className="flex items-center gap-3 bg-stone-950/60 p-2.5 rounded-xl backdrop-blur-xs border border-white/10">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-amber-500 text-stone-950 font-bold">
+                  <ShieldCheck className="h-4 w-4" />
                 </div>
                 <span>256-Bit Encrypted Payments & Buyer Protection</span>
               </div>
@@ -244,7 +244,7 @@ function AuthPage() {
           </div>
 
           {/* Bottom Trust Card */}
-          <div className="relative z-10 rounded-2xl bg-stone-900/85 p-4 backdrop-blur-md border border-amber-400/30 flex items-center justify-between text-xs shadow-lg">
+          <div className="relative z-10 rounded-2xl bg-stone-950/85 p-4 backdrop-blur-md border border-amber-400/40 flex items-center justify-between text-xs shadow-xl">
             <div>
               <div className="flex items-center gap-1 text-amber-400 font-bold">
                 <Star className="h-3.5 w-3.5 fill-amber-400" />
@@ -254,25 +254,40 @@ function AuthPage() {
                 <Star className="h-3.5 w-3.5 fill-amber-400" />
                 <span className="text-white ml-1 font-semibold">4.9/5</span>
               </div>
-              <p className="text-stone-300 mt-0.5">Trusted by 100+ stores & 10,000+ buyers</p>
+              <p className="text-stone-300 mt-0.5 font-medium">Trusted by 100+ stores & 10,000+ buyers</p>
             </div>
-            <Badge variant="outline" className="border-amber-400/40 text-amber-200 bg-amber-950/40 text-[10px] font-semibold">
+            <Badge variant="outline" className="border-amber-400 text-amber-300 bg-amber-950/70 text-[10px] font-bold">
               Verified
             </Badge>
           </div>
         </div>
 
-        {/* RIGHT INTERACTIVE FORM CONTAINER */}
-        <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
+        {/* RIGHT INTERACTIVE FORM CONTAINER (High contrast, crystal clear on phone & PC) */}
+        <div className="lg:col-span-7 p-5 sm:p-8 lg:p-10 flex flex-col justify-center bg-card">
+          {/* Mobile Top Brand Header (Visible only on < lg) */}
+          <div className="block lg:hidden text-center mb-5">
+            <Link to="/" className="inline-block mb-2">
+              <V2Logo size="lg" />
+            </Link>
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tight">
+              {mode === "signin" ? "Sign In to V2 Business" : "Create Your V2 Account"}
+            </h1>
+            <p className="text-xs text-muted-foreground font-medium mt-1">
+              {mode === "signin"
+                ? "Access your orders, cart, and personalized shopping feed"
+                : "Shop with verified merchants or start selling with 0% commission"}
+            </p>
+          </div>
+
           {/* Creative Segmented Mode Switcher */}
-          <div className="flex rounded-full bg-muted p-1 mb-5 shadow-inner max-w-sm mx-auto w-full">
+          <div className="flex rounded-full bg-muted/80 p-1 mb-5 border border-border shadow-xs max-w-sm mx-auto w-full">
             <button
               type="button"
               onClick={() => setMode("signin")}
               className={`flex-1 rounded-full py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 mode === "signin"
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground font-semibold"
               }`}
             >
               Sign In
@@ -282,8 +297,8 @@ function AuthPage() {
               onClick={() => setMode("signup")}
               className={`flex-1 rounded-full py-2 text-xs sm:text-sm font-bold transition-all cursor-pointer ${
                 mode === "signup"
-                  ? "bg-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground font-semibold"
               }`}
             >
               Create Account
@@ -294,10 +309,10 @@ function AuthPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-11 rounded-2xl border-2 font-semibold mb-4 hover:bg-muted/70 transition-all shadow-sm"
+            className="w-full h-11 rounded-xl border-2 border-border/90 bg-background font-bold text-foreground text-xs sm:text-sm mb-4 hover:bg-muted/70 transition-all shadow-xs"
             onClick={googleSignIn}
           >
-            <svg className="mr-2.5 h-4 w-4" viewBox="0 0 24 24">
+            <svg className="mr-2.5 h-4 w-4 shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#EA4335"
                 d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 3.5 14.7 2.5 12 2.5 6.8 2.5 2.6 6.7 2.6 12S6.8 21.5 12 21.5c7 0 9.4-4.9 9.4-7.5 0-.5-.1-.9-.1-1.3H12z"
@@ -307,20 +322,20 @@ function AuthPage() {
           </Button>
 
           <div className="mb-4 flex items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs uppercase font-bold tracking-wider text-muted-foreground">or with email</span>
-            <div className="h-px flex-1 bg-border" />
+            <div className="h-px flex-1 bg-border/80" />
+            <span className="text-[11px] uppercase font-bold tracking-wider text-muted-foreground">or with email</span>
+            <div className="h-px flex-1 bg-border/80" />
           </div>
 
           {/* FORM CONTENT */}
           {mode === "signin" ? (
             <form onSubmit={signIn} className="space-y-4">
               <div>
-                <Label htmlFor="signin-email" className="text-xs font-semibold">
+                <Label htmlFor="signin-email" className="text-xs sm:text-sm font-bold text-foreground block mb-1">
                   Email Address
                 </Label>
-                <div className="relative mt-1">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                   <Input
                     id="signin-email"
                     type="email"
@@ -328,26 +343,26 @@ function AuthPage() {
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-11 rounded-2xl pl-10 text-sm"
+                    className="h-11 rounded-xl border-2 border-border/90 bg-background pl-10 text-sm font-medium text-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/70 shadow-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="signin-password" className="text-xs font-semibold">
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="signin-password" className="text-xs sm:text-sm font-bold text-foreground">
                     Password
                   </Label>
                   <button
                     type="button"
                     onClick={openForgotModal}
-                    className="text-xs text-primary font-semibold hover:underline"
+                    className="text-xs text-primary font-bold hover:underline"
                   >
                     Forgot password?
                   </button>
                 </div>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                   <Input
                     id="signin-password"
                     type={showSignInPassword ? "text" : "password"}
@@ -355,7 +370,7 @@ function AuthPage() {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-2xl pl-10 pr-10 text-sm"
+                    className="h-11 rounded-xl border-2 border-border/90 bg-background pl-10 pr-10 text-sm font-medium text-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/70 shadow-xs"
                   />
                   <button
                     type="button"
@@ -370,14 +385,14 @@ function AuthPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-2"
+                className="w-full h-11 rounded-xl font-bold text-sm shadow-md mt-2"
                 disabled={loading}
               >
                 {loading ? "Signing in…" : "Sign In to Your Account"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
-              <p className="text-center text-xs text-muted-foreground pt-1">
+              <p className="text-center text-xs text-muted-foreground font-medium pt-1">
                 New to V2 Business?{" "}
                 <button
                   type="button"
@@ -392,15 +407,15 @@ function AuthPage() {
             <form onSubmit={signUp} className="space-y-3.5">
               {/* Account Type Selector */}
               <div>
-                <Label className="text-xs font-semibold mb-1 block">I want to:</Label>
+                <Label className="text-xs sm:text-sm font-bold text-foreground mb-1.5 block">I want to:</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setAccountType("customer")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 p-2.5 text-xs font-bold transition-all cursor-pointer ${
                       accountType === "customer"
                         ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                        : "border-border hover:bg-muted text-muted-foreground"
+                        : "border-border/90 bg-background hover:bg-muted text-muted-foreground"
                     }`}
                   >
                     <ShoppingBag className="h-4 w-4" />
@@ -409,10 +424,10 @@ function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setAccountType("vendor")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 rounded-xl border-2 p-2.5 text-xs font-bold transition-all cursor-pointer ${
                       accountType === "vendor"
                         ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                        : "border-border hover:bg-muted text-muted-foreground"
+                        : "border-border/90 bg-background hover:bg-muted text-muted-foreground"
                     }`}
                   >
                     <Store className="h-4 w-4" />
@@ -422,28 +437,28 @@ function AuthPage() {
               </div>
 
               <div>
-                <Label htmlFor="signup-name" className="text-xs font-semibold">
+                <Label htmlFor="signup-name" className="text-xs sm:text-sm font-bold text-foreground block mb-1">
                   Full Name
                 </Label>
-                <div className="relative mt-1">
-                  <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                   <Input
                     id="signup-name"
                     required
                     placeholder="e.g. Ramesh Kumar"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="h-10 rounded-xl pl-10 text-sm"
+                    className="h-10 rounded-xl border-2 border-border/90 bg-background pl-10 text-sm font-medium text-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/70 shadow-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="signup-email" className="text-xs font-semibold">
+                <Label htmlFor="signup-email" className="text-xs sm:text-sm font-bold text-foreground block mb-1">
                   Email Address
                 </Label>
-                <div className="relative mt-1">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                   <Input
                     id="signup-email"
                     type="email"
@@ -451,17 +466,17 @@ function AuthPage() {
                     placeholder="name@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-10 rounded-xl pl-10 text-sm"
+                    className="h-10 rounded-xl border-2 border-border/90 bg-background pl-10 text-sm font-medium text-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/70 shadow-xs"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="signup-password" className="text-xs font-semibold">
+                <Label htmlFor="signup-password" className="text-xs sm:text-sm font-bold text-foreground block mb-1">
                   Create Password (min. 8 chars)
                 </Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/80" />
                   <Input
                     id="signup-password"
                     type={showSignUpPassword ? "text" : "password"}
@@ -470,7 +485,7 @@ function AuthPage() {
                     placeholder="Create a strong password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="h-10 rounded-xl pl-10 pr-10 text-sm"
+                    className="h-10 rounded-xl border-2 border-border/90 bg-background pl-10 pr-10 text-sm font-medium text-foreground focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 placeholder:text-muted-foreground/70 shadow-xs"
                   />
                   <button
                     type="button"
@@ -485,14 +500,14 @@ function AuthPage() {
 
               <Button
                 type="submit"
-                className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-1"
+                className="w-full h-11 rounded-xl font-bold text-sm shadow-md mt-1"
                 disabled={loading}
               >
                 {loading ? "Creating Account…" : accountType === "vendor" ? "Create Store Account" : "Join Marketplace"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
-              <p className="text-center text-xs text-muted-foreground pt-1">
+              <p className="text-center text-xs text-muted-foreground font-medium pt-1">
                 Already have an account?{" "}
                 <button
                   type="button"
