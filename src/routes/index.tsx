@@ -35,60 +35,60 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Curated Top Quick Bar Categories across 29 retail sectors
+// Normal Standard Quick Bar Categories
 const QUICK_NAV_CATS = [
-  { name: "Nxt-Gen Electronics", slug: "electronics-home-appliances" },
-  { name: "Designer Fashion", slug: "clothing-fashion" },
-  { name: "Daily Supermarket", slug: "grocery-supermarkets" },
-  { name: "Beauty & Glam", slug: "beauty-personal-care" },
-  { name: "Smart Mobiles & 5G", slug: "mobile-telecom" },
-  { name: "Home & Living", slug: "home-furniture" },
-  { name: "Footwear Lounge", slug: "footwear" },
-  { name: "Fine Jewellery", slug: "jewellery-accessories" },
-  { name: "Dine-in & Foods", slug: "restaurants-food" },
-  { name: "Pharmacy & Wellness", slug: "pharmacy-healthcare" },
+  { name: "Electronics", slug: "electronics-home-appliances" },
+  { name: "Fashion", slug: "clothing-fashion" },
+  { name: "Grocery", slug: "grocery-supermarkets" },
+  { name: "Beauty", slug: "beauty-personal-care" },
+  { name: "Mobiles", slug: "mobile-telecom" },
+  { name: "Home & Furniture", slug: "home-furniture" },
+  { name: "Footwear", slug: "footwear" },
+  { name: "Jewellery", slug: "jewellery-accessories" },
+  { name: "Restaurants", slug: "restaurants-food" },
+  { name: "Pharmacy", slug: "pharmacy-healthcare" },
 ];
 
-// Multi-category 3 Hero Banner Cards
+// Multi-category 3 Hero Banner Cards (Sleek Compact Size)
 const HERO_BANNERS = [
   {
     id: "banner-1",
-    brandLogo: "SMART TECH & MOBILES",
-    title: "Next-Gen Electronics & Audio",
-    subtitle: "Smartphones, Earbuds, Laptops & Home Tech",
+    brandLogo: "ELECTRONICS & TECH",
+    title: "Electronics & Audio",
+    subtitle: "Smartphones, Earbuds, Laptops & Tech",
     discountTag: "Up To 40% Off",
     linkText: "Shop Now →",
     targetSlug: "electronics-home-appliances",
     bgImage:
       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-blue-950/85 via-slate-900/40 to-transparent",
-    accentBadge: "TOP TECH DEALS",
+    accentBadge: "TOP DEALS",
   },
   {
     id: "banner-2",
-    brandLogo: "TRENDING FASHION & APPAREL",
-    title: "Designer Sarees, Kurtis & Men's Wear",
-    subtitle: "Authentic Handloom Silks & Festive Collections",
+    brandLogo: "FASHION & APPAREL",
+    title: "Fashion & Sarees",
+    subtitle: "Handloom Silks, Kurtis & Men's Wear",
     discountTag: "Up To 60% Off",
     linkText: "Shop Now →",
     targetSlug: "clothing-fashion",
     bgImage:
       "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
-    accentBadge: "NEW ARRIVALS",
+    accentBadge: "NEW STYLES",
   },
   {
     id: "banner-3",
-    brandLogo: "SUPERMARKET & ORGANICS",
-    title: "Daily Groceries & Beauty Care",
-    subtitle: "Farm Fresh Organics, Spices & Premium Cosmetics",
+    brandLogo: "GROCERY & BEAUTY",
+    title: "Grocery & Beauty Care",
+    subtitle: "Fresh Organics, Spices & Cosmetics",
     discountTag: "Flat 20% Off",
     linkText: "Shop Now →",
     targetSlug: "grocery-supermarkets",
     bgImage:
       "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-emerald-950/85 via-emerald-900/40 to-transparent",
-    accentBadge: "FRESH ESSENTIALS",
+    accentBadge: "ESSENTIALS",
   },
 ];
 
@@ -126,16 +126,16 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
-      {/* 1. TOP SUB-NAV CATEGORY BAR (Nykaa Style) */}
+      {/* 1. TOP SUB-NAV CATEGORY BAR */}
       <div className="border-b border-border/70 bg-card/75 backdrop-blur-md sticky top-[96px] sm:top-[57px] z-30 shadow-2xs">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-4 py-2 text-xs font-semibold scrollbar-none sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-4 py-1.5 text-xs font-semibold scrollbar-none sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
             {QUICK_NAV_CATS.map((cat) => (
               <Link
                 key={cat.slug}
                 to="/category/$slug"
                 params={{ slug: cat.slug }}
-                className="text-foreground/80 hover:text-primary transition-colors whitespace-nowrap py-1 border-b-2 border-transparent hover:border-primary"
+                className="text-foreground/80 hover:text-primary transition-colors whitespace-nowrap py-0.5 border-b-2 border-transparent hover:border-primary"
               >
                 {cat.name}
               </Link>
@@ -143,7 +143,7 @@ function Home() {
           </div>
           <div className="flex items-center gap-2 shrink-0 pl-4 border-l border-border/60">
             <Link to="/search">
-              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-extrabold text-[10px] tracking-wider px-2.5 py-0.5 rounded-full shadow-2xs hover:opacity-95">
+              <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-extrabold text-[10px] tracking-wider px-2 py-0.5 rounded-full shadow-2xs hover:opacity-95">
                 🔥 OFFERS
               </Badge>
             </Link>
@@ -158,8 +158,8 @@ function Home() {
       </div>
 
       {/* 2. NYKAA STYLE ANNOUNCEMENT TICKER */}
-      <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-2 px-4 shadow-sm overflow-hidden">
-        <div className="mx-auto max-w-7xl flex items-center justify-center text-center text-xs sm:text-sm font-extrabold tracking-wider uppercase gap-3">
+      <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-1.5 px-4 shadow-sm overflow-hidden">
+        <div className="mx-auto max-w-7xl flex items-center justify-center text-center text-xs font-extrabold tracking-wider uppercase gap-3">
           <span>✨ 29 RETAIL CATEGORIES ACROSS RAJAHMUNDRY ARE LIVE ON V2 BUSINESS!</span>
           <span className="hidden sm:inline">|</span>
           <span className="hidden sm:inline">FREE LOCAL DELIVERY ON ORDERS ABOVE ₹499</span>
@@ -168,30 +168,30 @@ function Home() {
         </div>
       </div>
 
-      {/* 3. HERO SHOWCASE: MULTI-CATEGORY HIGHLIGHTS */}
-      <section className="mx-auto max-w-7xl px-4 pt-6 pb-8 sm:px-6 lg:px-8">
+      {/* 3. HERO SHOWCASE: MULTI-CATEGORY HIGHLIGHTS (Decreased Compact Size) */}
+      <section className="mx-auto max-w-7xl px-4 pt-4 pb-5 sm:px-6 lg:px-8">
         {/* Section Header Title */}
-        <div className="flex items-center justify-center gap-3 mb-6 text-center">
-          <span className="h-px w-12 bg-amber-500/40" />
-          <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-amber-500" />
+        <div className="flex items-center justify-center gap-2 mb-4 text-center">
+          <span className="h-px w-10 bg-amber-500/40" />
+          <h2 className="text-base sm:text-lg font-black uppercase tracking-widest text-foreground flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4 text-amber-500" />
             <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
               EXPLORE THE MARKETPLACE
             </span>
-            <Sparkles className="h-5 w-5 text-amber-500" />
+            <Sparkles className="h-4 w-4 text-amber-500" />
           </h2>
-          <span className="h-px w-12 bg-amber-500/40" />
+          <span className="h-px w-10 bg-amber-500/40" />
         </div>
 
-        {/* 3 Large Multi-Category Banner Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* 3 Compact Multi-Category Banner Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {HERO_BANNERS.map((banner) => (
             <div
               key={banner.id}
               onClick={() =>
                 navigate({ to: "/category/$slug", params: { slug: banner.targetSlug } })
               }
-              className="group relative h-[380px] sm:h-[420px] rounded-3xl overflow-hidden shadow-lg border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-2xl hover:scale-[1.01]"
+              className="group relative h-[240px] sm:h-[280px] rounded-2xl overflow-hidden shadow-md border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
             >
               {/* Background Cover Image */}
               <img
@@ -206,40 +206,40 @@ function Home() {
               />
 
               {/* Brand Watermark / Badge Top Left */}
-              <div className="absolute top-4 left-4 z-10">
-                <span className="rounded-xl bg-black/60 backdrop-blur-md px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-amber-300 border border-amber-500/40 shadow-md flex items-center gap-1.5">
-                  <Flame className="h-3.5 w-3.5 text-amber-400" />
+              <div className="absolute top-3 left-3 z-10">
+                <span className="rounded-lg bg-black/60 backdrop-blur-md px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300 border border-amber-500/40 shadow-xs flex items-center gap-1">
+                  <Flame className="h-3 w-3 text-amber-400" />
                   {banner.brandLogo}
                 </span>
               </div>
 
               {/* Top Right Tag */}
-              <div className="absolute top-4 right-4 z-10">
-                <Badge className="bg-white text-black font-black text-[10px] uppercase tracking-wider shadow-sm">
+              <div className="absolute top-3 right-3 z-10">
+                <Badge className="bg-white text-black font-black text-[9px] uppercase tracking-wider shadow-xs px-2 py-0.5">
                   {banner.accentBadge}
                 </Badge>
               </div>
 
               {/* Bottom Details & Shop Now Button */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 z-10 space-y-2.5">
+              <div className="absolute bottom-0 left-0 right-0 p-4 z-10 space-y-1.5">
                 <div>
-                  <span className="inline-block rounded-lg bg-amber-500 text-black px-2.5 py-0.5 text-xs font-black uppercase tracking-wider shadow-sm">
+                  <span className="inline-block rounded-md bg-amber-500 text-black px-2 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-xs">
                     {banner.discountTag}
                   </span>
-                  <h3 className="mt-1 text-xl sm:text-2xl font-black text-white leading-tight drop-shadow-md">
+                  <h3 className="mt-1 text-base sm:text-lg font-black text-white leading-tight drop-shadow-sm">
                     {banner.title}
                   </h3>
-                  <p className="text-xs text-white/90 font-medium drop-shadow-xs">
+                  <p className="text-[11px] text-white/90 font-medium drop-shadow-xs">
                     {banner.subtitle}
                   </p>
                 </div>
 
                 <Button
                   size="sm"
-                  className="rounded-full bg-white hover:bg-amber-400 text-black font-extrabold text-xs px-5 shadow-md group-hover:translate-x-1 transition-all flex items-center gap-1.5"
+                  className="h-7 rounded-full bg-white hover:bg-amber-400 text-black font-extrabold text-[11px] px-3.5 shadow-sm group-hover:translate-x-1 transition-all flex items-center gap-1"
                 >
                   <span>Shop Now</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
+                  <ArrowRight className="h-3 w-3" />
                 </Button>
               </div>
             </div>
@@ -535,75 +535,65 @@ function Home() {
           </Link>
         </div>
 
-        {/* Compact Modern Category Grid */}
+        {/* Compact Normal Category Grid */}
         <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-2 sm:gap-3">
           {[
             {
-              name: "Nxt-Gen Electronics",
-              shortName: "Electronics",
+              name: "Electronics",
               slug: "electronics-home-appliances",
               imageUrl:
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Designer Fashion",
-              shortName: "Fashion",
+              name: "Fashion",
               slug: "clothing-fashion",
               imageUrl:
                 "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Daily Supermarket",
-              shortName: "Groceries",
+              name: "Grocery",
               slug: "grocery-supermarkets",
               imageUrl:
                 "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Beauty & Glam",
-              shortName: "Beauty",
+              name: "Beauty",
               slug: "beauty-personal-care",
               imageUrl:
                 "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Smart Mobiles & 5G",
-              shortName: "Mobiles",
+              name: "Mobiles",
               slug: "mobile-telecom",
               imageUrl:
                 "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Home & Living",
-              shortName: "Home Decor",
+              name: "Home & Furniture",
               slug: "home-furniture",
               imageUrl:
                 "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Footwear Lounge",
-              shortName: "Footwear",
+              name: "Footwear",
               slug: "footwear",
               imageUrl:
                 "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Fine Jewellery",
-              shortName: "Jewellery",
+              name: "Jewellery",
               slug: "jewellery-accessories",
               imageUrl:
                 "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Dine-in & Foods",
-              shortName: "Restaurants",
+              name: "Restaurants",
               slug: "restaurants-food",
               imageUrl:
                 "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Pharmacy & Wellness",
-              shortName: "Pharmacy",
+              name: "Pharmacy",
               slug: "pharmacy-healthcare",
               imageUrl:
                 "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80",
@@ -625,8 +615,7 @@ function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <span className="mt-1.5 block text-[10px] sm:text-xs font-bold text-center text-foreground group-hover:text-primary transition-colors line-clamp-1 max-w-[70px] sm:max-w-none">
-                <span className="hidden sm:inline">{cat.name}</span>
-                <span className="inline sm:hidden">{cat.shortName}</span>
+                {cat.name}
               </span>
             </Link>
           ))}
