@@ -12,8 +12,6 @@ import {
   ChevronRight,
   MapPin,
   Sparkles,
-  Check,
-  Building2,
   Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,30 +27,12 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { formatMoney } from "@/lib/utils-app";
 import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
-
-const POPULAR_AREAS = [
-  { id: "all-rjy", name: "Rajahmundry (All)", label: "All Rajahmundry (533101)" },
-  { id: "main-rd", name: "Main Road", label: "Main Road & Fort Gate" },
-  { id: "danavai", name: "Danavaipeta", label: "Danavaipeta & Syamala Nagar" },
-  { id: "morampudi", name: "Morampudi", label: "Morampudi Junction & NH16" },
-  { id: "innespeta", name: "Innespeta", label: "Innespeta & Kotagummam" },
-  { id: "prakash-nagar", name: "Prakash Nagar", label: "Prakash Nagar & Stadium" },
-  { id: "tadithota", name: "Tadithota", label: "Tadithota & Railway Station" },
-  { id: "aryapuram", name: "Aryapuram", label: "Aryapuram & Godavari Bund" },
-  { id: "diwancheruvu", name: "Diwancheruvu", label: "Diwancheruvu / Highway" },
-  { id: "katheru", name: "Katheru", label: "Katheru & Korukonda Road" },
-];
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -62,35 +42,11 @@ export function SiteHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [open, setOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
-  const [selectedArea, setSelectedArea] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("v2_selected_area") || "Rajahmundry (All)";
-    }
-    return "Rajahmundry (All)";
-  });
-  const [customPincode, setCustomPincode] = useState("");
-  const [areaPopoverOpen, setAreaPopoverOpen] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useSession();
   const isAdmin = user?.role === "ADMIN";
   const isVendor = user?.role === "VENDOR";
-
-  const handleSelectArea = (areaName: string) => {
-    setSelectedArea(areaName);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("v2_selected_area", areaName);
-    }
-    setAreaPopoverOpen(false);
-  };
-
-  const handleCustomAreaSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (customPincode.trim()) {
-      handleSelectArea(customPincode.trim());
-      setCustomPincode("");
-    }
-  };
 
   // Live Instant Search query
   const { data: searchResults, isLoading: isSearching } = useQuery({
@@ -242,65 +198,14 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        {/* 4. Search Bar with Area / Location Picker */}
+        {/* 4. Search Bar with Location Pill */}
         <div ref={searchContainerRef} className="relative flex-1 min-w-0 max-w-2xl mx-1 sm:mx-2">
           <form onSubmit={submit} className="flex items-center rounded-full border border-border bg-surface-muted/90 p-1 shadow-inner focus-within:ring-2 focus-within:ring-primary/40 transition-all">
-            {/* Area / Location Selector */}
-            <Popover open={areaPopoverOpen} onOpenChange={setAreaPopoverOpen}>
-              <PopoverTrigger asChild>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-xs font-semibold text-foreground shadow-2xs hover:bg-muted border border-border/60 transition-colors shrink-0 max-w-[130px] sm:max-w-[160px]"
-                  title={selectedArea}
-                >
-                  <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                  <span className="truncate">{selectedArea}</span>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-64 p-3 rounded-2xl shadow-xl">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                    <Building2 className="h-4 w-4 text-primary" />
-                    <span>Select Delivery Location</span>
-                  </div>
-
-                  {/* Custom Pincode/City input */}
-                  <form onSubmit={handleCustomAreaSubmit} className="flex gap-1.5">
-                    <Input
-                      placeholder="Enter city or pincode"
-                      value={customPincode}
-                      onChange={(e) => setCustomPincode(e.target.value)}
-                      className="h-8 text-xs rounded-lg"
-                    />
-                    <Button type="submit" size="sm" className="h-8 px-2.5 text-xs rounded-lg">
-                      Set
-                    </Button>
-                  </form>
-
-                  <div className="space-y-1 max-h-48 overflow-y-auto pt-1 border-t border-border/60">
-                    <p className="px-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                      Popular Areas
-                    </p>
-                    {POPULAR_AREAS.map((area) => (
-                      <button
-                        key={area.id}
-                        type="button"
-                        onClick={() => handleSelectArea(area.name)}
-                        className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors ${
-                          selectedArea === area.name
-                            ? "bg-primary/10 text-primary font-bold"
-                            : "hover:bg-muted text-foreground"
-                        }`}
-                      >
-                        <span className="truncate">{area.label}</span>
-                        {selectedArea === area.name && <Check className="h-3.5 w-3.5 text-primary" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+            {/* Fixed Rajahmundry Location Badge (No dropdown) */}
+            <div className="flex items-center gap-1 rounded-full bg-background px-2.5 py-1 text-xs font-bold text-foreground shadow-2xs border border-border/60 shrink-0">
+              <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span>Rajahmundry</span>
+            </div>
 
             {/* Search Input Field */}
             <div className="relative flex-1 min-w-0">
@@ -313,7 +218,7 @@ export function SiteHeader() {
                 onFocus={() => {
                   if (q.trim().length >= 2) setShowDropdown(true);
                 }}
-                placeholder="Search products, stores, services..."
+                placeholder="Search products, stores, categories in Rajahmundry..."
                 className="h-9 w-full border-0 bg-transparent px-3 text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/70"
               />
             </div>
@@ -534,28 +439,10 @@ export function SiteHeader() {
                   <V2Logo size="sm" />
                 </div>
 
-                {/* Mobile Area Picker */}
-                <div className="rounded-xl border border-border p-3 bg-muted/30 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-foreground">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span>Location: {selectedArea}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1 text-xs">
-                    {POPULAR_AREAS.slice(0, 4).map((a) => (
-                      <button
-                        key={a.id}
-                        type="button"
-                        onClick={() => handleSelectArea(a.name)}
-                        className={`px-2 py-1 rounded-lg text-left text-[11px] truncate ${
-                          selectedArea === a.name
-                            ? "bg-primary text-primary-foreground font-bold"
-                            : "bg-background hover:bg-muted text-foreground"
-                        }`}
-                      >
-                        {a.name}
-                      </button>
-                    ))}
-                  </div>
+                {/* Location Badge */}
+                <div className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 bg-muted/40 text-xs font-bold text-foreground">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span>Serving Rajahmundry, AP (533101)</span>
                 </div>
 
                 <nav className="flex flex-col space-y-2 text-sm font-medium">
