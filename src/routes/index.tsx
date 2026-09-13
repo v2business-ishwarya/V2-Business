@@ -61,8 +61,8 @@ const HERO_SLIDES = [
     ctaText: "Shop All Deals",
     targetLink: "/search",
     bgImage:
-      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-amber-950/75 to-transparent",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-black/90 via-amber-950/60 to-transparent",
     badgeColor: "bg-gradient-to-r from-amber-500 to-yellow-500 text-black",
   },
   {
@@ -74,8 +74,8 @@ const HERO_SLIDES = [
     ctaText: "Explore Jewellery",
     targetLink: "/category/jewellery-accessories",
     bgImage:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-yellow-950/70 to-transparent",
+      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-black/90 via-yellow-950/60 to-transparent",
     badgeColor: "bg-yellow-400 text-black",
   },
   {
@@ -87,8 +87,8 @@ const HERO_SLIDES = [
     ctaText: "Explore Electronics",
     targetLink: "/category/electronics-home-appliances",
     bgImage:
-      "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-blue-950/70 to-transparent",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=95",
+    themeColor: "from-black/90 via-blue-950/60 to-transparent",
     badgeColor: "bg-indigo-500 text-white",
   },
   {
@@ -101,7 +101,7 @@ const HERO_SLIDES = [
     targetLink: "/category/clothing-fashion",
     bgImage:
       "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-rose-950/70 to-transparent",
+    themeColor: "from-black/90 via-rose-950/60 to-transparent",
     badgeColor: "bg-rose-500 text-white",
   },
 ];
@@ -362,38 +362,38 @@ function Home() {
             );
           })}
 
-          {/* Left Arrow Button */}
+          {/* Left Arrow Button (Prominent & High Contrast) */}
           <button
             type="button"
             onClick={prevSlide}
             aria-label="Previous Slide"
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/95 hover:bg-amber-400 text-black shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border border-black/10"
           >
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
           </button>
 
-          {/* Right Arrow Button */}
+          {/* Right Arrow Button (Prominent & High Contrast) */}
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Next Slide"
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/95 hover:bg-amber-400 text-black shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border border-black/10"
           >
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
           </button>
 
           {/* Bottom Slide Indicators */}
-          <div className="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
             {HERO_SLIDES.map((slide, idx) => (
               <button
                 type="button"
                 key={slide.id}
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
                   idx === currentSlide
-                    ? "w-6 sm:w-8 bg-amber-400"
-                    : "w-2 bg-white/40 hover:bg-white/70"
+                    ? "w-7 bg-amber-400 shadow-xs"
+                    : "w-2.5 bg-white/45 hover:bg-white/90"
                 }`}
               />
             ))}
