@@ -273,28 +273,54 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
   }
 };
 
+const getFrontendOrigin = (req: Request): string => {
+  // 1. Check query origin / state
+  const originQuery = (req.query.origin || req.query.state) as string;
+  if (originQuery && typeof originQuery === "string" && originQuery.startsWith("http")) {
+    return originQuery.replace(/\/+$/, "");
+  }
+  // 2. Check explicit env variable
+  if (process.env.FRONTEND_URL && process.env.FRONTEND_URL.startsWith("http")) {
+    return process.env.FRONTEND_URL.split(",")[0].trim().replace(/\/+$/, "");
+  }
+  // 3. Check request origin / referer header
+  const headerOrigin = req.headers.origin || req.headers.referer;
+  if (headerOrigin && typeof headerOrigin === "string" && headerOrigin.startsWith("http")) {
+    try {
+      const parsed = new URL(headerOrigin);
+      return parsed.origin;
+    } catch {}
+  }
+  // 4. Default production frontend fallback
+  return "https://v2-business-alpha.vercel.app";
+};
+
 export const googleRedirect = async (req: Request, res: Response) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const backendUrl = process.env.BACKEND_URL || "https://v2-business.onrender.com";
+  const backendUrl = (process.env.BACKEND_URL || "https://v2-business.onrender.com").replace(/\/+$/, "");
   const redirectUri = `${backendUrl}/auth/google/callback`;
-  const frontendUrl = process.env.FRONTEND_URL || "https://v2business.in";
+  const frontendUrl = getFrontendOrigin(req);
 
   if (!clientId) {
     return res.redirect(`${frontendUrl}/auth?error=google_not_configured`);
   }
 
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
+  // Pass frontend URL in state parameter so callback returns to the exact frontend origin
+  const state = encodeURIComponent(frontendUrl);
+  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+    redirectUri
+  )}&response_type=code&scope=openid%20email%20profile&access_type=offline&prompt=consent&state=${state}`;
   res.redirect(authUrl);
 };
 
 // Google OAuth callback
 export const googleCallback = async (req: Request, res: Response, next: NextFunction) => {
-  const frontendUrl = process.env.FRONTEND_URL || "https://v2business.in";
+  const frontendUrl = getFrontendOrigin(req);
   try {
     const code = req.query.code as string;
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-    const backendUrl = process.env.BACKEND_URL || "https://v2-business.onrender.com";
+    const backendUrl = (process.env.BACKEND_URL || "https://v2-business.onrender.com").replace(/\/+$/, "");
     const redirectUri = `${backendUrl}/auth/google/callback`;
 
     let email = "";
@@ -386,11 +412,10 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       role: user.role,
     };
 
-    res.redirect(
-      `${frontendUrl}/auth?token=${encodeURIComponent(accessToken)}&user=${encodeURIComponent(
-        JSON.stringify(safeUserData)
-      )}`
-    );
+    const targetUrl = `${frontendUrl}/auth?token=${encodeURIComponent(accessToken)}&user=${encodeURIComponent(
+      JSON.stringify(safeUserData)
+    )}`;
+    res.redirect(targetUrl);
   } catch (error) {
     res.redirect(`${frontendUrl}/auth?error=google_auth_error`);
   }
