@@ -267,28 +267,32 @@ function Home() {
           </Link>
         </div>
 
-        {/* Circular Bubbles Row */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-6 text-center">
+        {/* Luxury Category Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
           {MARKETPLACE_CATEGORIES.slice(0, 8).map((cat) => (
             <Link
               key={cat.id}
               to="/category/$slug"
               params={{ slug: cat.slug }}
-              className="group flex flex-col items-center gap-2 transition-transform hover:-translate-y-1"
+              className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-border/70 bg-card p-2.5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10"
             >
-              <div className="relative h-20 w-20 sm:h-24 sm:w-24 rounded-full overflow-hidden p-1 bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 shadow-md group-hover:shadow-amber-500/30 transition-all">
-                <div className="h-full w-full rounded-full overflow-hidden bg-background">
-                  <img
-                    src={cat.imageUrl}
-                    alt={cat.name}
-                    className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                </div>
+              <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
+                <img
+                  src={cat.imageUrl}
+                  alt={cat.name}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-108"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
-              <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-tight">
-                {cat.name}
-              </span>
+              <div className="mt-2.5 w-full text-center">
+                <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                  {cat.name}
+                </span>
+                <span className="text-[10px] font-medium text-muted-foreground group-hover:text-primary transition-colors">
+                  Explore &rarr;
+                </span>
+              </div>
             </Link>
           ))}
         </div>
