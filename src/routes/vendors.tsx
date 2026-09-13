@@ -206,7 +206,7 @@ function VendorsList() {
                           className={`text-[10px] font-bold px-2 py-0.5 shadow-sm ${
                             isPhysical
                               ? "bg-primary text-primary-foreground"
-                              : "bg-emerald-600 text-white"
+                              : "bg-amber-600 text-white"
                           }`}
                         >
                           {isPhysical ? (
@@ -222,13 +222,13 @@ function VendorsList() {
                       </div>
 
                       <div className="absolute top-2.5 right-2.5">
-                        <span className="rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                        <span className="rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-amber-400 border border-amber-500/30 flex items-center gap-1">
                           <ShieldCheck className="h-3 w-3" /> Genuine
                         </span>
                       </div>
 
                       <div className="absolute bottom-2.5 left-3 right-3">
-                        <h3 className="text-base font-bold text-white line-clamp-1 group-hover:text-emerald-300 transition-colors">
+                        <h3 className="text-base font-bold text-white line-clamp-1 group-hover:text-amber-300 transition-colors">
                           {vendor.name}
                         </h3>
                       </div>

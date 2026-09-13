@@ -73,7 +73,7 @@ function StorePage() {
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Top Hero Banner */}
-      <div className="relative h-48 w-full bg-gradient-to-r from-emerald-900 via-teal-800 to-primary sm:h-60 overflow-hidden">
+      <div className="relative h-48 w-full bg-gradient-to-r from-amber-950 via-amber-900 to-yellow-900 sm:h-60 overflow-hidden">
         {vendorMeta?.shopPhotos?.[0] && (
           <div className="absolute inset-0 opacity-25">
             <img

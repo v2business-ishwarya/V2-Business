@@ -230,12 +230,12 @@ function SearchPage() {
 
       {/* Matching Stores & Vendors Showcase Banner */}
       {matchingStores.length > 0 && (
-        <div className="mb-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6 space-y-3">
+        <div className="mb-8 rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 sm:p-6 space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-              <Store className="h-4 w-4" /> Matching Verified Stores ({matchingStores.length})
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-200 flex items-center gap-1.5">
+              <Store className="h-4 w-4 text-amber-600" /> Matching Verified Stores ({matchingStores.length})
             </span>
-            <Badge variant="outline" className="text-[10px] bg-white text-emerald-700">
+            <Badge variant="outline" className="text-[10px] bg-background text-amber-700 dark:text-amber-300 border-amber-500/30">
               Direct Seller Stores
             </Badge>
           </div>
@@ -255,7 +255,7 @@ function SearchPage() {
                   <div className="truncate text-xs">
                     <div className="flex items-center gap-1">
                       <p className="font-bold text-foreground text-sm truncate">{store.name}</p>
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                      <ShieldCheck className="h-3.5 w-3.5 text-amber-600 shrink-0" />
                     </div>
                     <p className="text-[11px] text-muted-foreground truncate">
                       {store.businessType === "home_cloud" ? "🏡 Home Studio" : "🏪 Retail Shop"} · {store.city}

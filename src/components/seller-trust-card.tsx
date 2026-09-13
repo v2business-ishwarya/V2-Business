@@ -65,7 +65,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
   return (
     <>
       <div
-        className={`rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 via-background to-teal-500/5 p-4 sm:p-5 shadow-sm transition-all hover:border-emerald-500/40 ${className}`}
+        className={`rounded-2xl border border-amber-500/25 bg-gradient-to-br from-amber-500/10 via-background to-yellow-500/5 p-4 sm:p-5 shadow-sm transition-all hover:border-amber-500/40 ${className}`}
       >
         {/* Header with Badges */}
         <div className="flex flex-wrap items-start justify-between gap-2 border-b border-border/60 pb-3">
@@ -78,7 +78,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
                 <span className="font-bold text-sm text-foreground">
                   {vendor.name || "Seller Store"}
                 </span>
-                <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white gap-1 text-[10px] px-2 py-0.2 shadow-sm font-semibold">
+                <Badge className="bg-amber-600 hover:bg-amber-600 text-white gap-1 text-[10px] px-2 py-0.2 shadow-sm font-semibold">
                   <ShieldCheck className="h-3 w-3" /> 100% Genuine
                 </Badge>
               </div>
@@ -103,7 +103,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
         <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           {/* Location Verification */}
           <div className="flex items-center gap-2 rounded-lg bg-card/80 p-2 border border-border/50">
-            <MapPin className="h-4 w-4 text-emerald-600 shrink-0" />
+            <MapPin className="h-4 w-4 text-amber-600 shrink-0" />
             <div className="min-w-0 flex-1">
               <span className="text-[10px] uppercase font-bold text-muted-foreground block">
                 Store Location
@@ -116,14 +116,14 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
 
           {/* GST Verification */}
           <div className="flex items-center gap-2 rounded-lg bg-card/80 p-2 border border-border/50">
-            <FileCheck2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <FileCheck2 className="h-4 w-4 text-amber-600 shrink-0" />
             <div className="min-w-0 flex-1">
               <span className="text-[10px] uppercase font-bold text-muted-foreground block">
                 GST Tax Compliance
               </span>
               <span className="font-semibold text-foreground truncate block">
                 {hasGst ? (
-                  <span className="text-emerald-700 font-bold">
+                  <span className="text-amber-700 dark:text-amber-300 font-bold">
                     GSTIN: {vendor.gstNumber} (Verified)
                   </span>
                 ) : (
@@ -133,6 +133,29 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
             </div>
           </div>
         </div>
+
+        {/* Storefront Verification Photos */}
+        {photos.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-border/60">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                <Store className="h-3 w-3 text-primary" /> Verified Shop Photos ({photos.length})
+              </span>
+              <span className="text-[10px] text-muted-foreground">Click to inspect</span>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {photos.map((photo, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => openPhotoModal(photo)}
+                  className="relative h-12 w-12 rounded-xl overflow-hidden border-2 border-amber-500/30 cursor-pointer hover:opacity-90 shrink-0 shadow-sm"
+                >
+                  <img src={photo} alt="" className="h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Categories Chips */}
         {vendor.categories && vendor.categories.length > 0 && (

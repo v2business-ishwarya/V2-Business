@@ -79,7 +79,7 @@ function Home() {
   return (
     <div className="relative overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground min-h-screen">
       {/* AMBIENT BACKGROUND GLOWS */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-primary/20 via-emerald-500/10 to-transparent blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-primary/20 via-amber-500/15 to-transparent blur-3xl" />
       <div className="pointer-events-none absolute top-[600px] right-[-200px] -z-10 h-[400px] w-[400px] rounded-full bg-primary/10 blur-3xl" />
 
       {/* HERO SECTION */}
@@ -99,7 +99,7 @@ function Home() {
             {/* Main Headline */}
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-6xl sm:leading-[1.15] text-foreground">
               Shop Direct from{" "}
-              <span className="bg-gradient-to-r from-primary via-emerald-500 to-teal-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent drop-shadow-xs">
                 Verified Indian Stores.
               </span>
             </h1>
