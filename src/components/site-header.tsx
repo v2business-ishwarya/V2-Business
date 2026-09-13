@@ -200,11 +200,15 @@ export function SiteHeader() {
 
         {/* 4. Desktop Search Bar (Hidden on Mobile) */}
         <div ref={searchContainerRef} className="relative hidden sm:block flex-1 min-w-0 max-w-2xl mx-2">
-          <form onSubmit={submit} className="flex items-center rounded-full border border-border bg-surface-muted/90 p-1 shadow-inner focus-within:ring-2 focus-within:ring-primary/40 transition-all">
+          <form
+            onSubmit={submit}
+            className="flex items-center h-10 w-full rounded-full border border-border/80 bg-background px-3 shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+          >
             {/* Search Input Field */}
-            <div className="relative flex-1 min-w-0 flex items-center pl-2">
-              <Search className="h-4 w-4 text-muted-foreground/70 shrink-0 mr-1.5" />
-              <Input
+            <div className="relative flex-1 min-w-0 flex items-center">
+              <Search className="h-4 w-4 text-muted-foreground/70 shrink-0 mr-2" />
+              <input
+                type="text"
                 value={q}
                 onChange={(e) => {
                   setQ(e.target.value);
@@ -214,15 +218,28 @@ export function SiteHeader() {
                   if (q.trim().length >= 2) setShowDropdown(true);
                 }}
                 placeholder="Search across 29 categories, products, stores..."
-                className="h-9 w-full border-0 bg-transparent px-2 text-xs sm:text-sm focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/70"
+                className="h-full w-full border-0 bg-transparent py-2 text-xs sm:text-sm text-foreground outline-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground/70 font-normal"
               />
+              {q.trim().length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQ("");
+                    setShowDropdown(false);
+                  }}
+                  className="p-1 text-muted-foreground/60 hover:text-foreground text-xs rounded-full mr-1 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
             </div>
 
             {/* Search Action Button */}
             <Button
               type="submit"
               size="sm"
-              className="h-8 rounded-full px-4 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1"
+              className="h-7.5 rounded-full px-4 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1 ml-1"
             >
               <span>Search</span>
             </Button>
@@ -536,10 +553,14 @@ export function SiteHeader() {
 
       {/* Mobile Dedicated Search Bar (Visible only on < sm) */}
       <div className="block sm:hidden px-3 pb-2.5 pt-0">
-        <form onSubmit={submit} className="relative flex items-center rounded-full border border-border bg-surface-muted/90 p-1 shadow-inner focus-within:ring-2 focus-within:ring-primary/40 transition-all">
-          <div className="relative flex-1 min-w-0 flex items-center pl-2">
+        <form
+          onSubmit={submit}
+          className="relative flex items-center h-9 w-full rounded-full border border-border/80 bg-background px-2.5 shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+        >
+          <div className="relative flex-1 min-w-0 flex items-center">
             <Search className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0 mr-1.5" />
-            <Input
+            <input
+              type="text"
               value={q}
               onChange={(e) => {
                 setQ(e.target.value);
@@ -549,13 +570,26 @@ export function SiteHeader() {
                 if (q.trim().length >= 2) setShowDropdown(true);
               }}
               placeholder="Search across 29 categories, products, stores..."
-              className="h-8.5 w-full border-0 bg-transparent px-1 text-xs focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/70"
+              className="h-full w-full border-0 bg-transparent py-1.5 text-xs text-foreground outline-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground/70 font-normal"
             />
+            {q.trim().length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQ("");
+                  setShowDropdown(false);
+                }}
+                className="p-1 text-muted-foreground/60 hover:text-foreground text-xs rounded-full mr-1 transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
           <Button
             type="submit"
             size="sm"
-            className="h-7.5 rounded-full px-3 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1"
+            className="h-6.5 rounded-full px-2.5 text-[11px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1 ml-1"
           >
             <span>Search</span>
           </Button>
