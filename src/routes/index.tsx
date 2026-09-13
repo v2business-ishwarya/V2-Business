@@ -290,113 +290,262 @@ function Home() {
         </div>
       </div>
 
-      {/* 2.5 INTERACTIVE HERO GALLERY SLIDER / CAROUSEL */}
+      {/* 2.5 PREMIUM SPLIT BENTO HERO SHOWCASE */}
       <section className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
-        <div
-          className="relative h-[220px] sm:h-[300px] md:h-[360px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          {/* Slide items */}
-          {HERO_SLIDES.map((slide, index) => {
-            const isActive = index === currentSlide;
-            return (
-              <div
-                key={slide.id}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                }`}
-              >
-                {/* Background Image */}
-                <img
-                  src={slide.bgImage}
-                  alt={slide.title}
-                  className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
-                />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+          {/* Main Cinematic Interactive Showcase (Lg: 8 cols) */}
+          <div
+            className="relative lg:col-span-8 h-[240px] sm:h-[320px] md:h-[370px] lg:h-[400px] w-full rounded-2xl overflow-hidden shadow-xl border border-border/70 group select-none bg-neutral-950 flex flex-col justify-between"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            {/* Slide items */}
+            {HERO_SLIDES.map((slide, index) => {
+              const isActive = index === currentSlide;
+              return (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                    isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                  }`}
+                >
+                  {/* Background Image */}
+                  <img
+                    src={slide.bgImage}
+                    alt={slide.title}
+                    className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
+                  />
 
-                {/* Dark & Vibrant Gradient Overlay for text contrast */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+                  {/* Gradient overlays */}
+                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/30" />
 
-                {/* Content Overlay */}
-                <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 max-w-2xl text-white">
-                  {/* Badge */}
-                  <div className="mb-1.5 sm:mb-2.5">
+                  {/* Top Floating Badges */}
+                  <div className="absolute top-3 sm:top-4 left-4 sm:left-6 z-20 flex items-center gap-2">
                     <span
                       className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase shadow-md ${slide.badgeColor}`}
                     >
                       {slide.tag}
                     </span>
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black/50 text-white backdrop-blur-md border border-white/20">
+                      <ShieldCheck className="h-3 w-3 text-emerald-400" />
+                      100% Verified
+                    </span>
                   </div>
 
-                  {/* Headline */}
-                  <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-2 drop-shadow-sm">
-                    {slide.title}
-                    <span className="block text-amber-300 font-extrabold mt-0.5">
-                      {slide.highlight}
-                    </span>
-                  </h2>
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-center px-4 sm:px-8 md:px-10 max-w-xl text-white pt-6">
+                    {/* Headline */}
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-2 drop-shadow-md">
+                      {slide.title}
+                      <span className="block text-amber-300 font-extrabold mt-0.5">
+                        {slide.highlight}
+                      </span>
+                    </h2>
 
-                  {/* Subtitle */}
-                  <p className="hidden sm:block text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-lg">
-                    {slide.subtitle}
-                  </p>
+                    {/* Subtitle */}
+                    <p className="hidden sm:block text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-md">
+                      {slide.subtitle}
+                    </p>
 
-                  {/* CTA Button */}
-                  <div className="mt-1">
-                    <Link to={slide.targetLink}>
-                      <Button
-                        size="sm"
-                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-4 sm:px-6 h-8 sm:h-9 shadow-lg gap-1.5 hover:scale-105 transition-transform"
-                      >
-                        <span>{slide.ctaText}</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </Link>
+                    {/* CTA Button & Highlights */}
+                    <div className="flex items-center gap-3 mt-1">
+                      <Link to={slide.targetLink}>
+                        <Button
+                          size="sm"
+                          className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-4 sm:px-6 h-8 sm:h-9 shadow-lg gap-1.5 hover:scale-105 transition-transform cursor-pointer"
+                        >
+                          <span>{slide.ctaText}</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Button>
+                      </Link>
+                      <div className="hidden md:flex items-center gap-1.5 text-[11px] font-semibold text-yellow-200/90 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-yellow-500/20">
+                        <Truck className="h-3.5 w-3.5 text-amber-400" />
+                        <span>Fast Doorstep Delivery</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Left / Right Nav Arrows */}
+            <button
+              type="button"
+              onClick={prevSlide}
+              aria-label="Previous Slide"
+              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Next Slide"
+              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            {/* Interactive Bottom Slide Selector Pills */}
+            <div className="absolute bottom-2.5 sm:bottom-3 left-4 right-4 z-20 flex items-center justify-center gap-1.5 sm:gap-2">
+              {HERO_SLIDES.map((slide, idx) => (
+                <button
+                  type="button"
+                  key={slide.id}
+                  onClick={() => setCurrentSlide(idx)}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold transition-all duration-300 backdrop-blur-md cursor-pointer ${
+                    idx === currentSlide
+                      ? "bg-amber-500 text-black shadow-md scale-105 border border-amber-300"
+                      : "bg-black/60 text-gray-300 hover:text-white hover:bg-black/80 border border-white/10"
+                  }`}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                  <span className="hidden sm:inline truncate max-w-[110px]">
+                    {idx === 0 ? "Festival Deals" : idx === 1 ? "Gold Jewellery" : idx === 2 ? "Electronics" : "Silk Sarees"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Sidekick Bento Spotlight Cards (Lg: 4 cols) */}
+          <div className="lg:col-span-4 flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-3.5">
+            {/* 1. Flash Deal of the Hour Card */}
+            <div
+              onClick={() => navigate({ to: "/category/$slug", params: { slug: "electronics-home-appliances" } })}
+              className="relative flex-1 rounded-2xl overflow-hidden p-4 bg-gradient-to-br from-amber-950/80 via-neutral-900 to-amber-900/40 border border-amber-500/40 shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-xs animate-pulse">
+                  <Flame className="h-3 w-3" />
+                  FLASH DROP
+                </span>
+                <span className="text-[11px] font-mono font-bold text-amber-300 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
+                  {String(timeLeft.hours).padStart(2, "0")}h : {String(timeLeft.minutes).padStart(2, "0")}m : {String(timeLeft.seconds).padStart(2, "0")}s
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 my-1">
+                <div className="h-14 w-14 rounded-xl overflow-hidden bg-black/40 border border-amber-500/20 shrink-0">
+                  <img
+                    src="https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=200&q=90"
+                    alt="Wireless Earbuds"
+                    className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-foreground truncate group-hover:text-amber-500 transition-colors">
+                    Wireless ANC Earbuds Pro
+                  </h3>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="text-sm font-black text-amber-500">₹1,299</span>
+                    <span className="text-[11px] text-muted-foreground line-through">₹3,999</span>
+                    <span className="text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1 rounded">67% OFF</span>
                   </div>
                 </div>
               </div>
-            );
-          })}
 
-          {/* Left Arrow Button */}
-          <button
-            type="button"
-            onClick={prevSlide}
-            aria-label="Previous Slide"
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
-          >
-            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          </button>
+              <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[11px] font-bold text-muted-foreground">
+                <span className="text-amber-500 flex items-center gap-1">
+                  <Tag className="h-3 w-3" /> CODE: V2B10
+                </span>
+                <span className="text-foreground group-hover:text-primary flex items-center gap-0.5 group-hover:translate-x-0.5 transition-all">
+                  Claim Deal <ChevronRight className="h-3 w-3" />
+                </span>
+              </div>
+            </div>
 
-          {/* Right Arrow Button */}
-          <button
-            type="button"
-            onClick={nextSlide}
-            aria-label="Next Slide"
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
-          >
-            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-          </button>
+            {/* 2. Top Verified Merchant Spotlight Card */}
+            <div
+              onClick={() => navigate({ to: "/vendors" })}
+              className="relative flex-1 rounded-2xl overflow-hidden p-4 bg-gradient-to-br from-purple-950/70 via-neutral-900 to-indigo-950/40 border border-purple-500/30 shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col justify-between"
+            >
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-xs">
+                  <Crown className="h-3 w-3" />
+                  TOP MERCHANT
+                </span>
+                <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <span>4.9 (1.2k+ Reviews)</span>
+                </div>
+              </div>
 
-          {/* Bottom Slide Indicators */}
-          <div className="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
-            {HERO_SLIDES.map((slide, idx) => (
-              <button
-                type="button"
-                key={slide.id}
-                onClick={() => setCurrentSlide(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                  idx === currentSlide
-                    ? "w-6 sm:w-8 bg-amber-400"
-                    : "w-2 bg-white/40 hover:bg-white/70"
-                }`}
-              />
-            ))}
+              <div className="flex items-center gap-3 my-1">
+                <div className="h-14 w-14 rounded-xl overflow-hidden bg-black/40 border border-purple-500/20 shrink-0">
+                  <img
+                    src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=200&q=90"
+                    alt="Sri Lakshmi Jewellers"
+                    className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-foreground truncate group-hover:text-purple-400 transition-colors flex items-center gap-1">
+                    <span>Sri Lakshmi Jewellers</span>
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                    Hallmarked Gold & Pure Silver Ornaments
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-border/50 text-[11px] font-bold text-muted-foreground">
+                <span className="text-emerald-500 flex items-center gap-1">
+                  <ShieldCheck className="h-3 w-3" /> 100% Certified
+                </span>
+                <span className="text-foreground group-hover:text-primary flex items-center gap-0.5 group-hover:translate-x-0.5 transition-all">
+                  Visit Store <ChevronRight className="h-3 w-3" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Trust & Guarantee Pill Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-1">
+          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
+            <div className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-foreground truncate">100% Verified</p>
+              <p className="text-[10px] text-muted-foreground truncate">Authentic Merchants & BIS Gold</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
+            <div className="h-7 w-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+              <Truck className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-foreground truncate">Fast Home Delivery</p>
+              <p className="text-[10px] text-muted-foreground truncate">Free on orders above ₹499</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
+            <div className="h-7 w-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+              <CreditCard className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-foreground truncate">Instant UPI Discounts</p>
+              <p className="text-[10px] text-muted-foreground truncate">Extra 10% off with code V2B10</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
+            <div className="h-7 w-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-black text-foreground truncate">Buyer Protection</p>
+              <p className="text-[10px] text-muted-foreground truncate">Secure payment & easy returns</p>
+            </div>
           </div>
         </div>
       </section>
