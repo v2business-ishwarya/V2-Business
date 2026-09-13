@@ -8,25 +8,35 @@ interface V2LogoProps extends React.HTMLAttributes<HTMLDivElement> {
   isLightOnDark?: boolean;
 }
 
-export function V2LogoIcon({ size = "md", className = "" }: { size?: "sm" | "md" | "lg" | "xl" | number; className?: string }) {
-  const pixelSize = typeof size === "number" ? size : size === "sm" ? 32 : size === "md" ? 40 : size === "lg" ? 52 : 68;
+export function V2LogoIcon({
+  size = "md",
+  className = "",
+}: {
+  size?: "sm" | "md" | "lg" | "xl" | number;
+  className?: string;
+}) {
+  const height =
+    typeof size === "number"
+      ? size
+      : size === "sm"
+      ? 30
+      : size === "md"
+      ? 38
+      : size === "lg"
+      ? 48
+      : 60;
 
   return (
-    <div
-      style={{ width: pixelSize, height: pixelSize }}
-      className={`relative shrink-0 rounded-2xl overflow-hidden shadow-md ring-1 ring-amber-500/30 bg-gradient-to-br from-amber-100 via-amber-50 to-amber-200 dark:from-amber-950 dark:via-zinc-900 dark:to-amber-900/60 p-0.5 ${className}`}
-    >
-      <img
-        src="/v2b-gold-logo.jpg"
-        alt="V2B Gold Emblem"
-        className="w-full h-full object-cover rounded-xl"
-        onError={(e) => {
-          // Fallback SVG if image not found
-          const target = e.target as HTMLElement;
-          target.style.display = "none";
-        }}
-      />
-    </div>
+    <img
+      src="/v2b-gold-logo.png"
+      alt="V2B Gold Logo"
+      style={{ height: `${height}px`, width: "auto" }}
+      className={`shrink-0 object-contain drop-shadow-[0_2px_8px_rgba(217,119,6,0.25)] hover:scale-105 transition-transform duration-200 ${className}`}
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        target.src = "/logo.png";
+      }}
+    />
   );
 }
 
@@ -45,42 +55,28 @@ export function V2Logo({
       <V2LogoIcon size={size} />
       {showText && (
         <div className="flex flex-col leading-none text-left">
-          <div
-            className={`font-black tracking-tight flex items-baseline gap-1.5 ${
+          <span
+            style={{ color: isWhite ? "#FFFFFF" : undefined }}
+            className={`font-black tracking-tight ${
               size === "sm"
-                ? "text-base"
+                ? "text-xs font-bold"
                 : size === "md"
-                ? "text-lg"
+                ? "text-sm font-extrabold"
                 : size === "lg"
-                ? "text-xl"
-                : "text-2xl"
+                ? "text-base font-black"
+                : "text-lg font-black"
+            } ${
+              isWhite
+                ? "text-white"
+                : "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent"
             }`}
           >
-            <span
-              style={{ color: isWhite ? "#FFFFFF" : undefined }}
-              className={
-                isWhite
-                  ? "text-white font-black tracking-tight"
-                  : "bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent font-black tracking-tight drop-shadow-2xs"
-              }
-            >
-              V2
-            </span>
-            <span
-              style={{ color: isWhite ? "#FDE68A" : undefined }}
-              className={
-                isWhite
-                  ? "font-extrabold text-amber-200"
-                  : "bg-gradient-to-r from-yellow-600 via-amber-600 to-amber-700 bg-clip-text text-transparent font-black"
-              }
-            >
-              Business
-            </span>
-          </div>
+            BUSINESS
+          </span>
           <span
-            style={{ color: isWhite ? "rgba(255, 255, 255, 0.9)" : undefined }}
-            className={`text-[10px] uppercase font-bold tracking-widest mt-0.5 ${
-              isWhite ? "text-white/90" : "text-amber-700/80 dark:text-amber-300/80 font-bold"
+            style={{ color: isWhite ? "rgba(253, 230, 138, 0.9)" : undefined }}
+            className={`text-[9px] uppercase font-bold tracking-widest mt-0.5 ${
+              isWhite ? "text-amber-200" : "text-amber-700/90 dark:text-amber-400"
             }`}
           >
             Marketplace
