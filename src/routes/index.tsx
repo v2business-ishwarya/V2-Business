@@ -35,60 +35,60 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Curated Top Quick Bar Categories (Nykaa Style)
+// Curated Top Quick Bar Categories across 29 retail sectors
 const QUICK_NAV_CATS = [
-  { name: "Jewellery & Gold", slug: "jewellery-accessories" },
+  { name: "Electronics & Gadgets", slug: "electronics-home-appliances" },
   { name: "Clothing & Fashion", slug: "clothing-fashion" },
-  { name: "Beauty & Fragrance", slug: "beauty-personal-care" },
   { name: "Grocery & Mart", slug: "grocery-supermarkets" },
-  { name: "Electronics", slug: "electronics-home-appliances" },
-  { name: "Footwear", slug: "footwear" },
-  { name: "Home & Furniture", slug: "home-furniture" },
-  { name: "Restaurants & Food", slug: "restaurants-food" },
+  { name: "Beauty & Fragrance", slug: "beauty-personal-care" },
   { name: "Mobile & Telecom", slug: "mobile-telecom" },
+  { name: "Home & Furniture", slug: "home-furniture" },
+  { name: "Footwear", slug: "footwear" },
+  { name: "Jewellery & Accessories", slug: "jewellery-accessories" },
+  { name: "Restaurants & Food", slug: "restaurants-food" },
   { name: "Health & Pharmacy", slug: "pharmacy-healthcare" },
 ];
 
-// Nykaa-style 3 Hero Banner Cards
+// Multi-category 3 Hero Banner Cards
 const HERO_BANNERS = [
   {
     id: "banner-1",
-    brandLogo: "GLOW & BEAUTY",
-    title: "Luxury Cosmetics & Haircare",
-    subtitle: "On Global & Indian Bestsellers",
-    discountTag: "Flat 10% Off",
+    brandLogo: "SMART TECH & MOBILES",
+    title: "Next-Gen Electronics & Audio",
+    subtitle: "Smartphones, Earbuds, Laptops & Home Tech",
+    discountTag: "Up To 40% Off",
     linkText: "Shop Now →",
-    targetSlug: "beauty-personal-care",
+    targetSlug: "electronics-home-appliances",
     bgImage:
-      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-emerald-950/85 via-emerald-900/40 to-transparent",
-    accentBadge: "SALON QUALITY",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=95",
+    themeColor: "from-blue-950/85 via-slate-900/40 to-transparent",
+    accentBadge: "TOP TECH DEALS",
   },
   {
     id: "banner-2",
-    brandLogo: "V2B LUXURY GOLD",
-    title: "Designer Jewellery & Perfumes",
-    subtitle: "Extra Cart Offers on Gold & Silver",
-    discountTag: "Up To 50% Off",
-    linkText: "Shop Now →",
-    targetSlug: "jewellery-accessories",
-    bgImage:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
-    accentBadge: "FESTIVE EDITION",
-  },
-  {
-    id: "banner-3",
-    brandLogo: "ROYAL ETHNIC & BRIDAL",
-    title: "Grab Your Wedding Glam Kit",
-    subtitle: "Get Festive Ready with Top Designers",
-    discountTag: "Upto 50% Off",
+    brandLogo: "TRENDING FASHION & APPAREL",
+    title: "Designer Sarees, Kurtis & Men's Wear",
+    subtitle: "Authentic Handloom Silks & Festive Collections",
+    discountTag: "Up To 60% Off",
     linkText: "Shop Now →",
     targetSlug: "clothing-fashion",
     bgImage:
       "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-rose-950/85 via-rose-900/40 to-transparent",
-    accentBadge: "TRENDING NOW",
+    themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
+    accentBadge: "NEW ARRIVALS",
+  },
+  {
+    id: "banner-3",
+    brandLogo: "SUPERMARKET & ORGANICS",
+    title: "Daily Groceries & Beauty Care",
+    subtitle: "Farm Fresh Organics, Spices & Premium Cosmetics",
+    discountTag: "Flat 20% Off",
+    linkText: "Shop Now →",
+    targetSlug: "grocery-supermarkets",
+    bgImage:
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=95",
+    themeColor: "from-emerald-950/85 via-emerald-900/40 to-transparent",
+    accentBadge: "FRESH ESSENTIALS",
   },
 ];
 
@@ -160,15 +160,15 @@ function Home() {
       {/* 2. NYKAA STYLE ANNOUNCEMENT TICKER */}
       <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-2 px-4 shadow-sm overflow-hidden">
         <div className="mx-auto max-w-7xl flex items-center justify-center text-center text-xs sm:text-sm font-extrabold tracking-wider uppercase gap-3">
-          <span>✨ FESTIVE GLOW & WEDDING SALE IS LIVE IN RAJAHMUNDRY!</span>
+          <span>✨ 29 RETAIL CATEGORIES ACROSS RAJAHMUNDRY ARE LIVE ON V2 BUSINESS!</span>
           <span className="hidden sm:inline">|</span>
           <span className="hidden sm:inline">FREE LOCAL DELIVERY ON ORDERS ABOVE ₹499</span>
           <span className="hidden md:inline">|</span>
-          <span className="hidden md:inline">100% GENUINE VERIFIED STORES ✨</span>
+          <span className="hidden md:inline">100% VERIFIED LOCAL MERCHANTS ✨</span>
         </div>
       </div>
 
-      {/* 3. HERO SHOWCASE: "GLOW-UP MODE: ON" MULTI-CARD BANNERS */}
+      {/* 3. HERO SHOWCASE: MULTI-CATEGORY HIGHLIGHTS */}
       <section className="mx-auto max-w-7xl px-4 pt-6 pb-8 sm:px-6 lg:px-8">
         {/* Section Header Title */}
         <div className="flex items-center justify-center gap-3 mb-6 text-center">
@@ -176,14 +176,14 @@ function Home() {
           <h2 className="text-xl sm:text-2xl font-black uppercase tracking-widest text-foreground flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" />
             <span className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-600 bg-clip-text text-transparent">
-              GLOW-UP MODE: ON
+              EXPLORE THE MARKETPLACE
             </span>
             <Sparkles className="h-5 w-5 text-amber-500" />
           </h2>
           <span className="h-px w-12 bg-amber-500/40" />
         </div>
 
-        {/* 3 Large Fashion Banner Cards (Exact Nykaa Grid Layout) */}
+        {/* 3 Large Multi-Category Banner Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {HERO_BANNERS.map((banner) => (
             <div
@@ -247,7 +247,7 @@ function Home() {
         </div>
       </section>
 
-      {/* 4. BANK & INSTANT OFFERS TICKER STRIP (Nykaa Style) */}
+      {/* 4. BANK & INSTANT OFFERS TICKER STRIP */}
       <section className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
         <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
           <div className="flex items-center gap-3">
@@ -256,13 +256,13 @@ function Home() {
             </div>
             <div>
               <p className="text-sm font-black text-foreground flex items-center gap-2">
-                <span>EXTRA 10% OFF ON UPI & BANK CARDS</span>
+                <span>EXTRA 10% OFF ON UPI & ALL ONLINE PAYMENTS</span>
                 <Badge variant="outline" className="text-[10px] border-amber-500/40 text-amber-700 dark:text-amber-300 font-bold">
-                  CODE: V2GOLD
+                  CODE: V2B10
                 </Badge>
               </p>
               <p className="text-xs text-muted-foreground">
-                Applicable on all orders above ₹499 with instant checkout in Rajahmundry.
+                Valid across all 29 marketplace categories on orders above ₹499 in Rajahmundry.
               </p>
             </div>
           </div>
@@ -270,7 +270,7 @@ function Home() {
           <div className="flex items-center gap-2 shrink-0">
             <Link to="/search">
               <Button size="sm" className="rounded-full font-bold text-xs shadow-xs px-4">
-                Explore All Offers
+                Explore All Deals
               </Button>
             </Link>
           </div>
@@ -284,14 +284,14 @@ function Home() {
             <div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-red-600 text-white font-black text-[10px] tracking-wider uppercase animate-pulse">
-                  ⚡ LIMITED TIME ONLY
+                  ⚡ TODAY'S DEALS
                 </Badge>
                 <h2 className="text-lg sm:text-2xl font-black text-foreground">
-                  Festive Flash Drops
+                  Marketplace Flash Drops
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Special daily discounted prices from Rajahmundry merchants
+                Special daily discounted prices from verified Rajahmundry merchants
               </p>
             </div>
 
@@ -319,14 +319,14 @@ function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               {
-                title: "22K Gold Plated Temple Choker Set",
-                store: "Sri Godavari Gold",
-                price: 1499,
-                originalPrice: 2999,
-                discount: "50% OFF",
+                title: "Wireless ANC Bluetooth Earbuds",
+                store: "Sri Sai Tech & Mobiles",
+                price: 1299,
+                originalPrice: 2499,
+                discount: "48% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=800&q=95",
-                slug: "jewellery-accessories",
+                  "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=95",
+                slug: "electronics-home-appliances",
               },
               {
                 title: "Pure Kanchipuram Bridal Silk Saree",
@@ -340,7 +340,7 @@ function Home() {
               },
               {
                 title: "Cold-Pressed Wood Churned Sesame Oil (1L)",
-                store: "Godavari Organics",
+                store: "Godavari Fresh Organics",
                 price: 349,
                 originalPrice: 499,
                 discount: "30% OFF",
@@ -349,13 +349,13 @@ function Home() {
                 slug: "grocery-supermarkets",
               },
               {
-                title: "Handmade Brass Royal Peacock Diya (Pair)",
-                store: "Rajahmundry Crafts",
+                title: "Smart Stainless Steel Vacuum Flask (1L)",
+                store: "Rajahmundry Home Needs",
                 price: 599,
-                originalPrice: 999,
-                discount: "40% OFF",
+                originalPrice: 1199,
+                discount: "50% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=800&q=95",
+                  "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=800&q=95",
                 slug: "home-furniture",
               },
             ].map((deal, idx) => (
@@ -415,31 +415,31 @@ function Home() {
           {[
             {
               price: "Under ₹299",
-              subtitle: "Snacks, Spices & Daily Needs",
+              subtitle: "Snacks, Spices & Daily Groceries",
               gradient: "from-amber-500/20 via-yellow-500/10 to-transparent",
               border: "border-amber-500/30",
               slug: "grocery-supermarkets",
             },
             {
               price: "Under ₹599",
-              subtitle: "Beauty, Haircare & Accessories",
+              subtitle: "Beauty, Personal Care & Cosmetics",
               gradient: "from-rose-500/20 via-pink-500/10 to-transparent",
               border: "border-rose-500/30",
               slug: "beauty-personal-care",
             },
             {
               price: "Under ₹999",
-              subtitle: "Festive Kurtis, Footwear & Decor",
+              subtitle: "Fashion Kurtis, Footwear & Tech Accessories",
               gradient: "from-indigo-500/20 via-purple-500/10 to-transparent",
               border: "border-indigo-500/30",
               slug: "clothing-fashion",
             },
             {
-              price: "Luxury & Gold",
-              subtitle: "Bridal Sarees & 22K Certified",
+              price: "Premium Stores",
+              subtitle: "Electronics, Handlooms & Fine Boutiques",
               gradient: "from-amber-600/30 via-yellow-500/20 to-transparent",
               border: "border-amber-500/50",
-              slug: "jewellery-accessories",
+              slug: "electronics-home-appliances",
             },
           ].map((corner, i) => (
             <Link
@@ -545,15 +545,15 @@ function Home() {
               slug: "clothing-fashion",
             },
             {
-              title: "22K Certified Gold & Silvers",
-              desc: "Temple jewellery, daily wear chains & silver idols",
-              img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=95",
-              tag: "BIS HALLMARKED",
-              slug: "jewellery-accessories",
+              title: "Smart Electronics & Mobiles",
+              desc: "Latest 5G smartphones, smart TVs & home audio",
+              img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1000&q=95",
+              tag: "GENUINE WARRANTY",
+              slug: "electronics-home-appliances",
             },
             {
               title: "Ayurveda & Luxury Fragrance",
-              desc: "Pure sandalwood, natural perfumes & herbal care",
+              desc: "Pure sandalwood, natural perfumes & herbal skin wellness",
               img: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=95",
               tag: "ORGANIC GLOW",
               slug: "beauty-personal-care",
@@ -609,7 +609,7 @@ function Home() {
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Direct from verified storefronts & home studios
+              Direct from verified storefronts & local distributors
             </p>
           </div>
           <Link
@@ -631,7 +631,7 @@ function Home() {
             <Sparkles className="mx-auto h-8 w-8 text-amber-500 mb-2" />
             <h3 className="text-base font-bold text-foreground">Products Updating Daily</h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              Vendors in Rajahmundry are uploading items continuously. Check out categories or search stores.
+              Vendors across Rajahmundry are uploading items continuously. Browse categories or search stores.
             </p>
             <div className="mt-4">
               <Link to="/categories">
@@ -678,13 +678,13 @@ function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {[
               {
-                name: "Sri Godavari Gold & Silvers",
+                name: "Sri Sai Tech & Mobiles",
                 location: "Main Road & Fort Gate, Rajahmundry",
-                category: "Jewellery & Accessories",
+                category: "Electronics & Gadgets",
                 rating: 4.9,
-                badge: "Certified Hallmark",
+                badge: "Authorized Dealer",
                 photo:
-                  "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80",
+                  "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=400&q=80",
               },
               {
                 name: "Anand Silk Saree Emporium",
@@ -753,7 +753,7 @@ function Home() {
               name: "Lakshmi Prasanna",
               location: "Danavaipeta, Rajahmundry",
               review:
-                "Ordered a festive Kanchipuram silk saree for my cousin's wedding. Delivered within 4 hours directly from Anand Silks. Exceptional quality!",
+                "Ordered a festive Kanchipuram silk saree for my sister's wedding. Delivered within 4 hours directly from Anand Silks. Exceptional quality!",
               rating: 5,
               tag: "Verified Saree Buyer",
             },
@@ -761,15 +761,15 @@ function Home() {
               name: "Venkat Rao M.",
               location: "Main Road, Rajahmundry",
               review:
-                "Sri Godavari Gold store items were 100% genuine with BIS hallmark certificate. No markup, exact same price as store walk-in.",
+                "Got my new smartphone & wireless earbuds from Sri Sai Tech on V2 Business. Genuine warranty, store walk-in bill & ultra-fast local delivery.",
               rating: 5,
-              tag: "Verified Jewellery Buyer",
+              tag: "Verified Tech Buyer",
             },
             {
               name: "Pooja Reddy",
               location: "Aryapuram, Rajahmundry",
               review:
-                "The wood-pressed sesame oil and organic spices from Godavari Fresh are unmatched in aroma and freshness. My weekly grocery hub now!",
+                "The wood-pressed sesame oil, fresh dry fruits and organic spices from Godavari Fresh are unmatched in purity. My weekly grocery hub now!",
               rating: 5,
               tag: "Weekly Grocery Shopper",
             },
