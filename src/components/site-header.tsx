@@ -42,14 +42,16 @@ import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 
 const POPULAR_AREAS = [
-  { id: "all", name: "All Locations", label: "All Areas" },
-  { id: "blr", name: "Bengaluru", label: "Bengaluru, Karnataka" },
-  { id: "mum", name: "Mumbai", label: "Mumbai, Maharashtra" },
-  { id: "del", name: "Delhi NCR", label: "Delhi NCR" },
-  { id: "hyd", name: "Hyderabad", label: "Hyderabad, Telangana" },
-  { id: "chn", name: "Chennai", label: "Chennai, Tamil Nadu" },
-  { id: "pun", name: "Pune", label: "Pune, Maharashtra" },
-  { id: "kol", name: "Kolkata", label: "Kolkata, West Bengal" },
+  { id: "all-rjy", name: "Rajahmundry (All)", label: "All Rajahmundry (533101)" },
+  { id: "main-rd", name: "Main Road", label: "Main Road & Fort Gate" },
+  { id: "danavai", name: "Danavaipeta", label: "Danavaipeta & Syamala Nagar" },
+  { id: "morampudi", name: "Morampudi", label: "Morampudi Junction & NH16" },
+  { id: "innespeta", name: "Innespeta", label: "Innespeta & Kotagummam" },
+  { id: "prakash-nagar", name: "Prakash Nagar", label: "Prakash Nagar & Stadium" },
+  { id: "tadithota", name: "Tadithota", label: "Tadithota & Railway Station" },
+  { id: "aryapuram", name: "Aryapuram", label: "Aryapuram & Godavari Bund" },
+  { id: "diwancheruvu", name: "Diwancheruvu", label: "Diwancheruvu / Highway" },
+  { id: "katheru", name: "Katheru", label: "Katheru & Korukonda Road" },
 ];
 
 export function SiteHeader() {
@@ -62,9 +64,9 @@ export function SiteHeader() {
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [selectedArea, setSelectedArea] = useState<string>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("v2_selected_area") || "All Locations";
+      return localStorage.getItem("v2_selected_area") || "Rajahmundry (All)";
     }
-    return "All Locations";
+    return "Rajahmundry (All)";
   });
   const [customPincode, setCustomPincode] = useState("");
   const [areaPopoverOpen, setAreaPopoverOpen] = useState(false);
