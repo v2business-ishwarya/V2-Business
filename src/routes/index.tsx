@@ -363,17 +363,17 @@ function Home() {
           })}
 
           {/* Bottom Slide Indicators */}
-          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
+          <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/20 backdrop-blur-xs px-2 py-0.5 rounded-full border border-white/10 shadow-xs">
             {HERO_SLIDES.map((slide, idx) => (
               <button
                 type="button"
                 key={slide.id}
                 onClick={() => setCurrentSlide(idx)}
                 aria-label={`Go to slide ${idx + 1}`}
-                className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                   idx === currentSlide
-                    ? "w-7 bg-amber-400 shadow-xs"
-                    : "w-2.5 bg-white/45 hover:bg-white/90"
+                    ? "w-4 sm:w-5 bg-amber-400"
+                    : "w-1.5 bg-white/50 hover:bg-white/90"
                 }`}
               />
             ))}
