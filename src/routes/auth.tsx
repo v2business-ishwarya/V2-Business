@@ -83,9 +83,9 @@ function AuthPage() {
 
     if (error) {
       if (error === "google_not_configured") {
-        toast.error("Google OAuth is waiting for GOOGLE_CLIENT_ID in your Render environment variables.");
+        toast.error("Google OAuth is waiting for GOOGLE_CLIENT_ID & GOOGLE_CLIENT_SECRET in your Render environment variables.");
       } else {
-        toast.error("Google authentication failed. Please sign in with email & password.");
+        toast.error(`Google Sign-In: ${decodeURIComponent(error)}`);
       }
     } else if (token && rawUser) {
       try {

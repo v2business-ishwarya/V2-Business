@@ -343,6 +343,11 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       });
 
       const tokenData: any = await tokenRes.json();
+      if (tokenData.error) {
+        console.error("[GOOGLE OAUTH TOKEN ERROR]", tokenData);
+        return res.redirect(`${frontendUrl}/auth?error=${encodeURIComponent(tokenData.error_description || tokenData.error)}`);
+      }
+
       if (tokenData.access_token) {
         // Fetch user profile from Google
         const userRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
@@ -381,8 +386,12 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
         },
       });
 
-      // Send welcome email
-      await emailService.sendWelcomeEmail(user);
+      // Send welcome email safely (do not let email failure block login)
+      try {
+        await emailService.sendWelcomeEmail(user);
+      } catch (e) {
+        console.warn("[WELCOME EMAIL SKIPPED]", e);
+      }
     } else if (!user.googleId && googleId) {
       // Link existing account to Google
       user = await prisma.user.update({
@@ -394,7 +403,11 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
     // Generate tokens
     const accessToken = tokenService.generateAccessToken(user.id);
     const refreshToken = tokenService.generateRefreshToken();
-    await tokenService.storeRefreshToken(user.id, refreshToken);
+    try {
+      await tokenService.storeRefreshToken(user.id, refreshToken);
+    } catch (tokenErr) {
+      console.warn("[REFRESH TOKEN STORE WARNING]", tokenErr);
+    }
 
     // Set refresh token in httpOnly cookie
     res.cookie("refreshToken", refreshToken, {
@@ -416,8 +429,9 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
       JSON.stringify(safeUserData)
     )}`;
     res.redirect(targetUrl);
-  } catch (error) {
-    res.redirect(`${frontendUrl}/auth?error=google_auth_error`);
+  } catch (error: any) {
+    console.error("[GOOGLE OAUTH ERROR]", error);
+    res.redirect(`${frontendUrl}/auth?error=${encodeURIComponent(error.message || "google_auth_error")}`);
   }
 };
 
