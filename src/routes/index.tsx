@@ -362,26 +362,6 @@ function Home() {
             );
           })}
 
-          {/* Left Arrow Button (Prominent & High Contrast) */}
-          <button
-            type="button"
-            onClick={prevSlide}
-            aria-label="Previous Slide"
-            className="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/95 hover:bg-amber-400 text-black shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border border-black/10"
-          >
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
-          </button>
-
-          {/* Right Arrow Button (Prominent & High Contrast) */}
-          <button
-            type="button"
-            onClick={nextSlide}
-            aria-label="Next Slide"
-            className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-white/95 hover:bg-amber-400 text-black shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 cursor-pointer border border-black/10"
-          >
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />
-          </button>
-
           {/* Bottom Slide Indicators */}
           <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 shadow-lg">
             {HERO_SLIDES.map((slide, idx) => (
