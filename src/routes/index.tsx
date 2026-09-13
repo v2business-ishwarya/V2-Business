@@ -30,6 +30,9 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
@@ -1270,6 +1273,10 @@ function Home() {
       {/* 16. EXCLUSIVE VENDOR OF THE DAY POPUP MODAL (Admin Approved Only) */}
       <Dialog open={showSpotlightPopup && Boolean(spotlightAd)} onOpenChange={(open) => !open && handleDismissSpotlight()}>
         <DialogContent className="sm:max-w-lg rounded-3xl p-0 overflow-hidden border-2 border-amber-500/60 shadow-2xl bg-card">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{spotlightAd?.title || "Brand Spotlight Offer"}</DialogTitle>
+            <DialogDescription>{spotlightAd?.subtitle || "Special daily featured vendor spotlight"}</DialogDescription>
+          </DialogHeader>
           {spotlightAd && (
             <div className="relative">
               {/* Ad Poster Top Container */}

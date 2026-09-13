@@ -20,6 +20,7 @@ import userRouter from "./routes/users";
 import deliveryRouter from "./routes/delivery";
 import invoiceRouter from "./routes/invoice";
 import categoryRouter from "./routes/category";
+import spotlightRouter from "./routes/spotlight";
 import { apiLimiter, authLimiter } from "./middleware/rateLimit";
 import { auditLogger } from "./middleware/auditMiddleware";
 
@@ -86,11 +87,30 @@ const routeModules = [
   { path: "delivery", router: deliveryRouter },
   { path: "invoices", router: invoiceRouter },
   { path: "categories", router: categoryRouter },
+  { path: "spotlight-ads", router: spotlightRouter },
 ];
 
 routeModules.forEach(({ path, router }) => {
   app.use(`/api/${path}`, router);
   app.use(`/${path}`, router);
+});
+
+// Direct spotlight aliases for frontend compatibility
+app.use("/api/vendor/spotlight-ads", (req: Request, res: Response, next: NextFunction) => {
+  req.url = "/vendor" + (req.url === "/" ? "" : req.url);
+  spotlightRouter(req, res, next);
+});
+app.use("/vendor/spotlight-ads", (req: Request, res: Response, next: NextFunction) => {
+  req.url = "/vendor" + (req.url === "/" ? "" : req.url);
+  spotlightRouter(req, res, next);
+});
+app.use("/api/admin/spotlight-ads", (req: Request, res: Response, next: NextFunction) => {
+  req.url = "/admin" + (req.url === "/" ? "" : req.url);
+  spotlightRouter(req, res, next);
+});
+app.use("/admin/spotlight-ads", (req: Request, res: Response, next: NextFunction) => {
+  req.url = "/admin" + (req.url === "/" ? "" : req.url);
+  spotlightRouter(req, res, next);
 });
 
 // 404
