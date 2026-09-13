@@ -32,6 +32,10 @@ import {
   Sparkles,
   Building2,
   Tag,
+  Check,
+  X,
+  Search,
+  Layers,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor/store")({
@@ -43,13 +47,14 @@ function VendorStore() {
   const { data: vendor, refetch } = useMyVendor();
   const qc = useQueryClient();
   const [loading, setLoading] = useState(false);
-
+  const [catSearch, setCatSearch] = useState("");
   const [form, setForm] = useState({
     name: "",
     slug: "",
     tagline: "",
     description: "",
     category: "Clothing & Fashion",
+    categories: ["Clothing & Fashion"] as string[],
     email: "",
     phone: "",
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
@@ -70,7 +75,17 @@ function VendorStore() {
       if (savedStore) {
         try {
           const parsed = JSON.parse(savedStore);
-          setForm((prev) => ({ ...prev, ...parsed }));
+          const initialCats = Array.isArray(parsed.categories) && parsed.categories.length > 0
+            ? parsed.categories
+            : parsed.category
+            ? [parsed.category]
+            : ["Clothing & Fashion"];
+          setForm((prev) => ({
+            ...prev,
+            ...parsed,
+            categories: initialCats,
+            category: initialCats[0] || "Clothing & Fashion"
+          }));
           return;
         } catch {}
       }
@@ -82,6 +97,27 @@ function VendorStore() {
       }));
     }
   }, [vendor, user]);
+
+  const toggleCategory = (catName: string) => {
+    setForm((prev) => {
+      const exists = prev.categories.includes(catName);
+      let nextCats: string[];
+      if (exists) {
+        nextCats = prev.categories.filter((c) => c !== catName);
+        if (nextCats.length === 0) {
+          toast.warning("Store must belong to at least 1 category");
+          return prev;
+        }
+      } else {
+        nextCats = [...prev.categories, catName];
+      }
+      return {
+        ...prev,
+        categories: nextCats,
+        category: nextCats[0] || "",
+      };
+    });
+  };
 
   const save = async () => {
     if (!user) return;
@@ -198,25 +234,83 @@ function VendorStore() {
                   placeholder="royal-silk-handlooms"
                 />
               </div>
-              <div>
-                <Label>Primary Industry Category *</Label>
-                <Select
-                  value={form.category}
-                  onValueChange={(v) => setForm({ ...form, category: v })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select Business Category" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    {MARKETPLACE_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="sm:col-span-2 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-bold flex items-center gap-1.5">
+                      <Layers className="h-4 w-4 text-primary" /> Store Industry Categories (Multi-Select Allowed) *
+                    </Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Select one or multiple categories your store operates in. Your store and products will be listed in every category you select!
+                    </p>
+                  </div>
+                  <Badge variant="outline" className="font-bold text-xs bg-primary/10 text-primary border-primary/30">
+                    {form.categories.length} Selected
+                  </Badge>
+                </div>
+
+                {/* Selected categories pills */}
+                <div className="flex flex-wrap gap-1.5 min-h-[38px] p-2.5 rounded-xl border border-border bg-muted/30">
+                  {form.categories.map((cName) => (
+                    <span
+                      key={cName}
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary text-primary-foreground text-xs font-semibold px-2.5 py-1 shadow-xs animate-in fade-in"
+                    >
+                      <Check className="h-3 w-3" /> {cName}
+                      <button
+                        type="button"
+                        onClick={() => toggleCategory(cName)}
+                        className="ml-1 hover:bg-primary-foreground/20 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                {/* Category quick search & selector grid */}
+                <div className="space-y-2 pt-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search across all 30 marketplace categories to add/remove..."
+                      value={catSearch}
+                      onChange={(e) => setCatSearch(e.target.value)}
+                      className="pl-9 text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-56 overflow-y-auto p-1.5 border rounded-xl bg-card">
+                    {MARKETPLACE_CATEGORIES.filter((c) =>
+                      c.name.toLowerCase().includes(catSearch.toLowerCase())
+                    ).map((cat) => {
+                      const isSelected = form.categories.includes(cat.name);
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => toggleCategory(cat.name)}
+                          className={`flex items-center justify-between p-2 rounded-lg text-left text-xs font-medium transition-all ${
+                            isSelected
+                              ? "bg-primary/15 border-2 border-primary text-primary font-bold shadow-xs"
+                              : "bg-muted/40 hover:bg-muted border border-border/60 text-foreground"
+                          }`}
+                        >
+                          <span className="truncate pr-1">{cat.name}</span>
+                          {isSelected ? (
+                            <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                              <Check className="h-2.5 w-2.5" />
+                            </span>
+                          ) : (
+                            <span className="h-4 w-4 rounded-full border border-muted-foreground/40 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <Label>Store Tagline</Label>
                 <Input
                   placeholder="e.g. Authentic handwoven Banarasi sarees straight from master weavers"
@@ -407,6 +501,7 @@ function VendorStore() {
                 state: form.state,
                 pincode: form.pincode,
                 shopPhotos: form.shopPhotos,
+                categories: form.categories,
               }}
             />
           </div>

@@ -35,6 +35,7 @@ export interface VendorTrustData {
   pincode?: string;
   shopPhotos?: string[];
   avatarUrl?: string;
+  categories?: string[];
   joinedYear?: string | number;
   rating?: number;
   totalOrders?: number;
@@ -132,6 +133,18 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
             </div>
           </div>
         </div>
+
+        {/* Categories Chips */}
+        {vendor.categories && vendor.categories.length > 0 && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-1.5 pt-1">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground mr-1">Categories:</span>
+            {vendor.categories.map((c, i) => (
+              <Badge key={i} variant="secondary" className="text-[10px] font-medium bg-muted/80 text-foreground px-2 py-0">
+                {c}
+              </Badge>
+            ))}
+          </div>
+        )}
 
         {/* Shop / Workspace Photo Verification Showcase */}
         {primaryPhoto && (
