@@ -115,16 +115,6 @@ function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  const [newsletterEmail, setNewsletterEmail] = React.useState("");
-  const [newsletterSuccess, setNewsletterSuccess] = React.useState(false);
-
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail) return;
-    setNewsletterSuccess(true);
-    toast.success("Welcome to V2B VIP Club! Use code V2FIRST for ₹100 off.");
-  };
-
   // Fetch live products
   const { data: rawProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ["home-products"],
@@ -660,43 +650,7 @@ function Home() {
         )}
       </section>
 
-      {/* 10. 👑 V2B VIP CLUB & REWARDS PRIVILEGES */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-amber-500/40 bg-gradient-to-r from-stone-900 via-amber-950/80 to-stone-900 text-white p-6 sm:p-10 shadow-xl relative overflow-hidden">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
-            <div className="space-y-3 text-center md:text-left">
-              <Badge className="bg-amber-400 text-stone-950 font-black text-[10px] tracking-wider uppercase">
-                👑 V2B VIP MEMBERSHIP
-              </Badge>
-              <h3 className="text-2xl sm:text-3xl font-black text-amber-100 leading-tight">
-                Unlock Exclusive Perks & VIP Festive Deals
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs sm:text-sm text-stone-300">
-                <div className="flex items-center gap-2 justify-center md:justify-start">
-                  <CheckCircle2 className="h-4 w-4 text-amber-400 shrink-0" />
-                  <span>Free Express Local Delivery</span>
-                </div>
-                <div className="flex items-center gap-2 justify-center md:justify-start">
-                  <CheckCircle2 className="h-4 w-4 text-amber-400 shrink-0" />
-                  <span>Early Access to Flash Sales</span>
-                </div>
-                <div className="flex items-center gap-2 justify-center md:justify-start">
-                  <CheckCircle2 className="h-4 w-4 text-amber-400 shrink-0" />
-                  <span>Priority WhatsApp Concierge</span>
-                </div>
-              </div>
-            </div>
-            <div className="shrink-0">
-              <Link to="/auth">
-                <Button size="lg" className="rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-500 hover:to-yellow-600 text-black font-black text-sm px-8 shadow-lg">
-                  Join VIP Free <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* 11. VERIFIED RAJAHMUNDRY STORES SPOTLIGHT */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -885,38 +839,7 @@ function Home() {
         </div>
       </section>
 
-      {/* 14. 💌 VIP NEWSLETTER DROP & FIRST ORDER PROMO */}
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-card to-yellow-500/10 p-8 sm:p-12 text-center max-w-4xl mx-auto shadow-sm">
-          <Gift className="mx-auto h-10 w-10 text-amber-600 dark:text-amber-400 mb-3 animate-bounce" />
-          <h3 className="text-2xl sm:text-3xl font-black text-foreground">
-            Get ₹100 Off on Your First Order
-          </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-            Subscribe to the V2B Secret Drop to receive exclusive festive coupon codes, new store launches and weekend flash sales.
-          </p>
 
-          <form onSubmit={handleNewsletterSubmit} className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
-            <Input
-              type="email"
-              required
-              placeholder="Enter your email address"
-              value={newsletterEmail}
-              onChange={(e) => setNewsletterEmail(e.target.value)}
-              className="h-11 rounded-full bg-background border-border text-sm px-5"
-            />
-            <Button type="submit" className="h-11 rounded-full px-6 font-bold text-xs shrink-0 w-full sm:w-auto shadow-md">
-              Unlock ₹100 &rarr;
-            </Button>
-          </form>
-
-          {newsletterSuccess && (
-            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-3 animate-fade-in">
-              🎉 Subscribed! Use coupon code <span className="underline font-mono">V2FIRST</span> during checkout.
-            </p>
-          )}
-        </div>
-      </section>
 
       {/* 15. VENDOR SELLER BANNER CALL-TO-ACTION */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
