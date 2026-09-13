@@ -50,119 +50,59 @@ const QUICK_NAV_CATS = [
   { name: "Restaurants", slug: "restaurants-food" },
 ];
 
-// Rich, Ultra-Creative Hero Gallery Carousel Slides
+// Interactive Hero Carousel Slides
 const HERO_SLIDES = [
   {
     id: "slide-1",
-    tabLabel: "Festival Mega Sale",
-    tabDiscount: "Up to 70% Off",
-    tabIcon: Flame,
     tag: "🔥 GRAND MARKETPLACE FESTIVAL",
-    title: "Mega Deals & Festive Drops",
+    title: "Mega Deals Up to 70% Off",
     highlight: "Across 29 Retail Categories",
-    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified merchants with direct wholesale pricing.",
-    ctaText: "Explore All Deals",
-    secondaryCta: "View 29 Categories",
+    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified merchants.",
+    ctaText: "Shop All Deals",
     targetLink: "/search",
-    secondaryLink: "/categories",
     bgImage:
       "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-amber-950/80 to-transparent",
+    themeColor: "from-neutral-950/95 via-amber-950/75 to-transparent",
     badgeColor: "bg-gradient-to-r from-amber-500 to-yellow-500 text-black",
-    floatingCard: {
-      tag: "⚡ MEGA VALUE PICK",
-      title: "Festive Hamper & Gourmet Gift Box",
-      price: "₹1,299",
-      mrp: "₹2,999",
-      discount: "57% OFF",
-      rating: "4.9 ★ (1,800+ sold)",
-      image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=300&q=90",
-      perk: "Free Gift Packaging Included",
-    },
   },
   {
     id: "slide-2",
-    tabLabel: "Heritage Gold",
-    tabDiscount: "100% BIS Hallmarked",
-    tabIcon: Sparkles,
-    tag: "✨ 100% BIS HALLMARKED GOLD & DIAMONDS",
-    title: "Exquisite Bridal & Heritage Jewellery",
-    highlight: "Direct Jeweller Wholesale Pricing",
-    subtitle: "Certified 22K/18K gold, pure 925 silver ornaments & certified solitaire diamonds with 100% insured doorstep transit.",
-    ctaText: "Shop Jewellery",
-    secondaryCta: "Certified Silver",
+    tag: "✨ 100% BIS HALLMARKED",
+    title: "Heritage Gold & Certified Diamonds",
+    highlight: "Direct Jeweller Rates",
+    subtitle: "Exquisite bridal sets, daily wear certified gold, pure silver & solitaires with insured delivery.",
+    ctaText: "Explore Jewellery",
     targetLink: "/category/jewellery-accessories",
-    secondaryLink: "/category/jewellery-accessories",
     bgImage:
       "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-yellow-950/80 to-transparent",
+    themeColor: "from-neutral-950/95 via-yellow-950/70 to-transparent",
     badgeColor: "bg-yellow-400 text-black",
-    floatingCard: {
-      tag: "👑 22K ROYAL BRIDAL",
-      title: "Antique Temple Gold Choker Set",
-      price: "₹48,999",
-      mrp: "₹62,000",
-      discount: "21% OFF",
-      rating: "5.0 ★ (420+ reviews)",
-      image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=300&q=90",
-      perk: "BIS Hallmark & Valuation Card",
-    },
   },
   {
     id: "slide-3",
-    tabLabel: "Next-Gen Tech",
-    tabDiscount: "Extra 10% UPI Off",
-    tabIcon: CreditCard,
-    tag: "⚡ LATEST ELECTRONICS & SMART GADGETS",
-    title: "Flagship Phones, Audio & Smart Tech",
-    highlight: "Official Brand Warranty Included",
-    subtitle: "Upgrade your lifestyle with noise-cancelling headphones, 4K displays & smart appliances at unbeatable regional rates.",
-    ctaText: "Upgrade Your Tech",
-    secondaryCta: "Mobiles & Telecom",
+    tag: "⚡ NEXT-GEN GADGETS",
+    title: "Smartphones, Laptops & Smart Living",
+    highlight: "Extra 10% Instant UPI Discount",
+    subtitle: "Upgrade your lifestyle with genuine brand warranty, instant doorstep delivery, and best local prices.",
+    ctaText: "Explore Electronics",
     targetLink: "/category/electronics-home-appliances",
-    secondaryLink: "/category/mobile-telecom",
     bgImage:
       "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-blue-950/80 to-transparent",
+    themeColor: "from-neutral-950/95 via-blue-950/70 to-transparent",
     badgeColor: "bg-indigo-500 text-white",
-    floatingCard: {
-      tag: "🔥 BESTSELLING AUDIO",
-      title: "Pro Hybrid Wireless ANC Headphones",
-      price: "₹3,499",
-      mrp: "₹8,999",
-      discount: "61% OFF",
-      rating: "4.8 ★ (2,400+ reviews)",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=90",
-      perk: "1-Year Direct Brand Warranty",
-    },
   },
   {
     id: "slide-4",
-    tabLabel: "Silk & Sarees",
-    tabDiscount: "Handcrafted Sarees",
-    tabIcon: Crown,
-    tag: "👗 HANDLOOM SILK & DESIGNER ETHNIC",
-    title: "Pure Kanchipuram & Banarasi Sarees",
-    highlight: "Direct Weaver & Merchant Rates",
-    subtitle: "Handwoven bridal silk sarees, designer party lehengas, festive kurtis, and men's ethnic wedding couture.",
-    ctaText: "Explore Ethnic Wear",
-    secondaryCta: "Designer Kurtis",
+    tag: "👗 NEW SEASON FASHION",
+    title: "Pure Silk Sarees & Designer Ethnic",
+    highlight: "Wholesale Merchant Prices",
+    subtitle: "Handcrafted traditional sarees, festive lehengas, kurtis, and men's ethnic collections.",
+    ctaText: "Shop Fashion",
     targetLink: "/category/clothing-fashion",
-    secondaryLink: "/category/clothing-fashion",
     bgImage:
       "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1920&q=95",
-    themeColor: "from-neutral-950/95 via-rose-950/80 to-transparent",
+    themeColor: "from-neutral-950/95 via-rose-950/70 to-transparent",
     badgeColor: "bg-rose-500 text-white",
-    floatingCard: {
-      tag: "✨ PURE HANDLOOM",
-      title: "Royal Crimson Zari Kanchipuram Saree",
-      price: "₹4,299",
-      mrp: "₹9,500",
-      discount: "55% OFF",
-      rating: "4.9 ★ (920+ orders)",
-      image: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=300&q=90",
-      perk: "Silk Mark Certified & Unstitched Blouse",
-    },
   },
 ];
 
@@ -350,10 +290,10 @@ function Home() {
         </div>
       </div>
 
-      {/* 2.5 ULTRA-CREATIVE IMMERSIVE HERO GALLERY SLIDER */}
+      {/* 2.5 INTERACTIVE HERO GALLERY SLIDER / CAROUSEL */}
       <section className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
         <div
-          className="relative h-[330px] sm:h-[390px] md:h-[440px] lg:h-[470px] w-full rounded-3xl overflow-hidden shadow-2xl border border-border/80 group select-none bg-neutral-950 flex flex-col justify-between"
+          className="relative h-[220px] sm:h-[300px] md:h-[360px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchStart={onTouchStart}
@@ -370,254 +310,93 @@ function Home() {
                   isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
                 }`}
               >
-                {/* Immersive Background Image with Slow Ambient Motion */}
+                {/* Background Image */}
                 <img
                   src={slide.bgImage}
                   alt={slide.title}
                   className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
                 />
 
-                {/* Layered Gradient Meshes & Vignettes for Rich Visual Depth */}
+                {/* Dark & Vibrant Gradient Overlay for text contrast */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-black/40" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-amber-500/15 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
-                {/* Top Corner Badge & Slide Counter */}
-                <div className="absolute top-4 sm:top-6 left-4 sm:left-8 right-4 sm:right-8 z-20 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 max-w-2xl text-white">
+                  {/* Badge */}
+                  <div className="mb-1.5 sm:mb-2.5">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase shadow-lg border border-white/20 ${slide.badgeColor}`}
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase shadow-md ${slide.badgeColor}`}
                     >
                       {slide.tag}
                     </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-bold bg-black/60 text-emerald-300 backdrop-blur-md border border-emerald-500/30 shadow-md">
-                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
-                      100% Verified Merchants
+                  </div>
+
+                  {/* Headline */}
+                  <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-2 drop-shadow-sm">
+                    {slide.title}
+                    <span className="block text-amber-300 font-extrabold mt-0.5">
+                      {slide.highlight}
                     </span>
-                  </div>
+                  </h2>
 
-                  <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/15 text-xs font-mono font-bold text-white shadow-md">
-                    <span className="text-amber-400">0{index + 1}</span>
-                    <span className="text-white/40">/</span>
-                    <span className="text-white/60">0{HERO_SLIDES.length}</span>
-                  </div>
-                </div>
+                  {/* Subtitle */}
+                  <p className="hidden sm:block text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-lg">
+                    {slide.subtitle}
+                  </p>
 
-                {/* Main Content & Floating Product Card Grid */}
-                <div className="absolute inset-0 flex items-center px-4 sm:px-8 md:px-12 lg:px-14 pt-10 pb-20 sm:pb-24">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center w-full">
-                    {/* Left Typography & CTAs (7 Cols) */}
-                    <div className="lg:col-span-7 text-white max-w-xl">
-                      {/* Bold 2-Tone Gradient Headline */}
-                      <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-[1.1] mb-2 drop-shadow-md">
-                        {slide.title}
-                        <span className="block bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 bg-clip-text text-transparent font-extrabold mt-1">
-                          {slide.highlight}
-                        </span>
-                      </h1>
-
-                      {/* Subtitle */}
-                      <p className="text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-lg leading-relaxed drop-shadow-xs">
-                        {slide.subtitle}
-                      </p>
-
-                      {/* Value Micro-Pills */}
-                      <div className="hidden sm:flex items-center flex-wrap gap-2 mb-4 sm:mb-5">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/10 backdrop-blur-md text-amber-200 border border-white/10">
-                          <Truck className="h-3 w-3 text-amber-400" /> Free 24h Delivery &gt; ₹499
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/10 backdrop-blur-md text-emerald-200 border border-white/10">
-                          <Tag className="h-3 w-3 text-emerald-400" /> Extra 10% UPI Cashback
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/10 backdrop-blur-md text-yellow-200 border border-white/10">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" /> Top Rated Stores
-                        </span>
-                      </div>
-
-                      {/* Dual Action Buttons */}
-                      <div className="flex items-center gap-3">
-                        <Link to={slide.targetLink}>
-                          <Button
-                            size="lg"
-                            className="rounded-full bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-5 sm:px-7 h-9 sm:h-11 shadow-xl gap-2 hover:scale-105 transition-all cursor-pointer border border-amber-300/40"
-                          >
-                            <span>{slide.ctaText}</span>
-                            <ArrowRight className="h-4 w-4" />
-                          </Button>
-                        </Link>
-
-                        <Link to={slide.secondaryLink}>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className="rounded-full bg-black/40 hover:bg-black/70 text-white border-white/30 backdrop-blur-md font-bold text-xs sm:text-sm px-4 sm:px-6 h-9 sm:h-11 gap-1.5 hover:scale-105 transition-all cursor-pointer"
-                          >
-                            <span>{slide.secondaryCta}</span>
-                            <ChevronRight className="h-4 w-4 text-amber-400" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-
-                    {/* Right 3D Floating Glassmorphic Spotlight Deal Card (5 Cols, Hidden on small mobile) */}
-                    <div className="hidden lg:flex lg:col-span-5 justify-end">
-                      <div
-                        onClick={() => navigate({ to: slide.targetLink })}
-                        className="w-[300px] rounded-2xl p-4 bg-black/60 backdrop-blur-xl border border-white/25 shadow-2xl transition-all duration-500 hover:scale-105 hover:border-amber-400/60 hover:shadow-amber-500/10 cursor-pointer group/card"
+                  {/* CTA Button */}
+                  <div className="mt-1">
+                    <Link to={slide.targetLink}>
+                      <Button
+                        size="sm"
+                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-4 sm:px-6 h-8 sm:h-9 shadow-lg gap-1.5 hover:scale-105 transition-transform"
                       >
-                        {/* Card Tag & Live Rating */}
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-yellow-500 text-black px-2 py-0.5 rounded-full shadow-xs">
-                            {slide.floatingCard.tag}
-                          </span>
-                          <span className="text-[11px] font-bold text-amber-300">
-                            {slide.floatingCard.rating}
-                          </span>
-                        </div>
-
-                        {/* Product Image & Info */}
-                        <div className="flex gap-3 items-center mb-3">
-                          <div className="h-18 w-18 rounded-xl overflow-hidden bg-black/50 border border-white/10 shrink-0">
-                            <img
-                              src={slide.floatingCard.image}
-                              alt={slide.floatingCard.title}
-                              className="h-full w-full object-cover group-hover/card:scale-110 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h4 className="text-xs font-black text-white line-clamp-2 leading-snug group-hover/card:text-amber-300 transition-colors">
-                              {slide.floatingCard.title}
-                            </h4>
-                            <div className="flex items-baseline gap-1.5 mt-1.5">
-                              <span className="text-sm font-black text-amber-400">{slide.floatingCard.price}</span>
-                              <span className="text-[11px] text-gray-400 line-through">{slide.floatingCard.mrp}</span>
-                              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/20 px-1 py-0.5 rounded">
-                                {slide.floatingCard.discount}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Card Perk Footer */}
-                        <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] font-semibold text-gray-300">
-                          <span className="text-amber-300/90 truncate max-w-[180px]">
-                            ✦ {slide.floatingCard.perk}
-                          </span>
-                          <span className="text-white group-hover/card:text-amber-400 flex items-center gap-0.5 font-bold">
-                            View <ChevronRight className="h-3 w-3" />
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                        <span>{slide.ctaText}</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
             );
           })}
 
-          {/* Left / Right Nav Arrows */}
+          {/* Left Arrow Button */}
           <button
             type="button"
             onClick={prevSlide}
             aria-label="Previous Slide"
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-xl cursor-pointer"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
+
+          {/* Right Arrow Button */}
           <button
             type="button"
             onClick={nextSlide}
             aria-label="Next Slide"
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-11 sm:w-11 rounded-full bg-black/60 hover:bg-black/90 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 shadow-xl cursor-pointer"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md flex items-center justify-center border border-white/20 transition-all opacity-80 hover:opacity-100 hover:scale-110 cursor-pointer"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
 
-          {/* Interactive Story-Style Bottom Tabs with Progress Bars */}
-          <div className="absolute bottom-2.5 sm:bottom-3.5 left-3 sm:left-8 right-3 sm:right-8 z-20">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 bg-black/60 backdrop-blur-xl p-1.5 sm:p-2 rounded-2xl border border-white/15 shadow-2xl">
-              {HERO_SLIDES.map((slide, idx) => {
-                const isCurrent = idx === currentSlide;
-                const TabIcon = slide.tabIcon;
-                return (
-                  <button
-                    type="button"
-                    key={slide.id}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`relative text-left p-1.5 sm:p-2.5 rounded-xl transition-all duration-300 overflow-hidden cursor-pointer ${
-                      isCurrent
-                        ? "bg-white/15 text-white border border-amber-400/50 shadow-inner"
-                        : "bg-transparent text-gray-400 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5">
-                      <TabIcon className={`h-3.5 w-3.5 shrink-0 ${isCurrent ? "text-amber-400" : "text-gray-400"}`} />
-                      <span className="text-[11px] sm:text-xs font-black truncate">
-                        {slide.tabLabel}
-                      </span>
-                    </div>
-                    <p className="hidden sm:block text-[10px] text-gray-300/80 font-semibold truncate pl-5">
-                      {slide.tabDiscount}
-                    </p>
-
-                    {/* Active Tab Progress Countdown Bar */}
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10 rounded-full overflow-hidden">
-                      {isCurrent && (
-                        <div
-                          className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all"
-                          style={{
-                            animation: isPaused ? "none" : "progress 5s linear forwards",
-                          }}
-                        />
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Trust & Guarantee Pill Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-1">
-          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
-            <div className="h-7 w-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-black text-foreground truncate">100% Verified</p>
-              <p className="text-[10px] text-muted-foreground truncate">Authentic Merchants & BIS Gold</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
-            <div className="h-7 w-7 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-              <Truck className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-black text-foreground truncate">Fast Home Delivery</p>
-              <p className="text-[10px] text-muted-foreground truncate">Free on orders above ₹499</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
-            <div className="h-7 w-7 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-              <CreditCard className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-black text-foreground truncate">Instant UPI Discounts</p>
-              <p className="text-[10px] text-muted-foreground truncate">Extra 10% off with code V2B10</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-xl bg-card border border-border/80 px-3 py-2 shadow-2xs">
-            <div className="h-7 w-7 rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="h-4 w-4" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-black text-foreground truncate">Buyer Protection</p>
-              <p className="text-[10px] text-muted-foreground truncate">Secure payment & easy returns</p>
-            </div>
+          {/* Bottom Slide Indicators */}
+          <div className="absolute bottom-2.5 sm:bottom-3.5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 sm:gap-2 bg-black/40 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+            {HERO_SLIDES.map((slide, idx) => (
+              <button
+                type="button"
+                key={slide.id}
+                onClick={() => setCurrentSlide(idx)}
+                aria-label={`Go to slide ${idx + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentSlide
+                    ? "w-6 sm:w-8 bg-amber-400"
+                    : "w-2 bg-white/40 hover:bg-white/70"
+                }`}
+              />
+            ))}
           </div>
         </div>
       </section>
