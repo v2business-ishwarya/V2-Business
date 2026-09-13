@@ -184,6 +184,66 @@ export const api = {
   getCategories: () => request("/categories", "GET"),
   createCategory: (data: unknown) => request("/categories", "POST", data),
   deleteCategory: (id: string) => request(`/categories/${id}`, "DELETE"),
+
+  // Daily Spotlight / Popup Ads (1 Vendor per Day)
+  getTodaySpotlightAd: async () => {
+    try {
+      return await request("/spotlight-ads/today", "GET");
+    } catch {
+      // Local demo fallback for seamless client-side preview
+      const today = new Date().toISOString().split("T")[0];
+      const localAds = JSON.parse(localStorage.getItem("v2_spotlight_ads") || "[]");
+      return localAds.find((a: any) => a.targetDate === today && a.status === "APPROVED") || null;
+    }
+  },
+  getVendorSpotlightAds: async () => {
+    try {
+      return await request("/vendor/spotlight-ads", "GET");
+    } catch {
+      const localAds = JSON.parse(localStorage.getItem("v2_spotlight_ads") || "[]");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return localAds.filter((a: any) => !user.id || a.vendorId === user.id || a.vendorEmail === user.email);
+    }
+  },
+  createVendorSpotlightAd: async (data: unknown) => {
+    try {
+      return await request("/vendor/spotlight-ads", "POST", data);
+    } catch {
+      const localAds = JSON.parse(localStorage.getItem("v2_spotlight_ads") || "[]");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const newAd = {
+        id: `ad-${Date.now()}`,
+        vendorId: user.id || "vendor-local",
+        vendorName: user.name || "My Store",
+        vendorEmail: user.email || "vendor@v2business.com",
+        ...(data as any),
+        status: "PENDING",
+        createdAt: new Date().toISOString(),
+      };
+      localAds.unshift(newAd);
+      localStorage.setItem("v2_spotlight_ads", JSON.stringify(localAds));
+      return newAd;
+    }
+  },
+  getAdminSpotlightAds: async () => {
+    try {
+      return await request("/admin/spotlight-ads", "GET");
+    } catch {
+      return JSON.parse(localStorage.getItem("v2_spotlight_ads") || "[]");
+    }
+  },
+  updateAdminSpotlightAdStatus: async (id: string, status: string, adminNotes?: string) => {
+    try {
+      return await request(`/admin/spotlight-ads/${id}/status`, "PATCH", { status, adminNotes });
+    } catch {
+      const localAds = JSON.parse(localStorage.getItem("v2_spotlight_ads") || "[]");
+      const updated = localAds.map((a: any) =>
+        a.id === id ? { ...a, status, adminNotes: adminNotes || a.adminNotes, updatedAt: new Date().toISOString() } : a
+      );
+      localStorage.setItem("v2_spotlight_ads", JSON.stringify(updated));
+      return updated.find((a: any) => a.id === id);
+    }
+  },
 };
 
 export function initializeAuth() {

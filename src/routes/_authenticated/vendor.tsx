@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
 import { DashboardShell } from "@/components/dashboard-shell";
-import { LayoutDashboard, Package, ShoppingBag, Store, Tag, BarChart3, Truck, CreditCard, FileText } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Store, Tag, BarChart3, Truck, CreditCard, FileText, Sparkles } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { api } from "@/services/api";
@@ -45,6 +45,7 @@ function VendorLayout() {
         { to: "/vendor/delivery", label: "Delivery", icon: <Truck className="h-4 w-4" /> },
         { to: "/vendor/payments", label: "Payment providers", icon: <CreditCard className="h-4 w-4" /> },
         { to: "/vendor/invoices", label: "Invoices", icon: <FileText className="h-4 w-4" /> },
+        { to: "/vendor/ads", label: "Spotlight Ads (₹499)", icon: <Sparkles className="h-4 w-4 text-amber-500" /> },
       ]}
     >
       <Outlet />

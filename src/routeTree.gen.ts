@@ -39,6 +39,7 @@ import { Route as AuthenticatedVendorInvoicesRouteImport } from './routes/_authe
 import { Route as AuthenticatedVendorDeliveryRouteImport } from './routes/_authenticated/vendor.delivery'
 import { Route as AuthenticatedVendorCouponsRouteImport } from './routes/_authenticated/vendor.coupons'
 import { Route as AuthenticatedVendorAnalyticsRouteImport } from './routes/_authenticated/vendor.analytics'
+import { Route as AuthenticatedVendorAdsRouteImport } from './routes/_authenticated/vendor.ads'
 import { Route as AuthenticatedAdminVendorsRouteImport } from './routes/_authenticated/admin.vendors'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
@@ -51,6 +52,7 @@ import { Route as AuthenticatedAdminCommissionRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminBannersRouteImport } from './routes/_authenticated/admin.banners'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
+import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAccountWishlistRouteImport } from './routes/_authenticated/account.wishlist'
 import { Route as AuthenticatedAccountOrdersRouteImport } from './routes/_authenticated/account.orders'
 import { Route as AuthenticatedAccountInvoicesRouteImport } from './routes/_authenticated/account.invoices'
@@ -215,6 +217,11 @@ const AuthenticatedVendorAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedVendorRoute,
   } as any)
+const AuthenticatedVendorAdsRoute = AuthenticatedVendorAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AuthenticatedVendorRoute,
+} as any)
 const AuthenticatedAdminVendorsRoute =
   AuthenticatedAdminVendorsRouteImport.update({
     id: '/vendors',
@@ -286,6 +293,11 @@ const AuthenticatedAdminAnalyticsRoute =
     path: '/analytics',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAccountWishlistRoute =
   AuthenticatedAccountWishlistRouteImport.update({
     id: '/wishlist',
@@ -334,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/account/invoices': typeof AuthenticatedAccountInvoicesRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -346,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vendors': typeof AuthenticatedAdminVendorsRoute
+  '/vendor/ads': typeof AuthenticatedVendorAdsRoute
   '/vendor/analytics': typeof AuthenticatedVendorAnalyticsRoute
   '/vendor/coupons': typeof AuthenticatedVendorCouponsRoute
   '/vendor/delivery': typeof AuthenticatedVendorDeliveryRoute
@@ -378,6 +392,7 @@ export interface FileRoutesByTo {
   '/account/invoices': typeof AuthenticatedAccountInvoicesRoute
   '/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/account/wishlist': typeof AuthenticatedAccountWishlistRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -390,6 +405,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/vendors': typeof AuthenticatedAdminVendorsRoute
+  '/vendor/ads': typeof AuthenticatedVendorAdsRoute
   '/vendor/analytics': typeof AuthenticatedVendorAnalyticsRoute
   '/vendor/coupons': typeof AuthenticatedVendorCouponsRoute
   '/vendor/delivery': typeof AuthenticatedVendorDeliveryRoute
@@ -427,6 +443,7 @@ export interface FileRoutesById {
   '/_authenticated/account/invoices': typeof AuthenticatedAccountInvoicesRoute
   '/_authenticated/account/orders': typeof AuthenticatedAccountOrdersRoute
   '/_authenticated/account/wishlist': typeof AuthenticatedAccountWishlistRoute
+  '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/banners': typeof AuthenticatedAdminBannersRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -439,6 +456,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/vendors': typeof AuthenticatedAdminVendorsRoute
+  '/_authenticated/vendor/ads': typeof AuthenticatedVendorAdsRoute
   '/_authenticated/vendor/analytics': typeof AuthenticatedVendorAnalyticsRoute
   '/_authenticated/vendor/coupons': typeof AuthenticatedVendorCouponsRoute
   '/_authenticated/vendor/delivery': typeof AuthenticatedVendorDeliveryRoute
@@ -476,6 +494,7 @@ export interface FileRouteTypes {
     | '/account/invoices'
     | '/account/orders'
     | '/account/wishlist'
+    | '/admin/ads'
     | '/admin/analytics'
     | '/admin/banners'
     | '/admin/categories'
@@ -488,6 +507,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/admin/vendors'
+    | '/vendor/ads'
     | '/vendor/analytics'
     | '/vendor/coupons'
     | '/vendor/delivery'
@@ -520,6 +540,7 @@ export interface FileRouteTypes {
     | '/account/invoices'
     | '/account/orders'
     | '/account/wishlist'
+    | '/admin/ads'
     | '/admin/analytics'
     | '/admin/banners'
     | '/admin/categories'
@@ -532,6 +553,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/users'
     | '/admin/vendors'
+    | '/vendor/ads'
     | '/vendor/analytics'
     | '/vendor/coupons'
     | '/vendor/delivery'
@@ -568,6 +590,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/invoices'
     | '/_authenticated/account/orders'
     | '/_authenticated/account/wishlist'
+    | '/_authenticated/admin/ads'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/banners'
     | '/_authenticated/admin/categories'
@@ -580,6 +603,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/vendors'
+    | '/_authenticated/vendor/ads'
     | '/_authenticated/vendor/analytics'
     | '/_authenticated/vendor/coupons'
     | '/_authenticated/vendor/delivery'
@@ -824,6 +848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendorAnalyticsRouteImport
       parentRoute: typeof AuthenticatedVendorRoute
     }
+    '/_authenticated/vendor/ads': {
+      id: '/_authenticated/vendor/ads'
+      path: '/ads'
+      fullPath: '/vendor/ads'
+      preLoaderRoute: typeof AuthenticatedVendorAdsRouteImport
+      parentRoute: typeof AuthenticatedVendorRoute
+    }
     '/_authenticated/admin/vendors': {
       id: '/_authenticated/admin/vendors'
       path: '/vendors'
@@ -908,6 +939,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/ads': {
+      id: '/_authenticated/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/account/wishlist': {
       id: '/_authenticated/account/wishlist'
       path: '/wishlist'
@@ -959,6 +997,7 @@ const AuthenticatedAccountRouteWithChildren =
   AuthenticatedAccountRoute._addFileChildren(AuthenticatedAccountRouteChildren)
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminBannersRoute: typeof AuthenticatedAdminBannersRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
@@ -975,6 +1014,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminBannersRoute: AuthenticatedAdminBannersRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
@@ -994,6 +1034,7 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedVendorRouteChildren {
+  AuthenticatedVendorAdsRoute: typeof AuthenticatedVendorAdsRoute
   AuthenticatedVendorAnalyticsRoute: typeof AuthenticatedVendorAnalyticsRoute
   AuthenticatedVendorCouponsRoute: typeof AuthenticatedVendorCouponsRoute
   AuthenticatedVendorDeliveryRoute: typeof AuthenticatedVendorDeliveryRoute
@@ -1006,6 +1047,7 @@ interface AuthenticatedVendorRouteChildren {
 }
 
 const AuthenticatedVendorRouteChildren: AuthenticatedVendorRouteChildren = {
+  AuthenticatedVendorAdsRoute: AuthenticatedVendorAdsRoute,
   AuthenticatedVendorAnalyticsRoute: AuthenticatedVendorAnalyticsRoute,
   AuthenticatedVendorCouponsRoute: AuthenticatedVendorCouponsRoute,
   AuthenticatedVendorDeliveryRoute: AuthenticatedVendorDeliveryRoute,

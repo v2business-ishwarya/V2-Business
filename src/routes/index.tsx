@@ -25,7 +25,12 @@ import {
   CheckCircle2,
   Gift,
   ShoppingBag,
+  X,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
@@ -197,6 +202,41 @@ function Home() {
     } else if (distance < -minSwipeDistance) {
       prevSlide();
     }
+  };
+
+  // Today's Approved Spotlight Popup Ad (1 Vendor / Day)
+  const [spotlightAd, setSpotlightAd] = React.useState<any>(null);
+  const [showSpotlightPopup, setShowSpotlightPopup] = React.useState(false);
+
+  React.useEffect(() => {
+    let timer: any;
+    const fetchTodaySpotlight = async () => {
+      try {
+        const ad = await api.getTodaySpotlightAd();
+        if (ad && (ad.status === "APPROVED" || ad.status === "approved")) {
+          const dismissedDate = sessionStorage.getItem("v2_dismissed_spotlight_ad");
+          const today = new Date().toISOString().split("T")[0];
+          if (dismissedDate !== `${today}_${ad.id}`) {
+            setSpotlightAd(ad);
+            timer = setTimeout(() => {
+              setShowSpotlightPopup(true);
+            }, 1200);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load today's spotlight ad", err);
+      }
+    };
+    fetchTodaySpotlight();
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleDismissSpotlight = () => {
+    if (spotlightAd) {
+      const today = new Date().toISOString().split("T")[0];
+      sessionStorage.setItem("v2_dismissed_spotlight_ad", `${today}_${spotlightAd.id}`);
+    }
+    setShowSpotlightPopup(false);
   };
 
   // Live countdown timer for Flash Drops
@@ -1226,6 +1266,86 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* 16. EXCLUSIVE VENDOR OF THE DAY POPUP MODAL (Admin Approved Only) */}
+      <Dialog open={showSpotlightPopup && Boolean(spotlightAd)} onOpenChange={(open) => !open && handleDismissSpotlight()}>
+        <DialogContent className="sm:max-w-lg rounded-3xl p-0 overflow-hidden border-2 border-amber-500/60 shadow-2xl bg-card">
+          {spotlightAd && (
+            <div className="relative">
+              {/* Ad Poster Top Container */}
+              <div className="relative h-64 sm:h-72 w-full bg-stone-950 overflow-hidden">
+                <img
+                  src={spotlightAd.bannerUrl}
+                  alt={spotlightAd.title}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+
+                {/* Top Badge */}
+                <div className="absolute top-3.5 left-3.5">
+                  <Badge className="bg-gradient-to-r from-amber-400 to-yellow-400 text-black font-black text-[11px] tracking-wider uppercase px-3 py-1 shadow-lg gap-1.5 border-0">
+                    <Sparkles className="h-3.5 w-3.5 fill-black" />
+                    ⭐ Today's Brand Spotlight
+                  </Badge>
+                </div>
+
+                {/* Close Button */}
+                <button
+                  type="button"
+                  onClick={handleDismissSpotlight}
+                  className="absolute top-3.5 right-3.5 grid h-8 w-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur-md hover:bg-black transition-colors"
+                  aria-label="Close spotlight popup"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                {/* Bottom Overlay Headline */}
+                <div className="absolute bottom-3.5 left-4 right-4 text-white space-y-1">
+                  <span className="text-xs font-bold text-amber-300 uppercase tracking-widest block drop-shadow-sm">
+                    {spotlightAd.storeName || "Featured Store"}
+                  </span>
+                  <h3 className="text-lg sm:text-2xl font-black leading-tight drop-shadow-md">
+                    {spotlightAd.title}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Popup Body Content */}
+              <div className="p-5 sm:p-6 space-y-4 bg-card">
+                {spotlightAd.subtitle && (
+                  <p className="text-xs sm:text-sm text-muted-foreground font-medium leading-relaxed">
+                    {spotlightAd.subtitle}
+                  </p>
+                )}
+
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleDismissSpotlight}
+                    className="text-xs font-bold text-muted-foreground hover:text-foreground transition-colors order-2 sm:order-1"
+                  >
+                    Continue browsing
+                  </button>
+
+                  <Link
+                    to={spotlightAd.targetUrl || "/search"}
+                    onClick={handleDismissSpotlight}
+                    className="w-full sm:w-auto order-1 sm:order-2"
+                  >
+                    <Button
+                      size="default"
+                      className="w-full sm:w-auto rounded-full bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:to-yellow-600 text-black font-black text-xs sm:text-sm px-6 h-10 shadow-lg gap-2 hover:scale-102 transition-transform"
+                    >
+                      <span>{spotlightAd.buttonText || "Shop Deals Now"}</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

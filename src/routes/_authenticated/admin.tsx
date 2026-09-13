@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import {
   LayoutDashboard, Store, FolderTree, Image, Users,
   ShoppingCart, CreditCard, Truck, Percent, FileText,
-  BarChart2, Settings, Package
+  BarChart2, Settings, Package, Sparkles
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -48,6 +48,7 @@ function AdminLayout() {
         { to: "/admin/delivery", label: "Delivery", icon: <Truck className="h-4 w-4" /> },
         { to: "/admin/commission", label: "Commission", icon: <Percent className="h-4 w-4" /> },
         { to: "/admin/invoices", label: "Invoices", icon: <FileText className="h-4 w-4" /> },
+        { to: "/admin/ads", label: "Spotlight Ads", icon: <Sparkles className="h-4 w-4 text-amber-500" /> },
         { to: "/admin/analytics", label: "Analytics", icon: <BarChart2 className="h-4 w-4" /> },
         { to: "/admin/settings", label: "Settings", icon: <Settings className="h-4 w-4" /> },
       ]}
