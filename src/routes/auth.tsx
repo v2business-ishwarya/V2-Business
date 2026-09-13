@@ -97,7 +97,7 @@ function AuthPage() {
         } else if (parsedUser.role === "VENDOR") {
           navigate({ to: "/vendor", replace: true });
         } else {
-          navigate({ to: target, replace: true });
+          navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
         }
       } catch (err) {
         console.error("Failed to parse Google auth payload", err);
@@ -118,7 +118,8 @@ function AuthPage() {
       } else if (res.user?.role === "VENDOR" || (res.user as any)?.role === "vendor") {
         navigate({ to: "/vendor", replace: true });
       } else {
-        navigate({ to: "/", replace: true });
+        // Shoppers are directed to products catalogue
+        navigate({ to: "/search", replace: true });
       }
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign in failed");
@@ -137,7 +138,8 @@ function AuthPage() {
       if (accountType === "vendor") {
         navigate({ to: "/vendor", replace: true });
       } else {
-        navigate({ to: target, replace: true });
+        // Shoppers are directed to products catalogue
+        navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
       }
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign up failed");
