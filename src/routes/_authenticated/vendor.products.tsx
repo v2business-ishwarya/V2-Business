@@ -17,9 +17,11 @@ import {
 import { EmptyState } from "@/components/empty-state";
 import { formatMoney, slugify } from "@/lib/utils-app";
 import { ImageUploader } from "@/components/image-uploader";
+import * as React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Package, Plus, Pencil, Trash2 } from "lucide-react";
+import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 import {
   Dialog,
   DialogContent,
@@ -75,13 +77,24 @@ function VendorProducts() {
     queryFn: () => api.getProducts({ vendorId: vendor?.id }),
   });
 
-  const { data: categories = [] } = useQuery({
+  const { data: rawCats = [] } = useQuery({
     queryKey: ["categories-all"],
     queryFn: () => api.getCategories(),
   });
 
   const products: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
-  const cats: any[] = Array.isArray(categories) ? categories : [];
+  
+  // Combine 30 marketplace categories with any custom backend categories
+  const cats = React.useMemo(() => {
+    const list = MARKETPLACE_CATEGORIES.map((c) => ({ id: c.id, name: c.name }));
+    const dbCats: any[] = Array.isArray(rawCats) ? rawCats : [];
+    for (const dc of dbCats) {
+      if (!list.some((c) => c.name.toLowerCase() === dc.name.toLowerCase())) {
+        list.push({ id: dc.id, name: dc.name });
+      }
+    }
+    return list;
+  }, [rawCats]);
 
   const createMutation = useMutation({
     mutationFn: (payload: any) => api.createProduct(payload),

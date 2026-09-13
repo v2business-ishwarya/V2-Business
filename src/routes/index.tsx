@@ -32,6 +32,7 @@ import { useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { formatMoney, slugify } from "@/lib/utils-app";
 import { V2LogoIcon } from "@/components/v2-logo";
+import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 import * as React from "react";
 
 export const Route = createFileRoute("/")({
@@ -73,16 +74,7 @@ function Home() {
   const platformCommission = Math.round(vendorRevenue * 0.1);
   const vendorTakeHome = vendorRevenue - platformCommission;
 
-  const defaultCategories = [
-    { name: "Electronics & Gadgets", slug: "electronics", icon: Zap, count: "1,200+ items" },
-    { name: "Fashion & Apparel", slug: "fashion", icon: ShoppingBag, count: "3,400+ items" },
-    { name: "Home & Decor", slug: "home-decor", icon: Store, count: "850+ items" },
-    { name: "Beauty & Wellness", slug: "beauty", icon: Sparkles, count: "920+ items" },
-    { name: "Artisanal & Crafts", slug: "handmade", icon: Tag, count: "640+ items" },
-    { name: "Sports & Fitness", slug: "sports", icon: TrendingUp, count: "510+ items" },
-  ];
-
-  const displayCategories = categories.length > 0 ? categories : defaultCategories;
+  const displayCategories = MARKETPLACE_CATEGORIES;
 
   return (
     <div className="relative overflow-hidden bg-background text-foreground selection:bg-primary selection:text-primary-foreground min-h-screen">
@@ -273,41 +265,80 @@ function Home() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
           <div>
             <Badge variant="outline" className="mb-2 bg-primary/10 text-primary border-primary/20 font-semibold">
-              Catalogue
+              Curated Catalog
             </Badge>
-            <h2 className="text-3xl font-bold tracking-tight">Explore Categories</h2>
-            <p className="text-sm text-muted-foreground mt-1">Browse collections curated across hundreds of vendors</p>
+            <h2 className="text-3xl font-bold tracking-tight">Explore 30+ Marketplace Categories</h2>
+            <p className="text-sm text-muted-foreground mt-1">Browse verified products & stores across specialized retail sectors</p>
           </div>
-          <Link to="/categories" className="text-sm font-semibold text-primary hover:underline inline-flex items-center">
-            View all categories <ArrowRight className="ml-1 h-4 w-4" />
+          <Link to="/categories" className="text-sm font-semibold text-primary hover:underline inline-flex items-center group">
+            <span>View all 30 categories</span>
+            <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {displayCategories.slice(0, 6).map((c: any, idx: number) => {
-            const IconComp = c.icon || Tag;
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          {displayCategories.slice(0, 12).map((c: any, idx: number) => {
             return (
               <motion.div
                 key={c.id || c.slug || idx}
-                whileHover={{ y: -5, scale: 1.02 }}
+                whileHover={{ y: -4 }}
                 transition={{ duration: 0.2 }}
               >
                 <Link
                   to="/category/$slug"
                   params={{ slug: c.slug || slugify(c.name) }}
-                  className="group flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-primary hover:shadow-md"
+                  className="group relative flex flex-col h-full overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-primary/50 hover:shadow-lg"
                 >
-                  <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                    <IconComp className="h-7 w-7" />
+                  {/* Category Image Container */}
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                    <img
+                      src={c.imageUrl || c.image_url || "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80"}
+                      alt={c.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                    />
+                    {/* Gradient shadow overlay for legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                    
+                    {/* Item count tag */}
+                    <div className="absolute top-2 right-2">
+                      <span className="rounded-full bg-black/50 backdrop-blur-md px-2 py-0.5 text-[10px] font-semibold text-white border border-white/20">
+                        {c.itemCount || "Active"}
+                      </span>
+                    </div>
+
+                    {/* Category Title pinned to bottom of photo */}
+                    <div className="absolute bottom-2 left-2 right-2 text-left">
+                      <p className="font-bold text-xs sm:text-sm text-white line-clamp-2 leading-snug drop-shadow-sm group-hover:text-emerald-300 transition-colors">
+                        {c.name}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm line-clamp-1">{c.name}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{c.count || "Browse Store"}</p>
+
+                  {/* Card Bottom Meta */}
+                  <div className="p-2.5 flex items-center justify-between text-[11px] bg-card text-muted-foreground">
+                    <span className="truncate max-w-[120px] font-medium text-foreground/80">
+                      {c.popularTags?.[0] ? `${c.popularTags[0]} & more` : "Explore Catalog"}
+                    </span>
+                    <ChevronRight className="h-3.5 w-3.5 shrink-0 text-primary opacity-70 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </Link>
               </motion.div>
             );
           })}
+        </div>
+
+        {/* View All Promo Banner */}
+        <div className="mt-8 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-emerald-500/5 to-teal-500/10 p-4 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="text-center sm:text-left">
+            <h3 className="font-bold text-base sm:text-lg">Looking for specific local stores or goods?</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">Explore our comprehensive directory of all 30 retail & service industries across India.</p>
+          </div>
+          <Link to="/categories">
+            <Button className="rounded-xl font-bold shadow-md shadow-primary/20 shrink-0">
+              Browse All 30 Categories <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 

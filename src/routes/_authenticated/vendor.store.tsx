@@ -15,6 +15,14 @@ import { slugify } from "@/lib/utils-app";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MARKETPLACE_CATEGORIES } from "@/data/categories";
+import {
   Store,
   Home,
   ShieldCheck,
@@ -23,6 +31,7 @@ import {
   Camera,
   Sparkles,
   Building2,
+  Tag,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor/store")({
@@ -40,6 +49,7 @@ function VendorStore() {
     slug: "",
     tagline: "",
     description: "",
+    category: "Clothing & Fashion",
     email: "",
     phone: "",
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
@@ -188,7 +198,25 @@ function VendorStore() {
                   placeholder="royal-silk-handlooms"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div>
+                <Label>Primary Industry Category *</Label>
+                <Select
+                  value={form.category}
+                  onValueChange={(v) => setForm({ ...form, category: v })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select Business Category" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {MARKETPLACE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label>Store Tagline</Label>
                 <Input
                   placeholder="e.g. Authentic handwoven Banarasi sarees straight from master weavers"
