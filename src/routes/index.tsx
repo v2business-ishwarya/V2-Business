@@ -322,38 +322,38 @@ function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
                 {/* Content Overlay */}
-                <div className="absolute inset-0 flex flex-col justify-center px-6 sm:px-10 md:px-14 lg:px-16 max-w-2xl text-white">
+                <div className="absolute inset-0 flex flex-col justify-center px-5 sm:px-8 md:px-10 lg:px-12 max-w-xl text-white">
                   {/* Badge */}
-                  <div className="mb-1.5 sm:mb-2.5">
+                  <div className="mb-1 sm:mb-2">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase shadow-md ${slide.badgeColor}`}
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[11px] font-bold tracking-wide uppercase shadow-xs ${slide.badgeColor}`}
                     >
                       {slide.tag}
                     </span>
                   </div>
 
                   {/* Headline */}
-                  <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tight leading-tight mb-1 sm:mb-2 drop-shadow-sm">
+                  <h2 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold tracking-tight leading-snug mb-1 sm:mb-1.5 drop-shadow-sm">
                     {slide.title}
-                    <span className="block text-amber-300 font-extrabold mt-0.5">
+                    <span className="block text-amber-300 font-semibold mt-0.5 text-xs sm:text-base md:text-lg">
                       {slide.highlight}
                     </span>
                   </h2>
 
                   {/* Subtitle */}
-                  <p className="hidden sm:block text-xs sm:text-sm text-gray-200/90 font-medium mb-3 sm:mb-4 line-clamp-2 max-w-lg">
+                  <p className="hidden sm:block text-[11px] sm:text-xs text-gray-200/85 font-normal mb-2.5 sm:mb-3 line-clamp-2 max-w-md">
                     {slide.subtitle}
                   </p>
 
                   {/* CTA Button */}
-                  <div className="mt-1">
+                  <div className="mt-0.5 sm:mt-1">
                     <Link to={slide.targetLink}>
                       <Button
                         size="sm"
-                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs sm:text-sm px-4 sm:px-6 h-8 sm:h-9 shadow-lg gap-1.5 hover:scale-105 transition-transform"
+                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-bold text-[11px] sm:text-xs px-3.5 sm:px-4.5 h-7 sm:h-8 shadow-md gap-1 hover:scale-102 transition-transform"
                       >
                         <span>{slide.ctaText}</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
+                        <ArrowRight className="h-3 w-3" />
                       </Button>
                     </Link>
                   </div>
