@@ -60,7 +60,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "beauty-personal-care",
     bgImage:
-      "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-emerald-950/85 via-emerald-900/40 to-transparent",
     accentBadge: "SALON QUALITY",
   },
@@ -73,7 +73,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "jewellery-accessories",
     bgImage:
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
     accentBadge: "FESTIVE EDITION",
   },
@@ -86,7 +86,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "clothing-fashion",
     bgImage:
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-rose-950/85 via-rose-900/40 to-transparent",
     accentBadge: "TRENDING NOW",
   },
@@ -325,7 +325,7 @@ function Home() {
                 originalPrice: 2999,
                 discount: "50% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=500&q=80",
+                  "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?auto=format&fit=crop&w=800&q=95",
                 slug: "jewellery-accessories",
               },
               {
@@ -335,7 +335,7 @@ function Home() {
                 originalPrice: 8500,
                 discount: "49% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=500&q=80",
+                  "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=95",
                 slug: "clothing-fashion",
               },
               {
@@ -345,7 +345,7 @@ function Home() {
                 originalPrice: 499,
                 discount: "30% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=80",
+                  "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=800&q=95",
                 slug: "grocery-supermarkets",
               },
               {
@@ -355,7 +355,7 @@ function Home() {
                 originalPrice: 999,
                 discount: "40% OFF",
                 image:
-                  "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=500&q=80",
+                  "https://images.unsplash.com/photo-1605647540924-852290f6b0d5?auto=format&fit=crop&w=800&q=95",
                 slug: "home-furniture",
               },
             ].map((deal, idx) => (
@@ -540,28 +540,28 @@ function Home() {
             {
               title: "Bridal & Heritage Silks",
               desc: "Authentic Uppada, Gadwal & Kanchipuram masterweaves",
-              img: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80",
+              img: "https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=1000&q=95",
               tag: "HANDLOOM AUTHENTIC",
               slug: "clothing-fashion",
             },
             {
               title: "22K Certified Gold & Silvers",
               desc: "Temple jewellery, daily wear chains & silver idols",
-              img: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
+              img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1000&q=95",
               tag: "BIS HALLMARKED",
               slug: "jewellery-accessories",
             },
             {
               title: "Ayurveda & Luxury Fragrance",
               desc: "Pure sandalwood, natural perfumes & herbal care",
-              img: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80",
+              img: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1000&q=95",
               tag: "ORGANIC GLOW",
               slug: "beauty-personal-care",
             },
             {
               title: "Godavari Gourmet Staples",
               desc: "Farm fresh cold pressed oils, organic spices & sweets",
-              img: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80",
+              img: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=1000&q=95",
               tag: "FARM TO KITCHEN",
               slug: "grocery-supermarkets",
             },
