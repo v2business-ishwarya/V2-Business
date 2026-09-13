@@ -35,60 +35,60 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-// Normal Standard Quick Bar Categories
+// Normal Standard Quick Bar Categories (Starting with Jewellery, Toys, Clothing)
 const QUICK_NAV_CATS = [
+  { name: "Jewellery", slug: "jewellery-accessories" },
+  { name: "Toys & Kids", slug: "kids-baby" },
+  { name: "Clothing", slug: "clothing-fashion" },
   { name: "Electronics", slug: "electronics-home-appliances" },
-  { name: "Fashion", slug: "clothing-fashion" },
   { name: "Grocery", slug: "grocery-supermarkets" },
   { name: "Beauty", slug: "beauty-personal-care" },
   { name: "Mobiles", slug: "mobile-telecom" },
   { name: "Home & Furniture", slug: "home-furniture" },
   { name: "Footwear", slug: "footwear" },
-  { name: "Jewellery", slug: "jewellery-accessories" },
   { name: "Restaurants", slug: "restaurants-food" },
-  { name: "Pharmacy", slug: "pharmacy-healthcare" },
 ];
 
-// Multi-category 3 Hero Banner Cards (Sleek Compact Size)
+// Multi-category 3 Hero Banner Cards (Starting with Jewellery, Toys, Clothing)
 const HERO_BANNERS = [
   {
     id: "banner-1",
-    brandLogo: "ELECTRONICS & TECH",
-    title: "Electronics & Audio",
-    subtitle: "Smartphones, Earbuds, Laptops & Tech",
-    discountTag: "Up To 40% Off",
+    brandLogo: "JEWELLERY & ORNAMENTS",
+    title: "Gold, Silver & Diamonds",
+    subtitle: "BIS Hallmarked Jewellery & Certified Silver",
+    discountTag: "Up To 50% Off",
     linkText: "Shop Now →",
-    targetSlug: "electronics-home-appliances",
+    targetSlug: "jewellery-accessories",
     bgImage:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-blue-950/85 via-slate-900/40 to-transparent",
-    accentBadge: "TOP DEALS",
+      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=95",
+    themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
+    accentBadge: "HALLMARKED",
   },
   {
     id: "banner-2",
-    brandLogo: "FASHION & APPAREL",
-    title: "Fashion & Sarees",
-    subtitle: "Handloom Silks, Kurtis & Men's Wear",
+    brandLogo: "TOYS & BABY ESSENTIALS",
+    title: "Toys, Games & Kids Care",
+    subtitle: "Educational Toys, Strollers & Kids Fashion",
+    discountTag: "Flat 30% Off",
+    linkText: "Shop Now →",
+    targetSlug: "kids-baby",
+    bgImage:
+      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=1200&q=95",
+    themeColor: "from-purple-950/85 via-indigo-900/40 to-transparent",
+    accentBadge: "KIDS SPECIAL",
+  },
+  {
+    id: "banner-3",
+    brandLogo: "CLOTHING & APPAREL",
+    title: "Clothing, Sarees & Ethnic",
+    subtitle: "Designer Silk Sarees, Kurtis & Men's Wear",
     discountTag: "Up To 60% Off",
     linkText: "Shop Now →",
     targetSlug: "clothing-fashion",
     bgImage:
       "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
-    accentBadge: "NEW STYLES",
-  },
-  {
-    id: "banner-3",
-    brandLogo: "GROCERY & BEAUTY",
-    title: "Grocery & Beauty Care",
-    subtitle: "Fresh Organics, Spices & Cosmetics",
-    discountTag: "Flat 20% Off",
-    linkText: "Shop Now →",
-    targetSlug: "grocery-supermarkets",
-    bgImage:
-      "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=95",
-    themeColor: "from-emerald-950/85 via-emerald-900/40 to-transparent",
-    accentBadge: "ESSENTIALS",
+    themeColor: "from-rose-950/85 via-pink-900/40 to-transparent",
+    accentBadge: "NEW ARRIVALS",
   },
 ];
 
@@ -535,20 +535,32 @@ function Home() {
           </Link>
         </div>
 
-        {/* Compact Normal Category Grid */}
+        {/* Compact Normal Category Grid (Starting with Jewellery, Toys, Clothing) */}
         <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-2 sm:gap-3">
           {[
+            {
+              name: "Jewellery",
+              slug: "jewellery-accessories",
+              imageUrl:
+                "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Toys & Kids",
+              slug: "kids-baby",
+              imageUrl:
+                "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=400&q=80",
+            },
+            {
+              name: "Clothing",
+              slug: "clothing-fashion",
+              imageUrl:
+                "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=400&q=80",
+            },
             {
               name: "Electronics",
               slug: "electronics-home-appliances",
               imageUrl:
                 "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=400&q=80",
-            },
-            {
-              name: "Fashion",
-              slug: "clothing-fashion",
-              imageUrl:
-                "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=400&q=80",
             },
             {
               name: "Grocery",
@@ -581,22 +593,10 @@ function Home() {
                 "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=400&q=80",
             },
             {
-              name: "Jewellery",
-              slug: "jewellery-accessories",
-              imageUrl:
-                "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=400&q=80",
-            },
-            {
               name: "Restaurants",
               slug: "restaurants-food",
               imageUrl:
                 "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=400&q=80",
-            },
-            {
-              name: "Pharmacy",
-              slug: "pharmacy-healthcare",
-              imageUrl:
-                "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=400&q=80",
             },
           ].map((cat) => (
             <Link
