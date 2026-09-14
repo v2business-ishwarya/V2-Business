@@ -36,6 +36,28 @@ function ProductDetail() {
       const res = await api.getProduct(slug);
       return res;
     },
+    initialData: () => {
+      // 1. Check direct cache
+      const cached = qc.getQueryData<any>(["product", slug]);
+      if (cached) return cached;
+
+      // 2. Check search-products cache
+      const searchQueries = qc.getQueriesData<any>({ queryKey: ["search-products"] });
+      for (const [_, data] of searchQueries) {
+        const list = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+        const found = list.find((p: any) => p.id === slug || p.slug === slug);
+        if (found) return found;
+      }
+
+      // 3. Check cat-products cache
+      const catQueries = qc.getQueriesData<any>({ queryKey: ["cat-products"] });
+      for (const [_, data] of catQueries) {
+        const list = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+        const found = list.find((p: any) => p.id === slug || p.slug === slug);
+        if (found) return found;
+      }
+      return undefined;
+    },
   });
 
   const reviewsQuery = useQuery({
@@ -47,14 +69,29 @@ function ProductDetail() {
     },
   });
 
-  if (isLoading)
-    return <div className="mx-auto max-w-6xl p-8 text-sm text-muted-foreground">Loading...</div>;
+  if (isLoading && !product)
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 animate-pulse">
+        <div className="grid gap-8 lg:grid-cols-2">
+          <div className="aspect-square rounded-2xl bg-muted/60" />
+          <div className="space-y-4">
+            <div className="h-4 w-28 rounded bg-muted/60" />
+            <div className="h-8 w-3/4 rounded-lg bg-muted/70" />
+            <div className="h-6 w-32 rounded bg-muted/60" />
+            <div className="h-10 w-44 rounded-lg bg-muted/70" />
+            <div className="h-20 w-full rounded-xl bg-muted/50" />
+            <div className="h-12 w-full rounded-full bg-muted/60" />
+          </div>
+        </div>
+      </div>
+    );
+
   if (!product)
     return (
       <div className="mx-auto max-w-6xl p-8">
         <EmptyState
           title="Product not found"
-          description="This product may have been removed."
+          description="This product may have been removed or the link is invalid."
           action={
             <Link to="/search">
               <Button>Browse products</Button>
@@ -169,9 +206,17 @@ function ProductDetail() {
               <span className="font-medium">{Number(product.avg_rating ?? 0).toFixed(1)}</span>
               <span className="text-muted-foreground">({product.ratings_count ?? 0})</span>
             </div>
-            {product.categories && (
-              <Link to="/category/$slug" params={{ slug: product.categories.slug }}>
-                <Badge variant="secondary">{product.categories.name}</Badge>
+            {(product.category || product.categories) && (
+              <Link
+                to="/category/$slug"
+                params={{
+                  slug: (product.categories?.slug || product.category || "")
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-|-$/g, ""),
+                }}
+              >
+                <Badge variant="secondary">{product.categories?.name || product.category}</Badge>
               </Link>
             )}
             {product.brand && <Badge variant="outline">{product.brand}</Badge>}
