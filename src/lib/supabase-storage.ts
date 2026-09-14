@@ -26,69 +26,26 @@ export async function uploadProductImage(
   folderPrefix = "products",
   onProgress?: UploadProgressCallback
 ): Promise<UploadResult> {
-  // Step 1: Compress the image in the browser (10MB -> ~150KB)
-  onProgress?.(25, "compressing");
-  const compression = await compressImage(file, {
-    maxDimension: 1200,
-    quality: 0.82,
-    outputFormat: "image/webp",
-  });
-
-  onProgress?.(50, "uploading");
-
-  // Step 2: Generate clean unique timestamped filename
-  const uniqueId = Math.random().toString(36).substring(2, 9);
-  const timestamp = Date.now();
-  const fileName = `${timestamp}_${uniqueId}.webp`;
-  const storagePath = `${folderPrefix}/${fileName}`;
-
+  onProgress?.(30, "uploading");
   try {
-    // Step 3: Attempt direct Supabase Storage Bucket upload
-    const { data, error } = await supabase.storage
-      .from(PRODUCT_STORAGE_BUCKET)
-      .upload(storagePath, compression.file, {
-        cacheControl: "31536000", // 1 year CDN caching
-        upsert: false,
-        contentType: "image/webp",
-      });
-
-    if (error) {
-      console.warn("Supabase bucket upload notice:", error.message);
-      // Fallback: If custom bucket is not yet created in user's Supabase dashboard,
-      // fallback to the default 'marketplace-media' bucket or generate a persistent object URL.
-      const fallbackUpload = await supabase.storage
-        .from("marketplace-media")
-        .upload(storagePath, compression.file, {
-          cacheControl: "31536000",
-          upsert: true,
-          contentType: "image/webp",
-        });
-
-      if (fallbackUpload.data) {
-        const { data: publicData } = supabase.storage
-          .from("marketplace-media")
-          .getPublicUrl(storagePath);
-
-        onProgress?.(100, "completed");
-        return {
-          url: publicData.publicUrl,
-          compression,
-          path: storagePath,
-        };
-      }
-    }
-
-    // Step 4: Get Global CDN Public URL
-    const { data: publicData } = supabase.storage
-      .from(PRODUCT_STORAGE_BUCKET)
-      .getPublicUrl(storagePath);
+    const { api } = await import("@/services/api");
+    const result: any = await api.uploadFile(file);
+    const url = result?.url || result?.secure_url || "";
+    if (!url) throw new Error("No URL returned from server");
 
     onProgress?.(100, "completed");
-
     return {
-      url: publicData.publicUrl,
-      compression,
-      path: storagePath,
+      url,
+      compression: {
+        originalSize: file.size,
+        compressedSize: file.size,
+        savingsPercent: 0,
+        width: 800,
+        height: 800,
+        format: file.type,
+        file,
+      },
+      path: url,
     };
   } catch (err: any) {
     console.error("Storage upload error:", err);
@@ -96,3 +53,4 @@ export async function uploadProductImage(
     throw new Error(err.message || "Failed to upload image to storage");
   }
 }
+

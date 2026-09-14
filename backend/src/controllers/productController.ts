@@ -77,11 +77,26 @@ export const createProduct = asyncHandler(
     // Override images field with uploaded URLs
     data.images = imageUrls;
 
+    // Map only valid fields for Prisma Product model
+    const prismaData: any = {
+      name: data.name,
+      description: data.description || null,
+      price: Number(data.price),
+      compareAtPrice: data.compareAtPrice ? Number(data.compareAtPrice) : null,
+      stock: Number(data.stock) || 0,
+      sku: data.sku && data.sku.trim() !== "" ? data.sku.trim() : null,
+      weight: data.weight ? Number(data.weight) : null,
+      dimensions: data.dimensions || undefined,
+      images: imageUrls.length > 0 ? imageUrls : (data.featured_image ? [data.featured_image] : []),
+      category: data.category || "General",
+      tags: Array.isArray(data.tags) ? data.tags : [],
+      isActive: data.isActive !== false,
+      featured: Boolean(data.featured),
+      vendorId: userId,
+    };
+
     const product = await prisma.product.create({
-      data: {
-        ...data,
-        vendorId: userId,
-      },
+      data: prismaData,
     });
     res.status(201).json(product);
   },
@@ -175,10 +190,28 @@ export const updateProduct = asyncHandler(
       data.images = imageUrls;
     }
 
+    // Map only valid fields for Prisma Product model
+    const updateData: any = {};
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.description !== undefined) updateData.description = data.description || null;
+    if (data.price !== undefined) updateData.price = Number(data.price);
+    if (data.compareAtPrice !== undefined) updateData.compareAtPrice = data.compareAtPrice ? Number(data.compareAtPrice) : null;
+    if (data.stock !== undefined) updateData.stock = Number(data.stock) || 0;
+    if (data.sku !== undefined) updateData.sku = data.sku && data.sku.trim() !== "" ? data.sku.trim() : null;
+    if (data.weight !== undefined) updateData.weight = data.weight ? Number(data.weight) : null;
+    if (data.dimensions !== undefined) updateData.dimensions = data.dimensions;
+    if (imageUrls.length > 0) updateData.images = imageUrls;
+    else if (data.images !== undefined) updateData.images = data.images;
+    else if (data.featured_image) updateData.images = [data.featured_image];
+    if (data.category !== undefined) updateData.category = data.category;
+    if (data.tags !== undefined) updateData.tags = data.tags;
+    if (data.isActive !== undefined) updateData.isActive = Boolean(data.isActive);
+    if (data.featured !== undefined) updateData.featured = Boolean(data.featured);
+
     // Update product
     const updated = await prisma.product.update({
       where: { id },
-      data,
+      data: updateData,
     });
     res.json(updated);
   },
