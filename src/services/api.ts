@@ -96,9 +96,8 @@ export const api = {
   getProducts: (params?: Record<string, unknown>) =>
     request("/products", "GET", undefined, false, params),
   getProduct: (id: string) => request(`/products/${id}`, "GET"),
-  createProduct: (data: FormData) => request("/products", "POST", data, true),
-  updateProduct: (id: string, data: FormData | object) =>
-    request(`/products/${id}`, "PUT", data, data instanceof FormData),
+  createProduct: (data: object) => request("/products", "POST", data, false),
+  updateProduct: (id: string, data: object) => request(`/products/${id}`, "PUT", data, false),
   deleteProduct: (id: string) => request(`/products/${id}`, "DELETE"),
 
   getOrders: (params?: Record<string, unknown>) =>

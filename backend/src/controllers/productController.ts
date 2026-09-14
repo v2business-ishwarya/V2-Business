@@ -35,14 +35,17 @@ const uploadToCloudinary = (buffer: Buffer, filename: string): Promise<string> =
 // Zod schema for product creation/update
 const productSchema = z.object({
   name: z.string().min(2),
+  slug: z.string().optional(),
   description: z.string().optional(),
   price: z.coerce.number().positive(),
   compareAtPrice: z.coerce.number().nonnegative().optional(),
   stock: z.coerce.number().int().nonnegative().default(0),
   sku: z.string().optional(),
+  brand: z.string().optional(),
   weight: z.coerce.number().nonnegative().optional(),
   dimensions: z.record(z.string(), z.number()).optional(),
   images: z.array(z.string()).default([]),
+  featured_image: z.string().optional(),
   category: z.string().default("General"),
   tags: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),

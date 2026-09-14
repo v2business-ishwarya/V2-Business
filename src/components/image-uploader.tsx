@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useRef } from "react";
-import { uploadProductImage } from "@/lib/supabase-storage";
-import { formatBytes } from "@/lib/image-compression";
+import { api } from "@/services/api";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -68,34 +68,22 @@ export function ImageUploader({
       return;
     }
 
-    // Process each file sequentially or concurrently
     for (const file of fileArray) {
       const taskId = Math.random().toString(36).substring(2, 9);
-      const newTask: UploadTask = {
-        id: taskId,
-        fileName: file.name,
-        progress: 10,
-        stage: "compressing",
-      };
-
-      setUploadQueue((prev) => [...prev, newTask]);
+      setUploadQueue((prev) => [
+        ...prev,
+        { id: taskId, fileName: file.name, progress: 20, stage: "uploading" },
+      ]);
 
       try {
-        const result = await uploadProductImage(file, folderPrefix, (prog, stage) => {
-          setUploadQueue((prev) =>
-            prev.map((t) => (t.id === taskId ? { ...t, progress: prog, stage } : t))
-          );
-        });
+        // Upload via backend → Cloudinary
+        const result: any = await api.uploadFile(file);
+        const url: string = result?.url || result?.secure_url || "";
+        if (!url) throw new Error("No URL returned from server");
 
-        // Add uploaded URL to product images list
-        onChange([...currentUrls, result.url]);
-        toast.success(
-          `Compressed & uploaded: saved ${result.compression.savingsPercent}% space (${formatBytes(
-            result.compression.originalSize
-          )} ➔ ${formatBytes(result.compression.compressedSize)})`
-        );
+        onChange([...currentUrls, url]);
+        toast.success(`Uploaded: ${file.name}`);
 
-        // Remove from upload queue after short delay
         setTimeout(() => {
           setUploadQueue((prev) => prev.filter((t) => t.id !== taskId));
         }, 1200);
@@ -110,6 +98,7 @@ export function ImageUploader({
       }
     }
   };
+
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();

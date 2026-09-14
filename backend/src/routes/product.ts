@@ -18,11 +18,18 @@ router.get("/:id", productController.getOneProduct);
 // Protected routes (require authentication)
 router.use(authenticate);
 
-// Admin or vendor can create
+// Admin or vendor can create — accepts JSON body with pre-uploaded image URLs
 router.post(
   "/",
   authorizeRole(["ADMIN", "VENDOR"]),
-  upload.array("images", 5), // field name 'images', max 5 images
+  (req, res, next) => {
+    const ct = req.headers["content-type"] || "";
+    if (ct.includes("multipart/form-data")) {
+      upload.array("images", 5)(req, res, next);
+    } else {
+      next();
+    }
+  },
   productController.createProduct,
 );
 
@@ -30,7 +37,14 @@ router.post(
 router.put(
   "/:id",
   authorizeRole(["ADMIN", "VENDOR"]),
-  upload.array("images", 5),
+  (req, res, next) => {
+    const ct = req.headers["content-type"] || "";
+    if (ct.includes("multipart/form-data")) {
+      upload.array("images", 5)(req, res, next);
+    } else {
+      next();
+    }
+  },
   productController.updateProduct,
 );
 router.delete("/:id", authorizeRole(["ADMIN", "VENDOR"]), productController.deleteProduct);
