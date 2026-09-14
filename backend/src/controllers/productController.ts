@@ -118,7 +118,23 @@ export const getAllProducts = asyncHandler(
       ];
     }
     if (req.query.category) {
-      where.category = req.query.category as string;
+      const cat = String(req.query.category).trim();
+      const cleanCat = cat.replace(/[-_]/g, " ");
+      const words = cat.split(/[\s&-_]+/).filter((w) => w.length > 2);
+
+      const categoryConditions: any[] = [
+        { category: { equals: cat, mode: "insensitive" } },
+        { category: { equals: cleanCat, mode: "insensitive" } },
+        { category: { contains: cleanCat, mode: "insensitive" } },
+        ...words.map((w) => ({ category: { contains: w, mode: "insensitive" } })),
+      ];
+
+      if (where.OR) {
+        where.AND = [{ OR: where.OR }, { OR: categoryConditions }];
+        delete where.OR;
+      } else {
+        where.OR = categoryConditions;
+      }
     }
     if (req.query.vendorId) {
       where.vendorId = req.query.vendorId as string;

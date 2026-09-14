@@ -40,12 +40,13 @@ export const Route = createFileRoute("/category/$slug")({
 function CategoryPage() {
   const { slug } = Route.useParams();
   const categoryMeta = getCategoryBySlug(slug);
+  const categoryName = categoryMeta?.name || slug.replace(/-/g, " ");
   const [activeTab, setActiveTab] = useState<"all" | "vendors" | "products">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: rawProducts = [], isLoading } = useQuery({
-    queryKey: ["cat-products", slug],
-    queryFn: () => api.getProducts({ category: slug }),
+    queryKey: ["cat-products", slug, categoryName],
+    queryFn: () => api.getProducts({ category: categoryName }),
   });
 
   const apiProducts: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
