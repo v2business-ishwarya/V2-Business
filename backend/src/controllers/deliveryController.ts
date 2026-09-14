@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
+import * as emailService from "../services/emailService";
 const db = prisma as any;
 
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
@@ -31,10 +32,13 @@ export const getShipments = asyncHandler(async (req, res) => {
 
 export const updateShipmentStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { status, trackingNumber } = req.body;
+  const { status, trackingNumber, carrier } = req.body;
   const userId = (req as any).userId;
   
-  const shipment = await db.shipment.findUnique({ where: { id } });
+  const shipment = await db.shipment.findUnique({
+    where: { id },
+    include: { order: { include: { user: true } } }
+  });
   if (!shipment) return res.status(404).json({ error: "Shipment not found" });
 
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -47,9 +51,20 @@ export const updateShipmentStatus = asyncHandler(async (req, res) => {
     data: { 
       status, 
       trackingNumber,
+      ...(carrier ? { carrier } : {}),
       ...(status === 'delivered' ? { actualDelivery: new Date() } : {})
     }
   });
+
+  // If shipment marked shipped with a tracking number, notify customer
+  if ((status === 'shipped' || trackingNumber) && shipment.order?.user) {
+    emailService.sendShipmentTrackingEmail(
+      shipment.order,
+      shipment.order.user,
+      trackingNumber || shipment.trackingNumber || "TRK-" + id.slice(0, 8),
+      carrier || shipment.carrier || "Express Courier"
+    ).catch(e => console.warn("[TRACKING EMAIL WARNING]", e));
+  }
 
   res.json(updated);
 });

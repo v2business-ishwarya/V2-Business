@@ -1,6 +1,7 @@
 import { prisma } from "../server";
 import { PaymentProviderFactory, PaymentProvider } from './paymentProvider';
 import { v4 as uuidv4 } from 'uuid';
+import * as emailService from './emailService';
 
 const DEFAULT_CURRENCY = 'usd';
 
@@ -352,6 +353,48 @@ export class CheckoutService {
           });
         }
       }
+
+      // Dispatch order confirmation email to customer asynchronously
+      (async () => {
+        try {
+          const customer = await prisma.user.findUnique({ where: { id: order.userId } });
+          if (customer) {
+            const emailItems = orderItems.map((i: any) => ({
+              name: i.product?.name || "Product",
+              quantity: i.quantity,
+              unitPrice: i.price,
+              total: i.total,
+            }));
+            await emailService.sendOrderConfirmationEmail(
+              { id: order.id, total: order.total, status: "PAID", createdAt: new Date(), items: emailItems },
+              customer
+            );
+          }
+
+          // Dispatch new order alert email to each vendor
+          for (const vOrder of vendorOrders) {
+            const vendor = await prisma.user.findUnique({ where: { id: vOrder.vendorId } });
+            const vItems = orderItems
+              .filter((i: any) => i.product?.vendorId === vOrder.vendorId)
+              .map((i: any) => ({
+                name: i.product?.name || "Product",
+                quantity: i.quantity,
+                unitPrice: i.price,
+                total: i.total,
+              }));
+
+            if (vendor && vItems.length > 0) {
+              await emailService.sendVendorNewOrderEmail(
+                vendor,
+                { id: order.id, total: vOrder.total, status: "PAID", createdAt: new Date() },
+                vItems
+              );
+            }
+          }
+        } catch (mailErr) {
+          console.warn("[CHECKOUT EMAIL DISPATCH WARNING]", mailErr);
+        }
+      })();
 
       return {
         success: true,

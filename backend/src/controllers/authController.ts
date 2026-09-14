@@ -18,6 +18,7 @@ const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string().optional(),
+  role: z.enum(["CUSTOMER", "VENDOR"]).optional(),
 });
 
 const loginSchema = z.object({
@@ -41,7 +42,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     if (!parsedBody.success) {
       return res.status(400).json({ error: parsedBody.error.errors });
     }
-    const { email, password, name } = parsedBody.data;
+    const { email, password, name, role = "CUSTOMER" } = parsedBody.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -53,12 +54,13 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // Create user
+    // Create user with selected role
     const user = await prisma.user.create({
       data: {
         email,
         passwordHash,
         name,
+        role: role === "VENDOR" ? "VENDOR" : "CUSTOMER",
       },
     });
 
@@ -75,10 +77,12 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
-    // Email delivery must not undo an already-created account.
-    emailService.sendWelcomeEmail(user).catch((emailError) => {
-      console.error("Welcome email could not be sent", emailError);
-    });
+    // Dispatch professional onboarding email asynchronously
+    if (user.role === "VENDOR") {
+      emailService.sendVendorWelcomeEmail(user).catch((e) => console.warn("[VENDOR WELCOME EMAIL]", e));
+    } else {
+      emailService.sendCustomerWelcomeEmail(user).catch((e) => console.warn("[CUSTOMER WELCOME EMAIL]", e));
+    }
 
     // Return access token and user info (without password)
     res.status(201).json({
@@ -258,7 +262,7 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
     const passwordHash = await bcrypt.hash(password, salt);
 
     // Update user password and clear reset token
-    await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
         passwordHash,
@@ -266,6 +270,9 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
         resetTokenExpires: null,
       },
     });
+
+    // Send security notification email asynchronously
+    emailService.sendPasswordChangedEmail(updatedUser).catch((e) => console.warn("[PASSWORD CHANGED EMAIL]", e));
 
     res.json({ message: "Password has been reset successfully" });
   } catch (error) {
@@ -386,9 +393,9 @@ export const googleCallback = async (req: Request, res: Response, next: NextFunc
         },
       });
 
-      // Send welcome email safely (do not let email failure block login)
+      // Send customer welcome email safely (do not let email failure block login)
       try {
-        await emailService.sendWelcomeEmail(user);
+        await emailService.sendCustomerWelcomeEmail(user);
       } catch (e) {
         console.warn("[WELCOME EMAIL SKIPPED]", e);
       }
@@ -472,6 +479,10 @@ export const becomeVendor = async (req: Request, res: Response, next: NextFuncti
       data: { role: "VENDOR" },
       select: { id: true, email: true, name: true, role: true },
     });
+
+    // Dispatch vendor onboarding guide asynchronously
+    emailService.sendVendorWelcomeEmail(user).catch((e) => console.warn("[VENDOR WELCOME EMAIL]", e));
+
     res.json(user);
   } catch (error) {
     next(error);
