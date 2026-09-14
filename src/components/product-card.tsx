@@ -4,29 +4,45 @@ import { finalPrice, discountPercent, formatMoney } from "@/lib/utils-app";
 
 type Product = {
   id: string;
-  slug: string;
+  slug?: string;
   name: string;
   price: number | string;
-  discount_price: number | string | null;
-  featured_image: string | null;
+  discount_price?: number | string | null;
+  compareAtPrice?: number | string | null;
+  featured_image?: string | null;
+  images?: string[];
   stock: number;
-  avg_rating: number;
-  vendors?: { name: string; slug: string } | null;
+  avg_rating?: number;
+  vendors?: { name: string; slug?: string } | null;
+  vendor?: { name: string; id?: string } | null;
 };
 
 export function ProductCard({ product }: { product: Product }) {
-  const fp = finalPrice(product.price, product.discount_price);
-  const pct = discountPercent(product.price, product.discount_price);
+  const fp = finalPrice(product.price, product.discount_price ?? product.compareAtPrice);
+  const pct = discountPercent(product.price, product.discount_price ?? product.compareAtPrice);
+  
+  // Resolve image from images array or featured_image property
+  const imgUrl =
+    (Array.isArray(product.images) && product.images.length > 0 && product.images[0]) ||
+    product.featured_image ||
+    (product as any).image ||
+    null;
+
+  // Resolve target identifier (prefer slug, fallback to product.id)
+  const productIdentifier = product.slug && product.slug !== "undefined" ? product.slug : product.id;
+
+  const vendorName = product.vendors?.name || product.vendor?.name;
+
   return (
     <Link
       to="/product/$slug"
-      params={{ slug: product.slug }}
+      params={{ slug: productIdentifier }}
       className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-soft transition hover:shadow-card"
     >
       <div className="relative aspect-square overflow-hidden bg-surface-muted">
-        {product.featured_image ? (
+        {imgUrl ? (
           <img
-            src={product.featured_image}
+            src={imgUrl}
             alt={product.name}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             loading="lazy"
@@ -48,9 +64,9 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
-        {product.vendors && (
+        {vendorName && (
           <p className="truncate text-[11px] uppercase tracking-wide text-muted-foreground">
-            {product.vendors.name}
+            {vendorName}
           </p>
         )}
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug">

@@ -148,10 +148,38 @@ export const getAllProducts = asyncHandler(
 export const getOneProduct = asyncHandler(
   async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
-    const product = await prisma.product.findUnique({
-      where: { id },
-      include: { vendor: { select: { id: true, name: true } } },
-    });
+    if (!id || id === "undefined" || id === "null") {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Try finding by ID
+    let product = await prisma.product
+      .findUnique({
+        where: { id },
+        include: {
+          vendor: { select: { id: true, name: true, email: true } },
+          reviews: { include: { user: { select: { id: true, name: true } } } },
+        },
+      })
+      .catch(() => null);
+
+    // Fallback: search by SKU or name
+    if (!product) {
+      product = await prisma.product.findFirst({
+        where: {
+          OR: [
+            { sku: id },
+            { name: { equals: id.replace(/-/g, " "), mode: "insensitive" } },
+            { name: { contains: id.replace(/-/g, " "), mode: "insensitive" } },
+          ],
+        },
+        include: {
+          vendor: { select: { id: true, name: true, email: true } },
+          reviews: { include: { user: { select: { id: true, name: true } } } },
+        },
+      });
+    }
+
     if (!product) return res.status(404).json({ error: "Product not found" });
     res.json(product);
   },
