@@ -23,6 +23,7 @@ import categoryRouter from "./routes/category";
 import spotlightRouter from "./routes/spotlight";
 import { apiLimiter, authLimiter } from "./middleware/rateLimit";
 import { auditLogger } from "./middleware/auditMiddleware";
+import { xssSanitizer, sensitiveDataFilter } from "./middleware/securityMiddleware";
 
 dotenv.config();
 
@@ -49,9 +50,19 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
   })
 );
-app.use(helmet({ crossOriginResourcePolicy: false }));
-app.use(express.json());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+    frameguard: { action: "deny" },
+    noSniff: true,
+    hidePoweredBy: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+  })
+);
+app.use(express.json({ limit: "10mb" }));
 app.use(cookieParser());
+app.use(xssSanitizer);
+app.use(sensitiveDataFilter);
 
 // Audit logging
 app.use(auditLogger);

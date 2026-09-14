@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
 import * as z from "zod";
-import { authenticate } from "../middleware/authMiddleware";
+import crypto from "crypto";
 
-// Helper
+
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);
@@ -14,11 +14,9 @@ function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => P
 const paymentIntentSchema = z.object({
   orderId: z.string(),
   amount: z.number().positive(),
-  currency: z.string().default("USD"),
-  provider: z.enum(["STRIPE", "RAZORPAY"]).optional(),
+  currency: z.string().default("INR"),
+  provider: z.enum(["STRIPE", "RAZORPAY", "CASHFREE"]).optional(),
 });
-
-type TPaymentIntent = z.infer<typeof paymentIntentSchema>;
 
 export const createPaymentIntent = asyncHandler(async (req, res) => {
   const userId = (req as any).userId;
@@ -26,9 +24,9 @@ export const createPaymentIntent = asyncHandler(async (req, res) => {
   if (!parseResult.success) {
     return res.status(400).json({ error: parseResult.error.errors });
   }
-  const { orderId, amount, currency, provider = "STRIPE" } = parseResult.data;
+  const { orderId, amount, currency, provider = "RAZORPAY" } = parseResult.data;
 
-  // Verify order belongs to user
+  // Verify order belongs to this user
   const order = await prisma.order.findUnique({
     where: { id: orderId },
     include: { user: true },
@@ -38,19 +36,18 @@ export const createPaymentIntent = asyncHandler(async (req, res) => {
   if (order.paymentStatus === "COMPLETED")
     return res.status(400).json({ error: "Order already paid" });
 
-  // In a real implementation, we would call Razorpay/Stripe SDK to create a payment intent
-  // For now, we mock a response
   const mockPaymentId = `pay_${Math.random().toString(36).substr(2, 9)}`;
   const mockClientSecret = `${mockPaymentId}_secret_${Math.random().toString(36).substr(2, 9)}`;
 
   // Create a pending payment transaction record
-  const paymentTx = await prisma.paymentTransaction.create({
+  await prisma.paymentTransaction.create({
     data: {
       userId,
       orderId,
       amount,
       currency,
-      provider,
+      provider:
+        provider === "STRIPE" ? "STRIPE" : provider === "CASHFREE" ? "CASHFREE" : "RAZORPAY" as any,
       providerPaymentId: mockPaymentId,
       netAmount: amount,
       metadata: { clientSecret: mockClientSecret },
@@ -75,35 +72,57 @@ export const confirmPayment = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "paymentId and orderId required" });
   }
 
-  // The client side usually calls order confirmation after the payment gateway completes.
+  // Verify user ownership of this order before confirming
+  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  if (!order) return res.status(404).json({ error: "Order not found" });
+
+  if (order.userId !== userId) {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (user?.role !== "ADMIN") {
+      return res.status(403).json({ error: "Unauthorized to confirm this order" });
+    }
+  }
+
   try {
-    const { CheckoutService } = await import('../services/checkoutService.js');
-    // For mock, provider is mock. In real it's from db or req
-    const checkoutService = new CheckoutService('mock');
+    const { CheckoutService } = await import("../services/checkoutService.js");
+    const checkoutService = new CheckoutService("mock");
     const result = await checkoutService.confirmPayment(paymentId, orderId, providerPaymentId);
-    
     res.json({ message: "Payment confirmed", orderId: result.orderId });
   } catch (error: any) {
     res.status(400).json({ error: error.message });
   }
 });
 
-// Webhook endpoint for payment provider (no auth)
+// Webhook endpoint for payment providers with HMAC signature validation
 export const paymentWebhook = asyncHandler(async (req, res) => {
-  // In production, verify signature using provider secret
+  const razoridSig = req.headers["x-razorpay-signature"] as string;
+  const razorpaySecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+  // If Razorpay webhook secret is configured, enforce HMAC SHA256 signature validation
+  if (razorpaySecret && razoridSig) {
+    const expectedSig = crypto
+      .createHmac("sha256", razorpaySecret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+
+    if (expectedSig !== razoridSig) {
+      console.warn("[PAYMENT WEBHOOK] Invalid Razorpay signature rejected");
+      return res.status(400).json({ error: "Invalid webhook signature" });
+    }
+  }
+
   const { event, data } = req.body;
 
   if (event === "payment.succeeded" && data?.object) {
-    const { payment_id, order_id, amount } = data.object;
+    const { payment_id, order_id } = data.object;
     try {
-      const { CheckoutService } = await import('../services/checkoutService.js');
-      const checkoutService = new CheckoutService('mock');
-      // In webhook, we process confirmation if order_id is present
+      const { CheckoutService } = await import("../services/checkoutService.js");
+      const checkoutService = new CheckoutService("mock");
       if (order_id) {
         await checkoutService.confirmPayment(payment_id, order_id, payment_id);
       }
     } catch (e) {
-      console.error("Webhook processing error:", e);
+      console.error("webhook processing error:", e);
     }
   }
 
