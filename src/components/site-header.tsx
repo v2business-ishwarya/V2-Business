@@ -61,14 +61,49 @@ export function SiteHeader() {
   const isAdmin = user?.role === "ADMIN";
   const isVendor = user?.role === "VENDOR";
 
-  // Live Instant Search query
+  // Live Instant Search query (covering Categories, Locations, Vendors, and Products)
   const { data: searchResults, isLoading: isSearching } = useQuery({
     queryKey: ["live-search-autocomplete", q.trim().toLowerCase()],
     enabled: q.trim().length >= 2,
     queryFn: async () => {
-      const res = await api.getProducts({ search: q.trim(), limit: 8 });
-      const items: any[] = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+      const term = q.trim().toLowerCase();
 
+      // 1. Matching Categories
+      const matchingCats = MARKETPLACE_CATEGORIES.filter((c) =>
+        c.name.toLowerCase().includes(term) || c.slug.toLowerCase().includes(term)
+      ).slice(0, 3);
+
+      // 2. Matching Locations / Cities
+      const KNOWN_LOCATIONS = [
+        "Rajahmundry",
+        "Danavaipeta",
+        "Main Road",
+        "Aryapuram",
+        "Morampudi",
+        "Kakinada",
+        "Vijayawada",
+        "Visakhapatnam",
+        "Hyderabad",
+      ];
+      const matchingLocations = KNOWN_LOCATIONS.filter((loc) =>
+        loc.toLowerCase().includes(term)
+      ).slice(0, 3);
+
+      // 3. Products
+      let items: any[] = [];
+      try {
+        const res = await api.getProducts({ search: q.trim(), limit: 8 });
+        items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+      } catch {}
+
+      if (items.length === 0 && matchingCats.length > 0) {
+        try {
+          const res = await api.getProducts({ category: matchingCats[0].name, limit: 6 });
+          items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+        } catch {}
+      }
+
+      // 4. Stores / Vendors (matching by vendor name or location)
       const storeMap = new Map();
       items.forEach((p: any) => {
         const v = p.vendor || p.vendors;
@@ -77,13 +112,45 @@ export function SiteHeader() {
             id: v.id,
             name: v.name,
             slug: v.slug || v.id,
+            city: v.city || "Rajahmundry",
           });
         }
       });
 
+      // Also check locally registered store profiles for matching name or location
+      try {
+        if (typeof window !== "undefined" && window.localStorage) {
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("vendor_store_")) {
+              const raw = localStorage.getItem(key);
+              if (raw) {
+                const s = JSON.parse(raw);
+                const sName = (s.name || "").toLowerCase();
+                const sCity = (s.city || "").toLowerCase();
+                const sAddr = (s.address || "").toLowerCase();
+                if (sName.includes(term) || sCity.includes(term) || sAddr.includes(term)) {
+                  const sId = s.id || key.replace("vendor_store_", "");
+                  if (!storeMap.has(sId)) {
+                    storeMap.set(sId, {
+                      id: sId,
+                      name: s.name || "Verified Store",
+                      slug: s.slug || sId,
+                      city: s.city || "Rajahmundry",
+                    });
+                  }
+                }
+              }
+            }
+          }
+        }
+      } catch {}
+
       return {
-        products: items.slice(0, 4),
+        categories: matchingCats,
+        locations: matchingLocations,
         stores: Array.from(storeMap.values()).slice(0, 3),
+        products: items.slice(0, 4),
       };
     },
     staleTime: 1000 * 30,
@@ -248,7 +315,7 @@ export function SiteHeader() {
                 onFocus={() => {
                   if (q.trim().length >= 2) setShowDropdown(true);
                 }}
-                placeholder="Search across 29 categories, products, stores..."
+                placeholder="Search products, categories, vendors, location..."
                 className="h-full w-full border-0 bg-transparent py-2 text-xs sm:text-sm text-foreground outline-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground/70 font-normal"
               />
               {q.trim().length > 0 && (
@@ -278,19 +345,83 @@ export function SiteHeader() {
 
           {/* Live Autocomplete Dropdown (Desktop) */}
           {showDropdown && q.trim().length >= 2 && (
-            <div className="absolute top-12 left-0 right-0 z-50 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-3 max-h-[420px] overflow-y-auto">
+            <div className="absolute top-12 left-0 right-0 z-50 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-3 max-h-[440px] overflow-y-auto">
               {isSearching ? (
                 <div className="p-4 text-center text-xs text-muted-foreground">
-                  Searching products & stores...
+                  Searching products, categories, stores & locations...
                 </div>
               ) : (
                 <>
-                  {/* Matching Stores */}
+                  {/* 1. Matching Categories */}
+                  {searchResults?.categories && searchResults.categories.length > 0 && (
+                    <div className="space-y-1">
+                      <div className="px-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                          <Sparkles className="h-3 w-3 text-primary" /> Categories
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.categories.map((cat: any) => (
+                          <div
+                            key={cat.id}
+                            onClick={() => {
+                              setShowDropdown(false);
+                              navigate({ to: "/category/$slug", params: { slug: cat.slug } });
+                            }}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="h-7 w-7 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
+                                <img src={cat.imageUrl} alt="" className="h-full w-full object-cover" />
+                              </div>
+                              <span className="text-xs font-semibold text-foreground truncate">{cat.name}</span>
+                            </div>
+                            <Badge variant="outline" className="text-[10px] shrink-0">
+                              Category
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 2. Matching Locations */}
+                  {searchResults?.locations && searchResults.locations.length > 0 && (
+                    <div className="space-y-1 pt-1 border-t border-border/50">
+                      <div className="px-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-rose-500" /> Locations & Cities
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {searchResults.locations.map((loc: string) => (
+                          <div
+                            key={loc}
+                            onClick={() => {
+                              setShowDropdown(false);
+                              navigate({ to: "/search", search: { q: loc } });
+                            }}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2 text-xs">
+                              <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                              <span className="font-semibold text-foreground">{loc}</span>
+                            </div>
+                            <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-600 border-rose-500/20">
+                              Browse Area
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. Matching Stores / Vendors */}
                   {searchResults?.stores && searchResults.stores.length > 0 && (
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 pt-1 border-t border-border/50">
                       <div className="flex items-center justify-between px-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                          <Store className="h-3 w-3 text-primary" /> Verified Stores
+                          <Store className="h-3 w-3 text-primary" /> Verified Stores & Vendors
                         </span>
                       </div>
                       <div className="space-y-1">
@@ -309,7 +440,9 @@ export function SiteHeader() {
                               </div>
                               <div className="truncate text-xs">
                                 <p className="font-bold text-foreground truncate">{store.name}</p>
-                                <p className="text-[11px] text-muted-foreground">Verified Marketplace Seller</p>
+                                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                  <MapPin className="h-2.5 w-2.5 text-primary" /> {store.city || "Rajahmundry"}
+                                </p>
                               </div>
                             </div>
                             <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-700 shrink-0">
@@ -321,12 +454,12 @@ export function SiteHeader() {
                     </div>
                   )}
 
-                  {/* Matching Products */}
+                  {/* 4. Matching Products */}
                   {searchResults?.products && searchResults.products.length > 0 && (
                     <div className="space-y-1.5 pt-1 border-t border-border/50">
                       <div className="px-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                          Matching Products
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                          <Package className="h-3 w-3 text-primary" /> Matching Products
                         </span>
                       </div>
                       <div className="space-y-1">
@@ -369,7 +502,9 @@ export function SiteHeader() {
                   )}
 
                   {/* Empty state if no results */}
-                  {(!searchResults?.stores || searchResults.stores.length === 0) &&
+                  {(!searchResults?.categories || searchResults.categories.length === 0) &&
+                    (!searchResults?.locations || searchResults.locations.length === 0) &&
+                    (!searchResults?.stores || searchResults.stores.length === 0) &&
                     (!searchResults?.products || searchResults.products.length === 0) && (
                       <div className="p-4 text-center text-xs text-muted-foreground">
                         No direct matches found. Press Enter to view full catalogue search.
@@ -385,7 +520,7 @@ export function SiteHeader() {
                       onClick={submit}
                       className="w-full text-xs font-bold rounded-xl h-8"
                     >
-                      View all search results for "{q}"
+                      View all results for "{q}" in Products, Stores, Categories & Locations →
                     </Button>
                   </div>
                 </>
@@ -613,7 +748,7 @@ export function SiteHeader() {
               onFocus={() => {
                 if (q.trim().length >= 2) setShowDropdown(true);
               }}
-              placeholder="Search across 29 categories, products, stores..."
+              placeholder="Search products, categories, vendors, location..."
               className="h-full w-full border-0 bg-transparent py-1.5 text-xs text-foreground outline-none focus:outline-none focus:ring-0 placeholder:text-muted-foreground/70 font-normal"
             />
             {q.trim().length > 0 && (
@@ -644,14 +779,71 @@ export function SiteHeader() {
           <div className="mt-1.5 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-2.5 max-h-[350px] overflow-y-auto">
             {isSearching ? (
               <div className="p-3 text-center text-xs text-muted-foreground">
-                Searching products & stores...
+                Searching products, categories, stores & locations...
               </div>
             ) : (
               <>
-                {searchResults?.stores && searchResults.stores.length > 0 && (
+                {/* 1. Categories */}
+                {searchResults?.categories && searchResults.categories.length > 0 && (
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
-                      <Store className="h-3 w-3 text-primary" /> Verified Stores
+                      <Sparkles className="h-3 w-3 text-primary" /> Categories
+                    </span>
+                    {searchResults.categories.map((cat: any) => (
+                      <div
+                        key={cat.id}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate({ to: "/category/$slug", params: { slug: cat.slug } });
+                        }}
+                        className="flex items-center justify-between p-1.5 rounded-xl hover:bg-muted/70 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 truncate text-xs">
+                          <div className="h-6 w-6 rounded-md overflow-hidden bg-muted shrink-0 border border-border">
+                            <img src={cat.imageUrl} alt="" className="h-full w-full object-cover" />
+                          </div>
+                          <span className="font-semibold text-foreground truncate">{cat.name}</span>
+                        </div>
+                        <Badge variant="outline" className="text-[9px]">
+                          Category
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 2. Locations */}
+                {searchResults?.locations && searchResults.locations.length > 0 && (
+                  <div className="space-y-1 pt-1 border-t border-border/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
+                      <MapPin className="h-3 w-3 text-rose-500" /> Locations & Cities
+                    </span>
+                    {searchResults.locations.map((loc: string) => (
+                      <div
+                        key={loc}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate({ to: "/search", search: { q: loc } });
+                        }}
+                        className="flex items-center justify-between p-1.5 rounded-xl hover:bg-muted/70 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 text-xs">
+                          <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                          <span className="font-semibold text-foreground">{loc}</span>
+                        </div>
+                        <Badge variant="outline" className="text-[9px] bg-rose-500/10 text-rose-600 border-rose-500/20">
+                          Location
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* 3. Stores */}
+                {searchResults?.stores && searchResults.stores.length > 0 && (
+                  <div className="space-y-1 pt-1 border-t border-border/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
+                      <Store className="h-3 w-3 text-primary" /> Verified Stores & Vendors
                     </span>
                     {searchResults.stores.map((store: any) => (
                       <div
@@ -662,11 +854,16 @@ export function SiteHeader() {
                         }}
                         className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer"
                       >
-                        <div className="flex items-center gap-2 truncate text-xs">
+                        <div className="flex items-center gap-2 min-w-0 text-xs">
                           <Store className="h-3.5 w-3.5 text-primary shrink-0" />
-                          <span className="font-bold text-foreground truncate">{store.name}</span>
+                          <div className="truncate">
+                            <p className="font-bold text-foreground truncate">{store.name}</p>
+                            <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                              <MapPin className="h-2.5 w-2.5 text-primary" /> {store.city || "Rajahmundry"}
+                            </p>
+                          </div>
                         </div>
-                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-700">
+                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-700 shrink-0">
                           Visit
                         </Badge>
                       </div>
@@ -674,6 +871,7 @@ export function SiteHeader() {
                   </div>
                 )}
 
+                {/* 4. Products */}
                 {searchResults?.products && searchResults.products.length > 0 && (
                   <div className="space-y-1 pt-1 border-t border-border/50">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">
