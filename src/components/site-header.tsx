@@ -13,12 +13,23 @@ import {
   MapPin,
   Sparkles,
   Package,
+  ArrowRight,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { logout, useSession } from "@/hooks/use-session";
+import { logout, storeSession, useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +53,8 @@ export function SiteHeader() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [open, setOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [becomeVendorOpen, setBecomeVendorOpen] = useState(false);
+  const [becomingVendor, setBecomingVendor] = useState(false);
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useSession();
@@ -107,6 +120,24 @@ export function SiteHeader() {
     qc.clear();
     await logout();
     navigate({ to: "/auth", replace: true });
+  };
+
+  const handleBecomeVendor = async () => {
+    setBecomingVendor(true);
+    try {
+      const updatedUser = await api.becomeVendor();
+      const token = localStorage.getItem("accessToken");
+      if (token && updatedUser) {
+        storeSession({ accessToken: token, user: updatedUser });
+      }
+      toast.success("🎉 Welcome to V2 Business! Your vendor account is now active.");
+      setBecomeVendorOpen(false);
+      navigate({ to: "/vendor" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to activate vendor account. Please try again.");
+    } finally {
+      setBecomingVendor(false);
+    }
   };
 
   return (
@@ -420,8 +451,11 @@ export function SiteHeader() {
                   </DropdownMenuItem>
                 )}
                 {!isVendor && (
-                  <DropdownMenuItem onClick={() => navigate({ to: "/vendor" })}>
-                    <Store className="mr-2 h-4 w-4 text-primary" /> Become a Vendor
+                  <DropdownMenuItem
+                    onClick={() => setBecomeVendorOpen(true)}
+                    className="cursor-pointer font-semibold text-amber-600 dark:text-amber-400 focus:text-amber-600 focus:bg-amber-500/10"
+                  >
+                    <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Vendor
                   </DropdownMenuItem>
                 )}
                 {isAdmin && (
@@ -509,14 +543,6 @@ export function SiteHeader() {
                       </Badge>
                     )}
                   </Link>
-                  <Link
-                    to="/vendor"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 bg-primary/10 text-primary font-bold hover:bg-primary/20"
-                  >
-                    <Store className="h-4 w-4" />
-                    <span>Open Your Store</span>
-                  </Link>
                 </nav>
               </div>
 
@@ -533,6 +559,24 @@ export function SiteHeader() {
                         <UserIcon className="mr-2 h-4 w-4" /> My Account
                       </Button>
                     </Link>
+                    {isVendor ? (
+                      <Link to="/vendor" onClick={() => setOpen(false)} className="block">
+                        <Button variant="outline" className="w-full justify-start rounded-xl text-xs font-semibold text-primary">
+                          <LayoutDashboard className="mr-2 h-4 w-4" /> Vendor Dashboard
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setOpen(false);
+                          setBecomeVendorOpen(true);
+                        }}
+                        className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
+                      >
+                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Vendor
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       onClick={() => {
@@ -671,6 +715,59 @@ export function SiteHeader() {
           </div>
         )}
       </div>
+
+      {/* BECOME A VENDOR DIALOG */}
+      <Dialog open={becomeVendorOpen} onOpenChange={setBecomeVendorOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl p-6">
+          <DialogHeader>
+            <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 shadow-inner">
+              <Store className="h-7 w-7" />
+            </div>
+            <DialogTitle className="text-center text-xl font-bold">
+              Become a V2 Business Vendor
+            </DialogTitle>
+            <DialogDescription className="text-center text-sm text-muted-foreground pt-1">
+              Start selling your products directly to buyers across India with zero commission and instant seller tools.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2 text-xs text-muted-foreground bg-muted/40 rounded-2xl p-4 border border-border/70">
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
+              <span className="text-foreground"><strong className="font-semibold">0% Commission:</strong> Keep 100% of your product sales and revenue.</span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
+              <span className="text-foreground"><strong className="font-semibold">Full Seller Dashboard:</strong> Manage products, orders, coupons, and delivery logistics.</span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
+              <span className="text-foreground"><strong className="font-semibold">Retain Buyer Privileges:</strong> Continue shopping and ordering anytime with the same account.</span>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
+            <Button
+              type="button"
+              variant="ghost"
+              className="rounded-2xl"
+              disabled={becomingVendor}
+              onClick={() => setBecomeVendorOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              className="rounded-2xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
+              disabled={becomingVendor}
+              onClick={handleBecomeVendor}
+            >
+              {becomingVendor ? "Activating Seller Tools…" : "Activate Vendor Account"}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

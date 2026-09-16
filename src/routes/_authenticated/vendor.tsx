@@ -64,11 +64,11 @@ function BecomeVendorButton() {
     }
     setLoading(true);
     try {
-      const user = await api.becomeVendor();
+      const updatedUser = await api.becomeVendor();
       const token = localStorage.getItem("accessToken");
       if (!token) throw new Error("Your session has expired. Please sign in again.");
-      storeSession({ accessToken: token, user });
-      toast.success("Seller tools are ready.");
+      storeSession({ accessToken: token, user: updatedUser });
+      toast.success("🎉 Your vendor account is now active!");
       navigate({ to: "/vendor", replace: true });
       window.location.reload();
     } catch (error: any) {

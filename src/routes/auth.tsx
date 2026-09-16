@@ -58,7 +58,6 @@ function AuthPage() {
   const target = (redirect && redirect.startsWith("/") ? redirect : "/") as string;
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [accountType, setAccountType] = useState<"customer" | "vendor">("customer");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -135,12 +134,8 @@ function AuthPage() {
       const res = await api.register({ email, password, name });
       storeSession(res);
       toast.success("Account created successfully!");
-      if (accountType === "vendor") {
-        navigate({ to: "/vendor", replace: true });
-      } else {
-        // Shoppers are directed to products catalogue
-        navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
-      }
+      // All users register as customers and are directed to products catalogue
+      navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign up failed");
     } finally {
@@ -220,7 +215,7 @@ function AuthPage() {
             <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight leading-tight text-stone-900 transition-all duration-300 drop-shadow-xs">
               {mode === "signin"
                 ? "Your Gateway to Independent Creators & Fast Commerce."
-                : "Start Shopping or Launch Your Online Store Today."}
+                : "Start Shopping on V2 Business Today."}
             </h2>
 
             <div className="space-y-3.5 text-xs sm:text-sm text-stone-800 font-medium">
@@ -234,7 +229,7 @@ function AuthPage() {
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
                   <Zap className="h-4 w-4 text-amber-800" />
                 </div>
-                <span>0% Commission · Keep 100% of Your Sales Revenue</span>
+                <span>Direct Merchant Pricing & Fast Doorstep Delivery</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
@@ -277,7 +272,7 @@ function AuthPage() {
             <p className="text-xs text-muted-foreground font-medium mt-1">
               {mode === "signin"
                 ? "Access your orders, cart, and personalized shopping feed"
-                : "Shop with verified merchants or start selling with 0% commission"}
+                : "Shop thousands of verified products with fast delivery & buyer protection"}
             </p>
           </div>
 
@@ -407,36 +402,6 @@ function AuthPage() {
             </form>
           ) : (
             <form onSubmit={signUp} className="space-y-3.5">
-              {/* Account Type Selector */}
-              <div>
-                <Label className="text-xs font-semibold mb-1 block">I want to:</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setAccountType("customer")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
-                      accountType === "customer"
-                        ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                        : "border-border hover:bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    <ShoppingBag className="h-4 w-4" />
-                    <span>Shop Products</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAccountType("vendor")}
-                    className={`flex items-center justify-center gap-2 rounded-xl border p-2 text-xs font-bold transition-all cursor-pointer ${
-                      accountType === "vendor"
-                        ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/20"
-                        : "border-border hover:bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    <Store className="h-4 w-4" />
-                    <span>Sell / Open Store</span>
-                  </button>
-                </div>
-              </div>
 
               <div>
                 <Label htmlFor="signup-name" className="text-xs font-semibold">
@@ -505,7 +470,7 @@ function AuthPage() {
                 className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-1"
                 disabled={loading}
               >
-                {loading ? "Creating Account…" : accountType === "vendor" ? "Create Store Account" : "Join Marketplace"}
+                {loading ? "Creating Account…" : "Create Account"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
