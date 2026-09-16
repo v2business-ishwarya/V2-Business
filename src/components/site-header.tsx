@@ -15,9 +15,13 @@ import {
   Package,
   ArrowRight,
   X,
+  Phone,
+  Building2,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { logout, storeSession, useSession } from "@/hooks/use-session";
 import { api } from "@/services/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,7 +43,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { formatMoney } from "@/lib/utils-app";
+import { formatMoney, slugify } from "@/lib/utils-app";
 import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
@@ -55,11 +59,46 @@ export function SiteHeader() {
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [becomeVendorOpen, setBecomeVendorOpen] = useState(false);
   const [becomingVendor, setBecomingVendor] = useState(false);
+  const [vendorForm, setVendorForm] = useState({
+    storeName: "",
+    phone: "",
+    city: "Rajahmundry",
+    address: "",
+    pincode: "533101",
+    state: "Andhra Pradesh",
+    businessType: "physical_shop" as "physical_shop" | "home_cloud",
+  });
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useSession();
   const isAdmin = user?.role === "ADMIN";
   const isVendor = user?.role === "VENDOR";
+
+  // Prefill vendor form from existing user or localStorage when opening
+  useEffect(() => {
+    if (becomeVendorOpen && user) {
+      const existing = localStorage.getItem(`vendor_store_${user.id}`);
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          setVendorForm({
+            storeName: parsed.name || user.name || "",
+            phone: parsed.phone || "",
+            city: parsed.city || "Rajahmundry",
+            address: parsed.address || "",
+            pincode: parsed.pincode || "533101",
+            state: parsed.state || "Andhra Pradesh",
+            businessType: parsed.businessType || "physical_shop",
+          });
+          return;
+        } catch {}
+      }
+      setVendorForm((prev) => ({
+        ...prev,
+        storeName: prev.storeName || user.name || "",
+      }));
+    }
+  }, [becomeVendorOpen, user]);
 
   // Live Instant Search query (covering Categories, Locations, Vendors, and Products)
   const { data: searchResults, isLoading: isSearching } = useQuery({
@@ -189,7 +228,36 @@ export function SiteHeader() {
     navigate({ to: "/auth", replace: true });
   };
 
-  const handleBecomeVendor = async () => {
+  const handleBecomeVendor = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!user) {
+      toast.error("Please sign in to register as a vendor.");
+      navigate({ to: "/auth" });
+      return;
+    }
+
+    const cleanedPhone = vendorForm.phone.replace(/\D/g, "");
+    if (!vendorForm.storeName.trim()) {
+      toast.error("Store or Business name is required.");
+      return;
+    }
+    if (!vendorForm.phone.trim()) {
+      toast.error("Phone number is required. Please provide your contact number.");
+      return;
+    }
+    if (cleanedPhone.length < 10) {
+      toast.error("Please enter a valid 10-digit mobile or phone number.");
+      return;
+    }
+    if (!vendorForm.city.trim()) {
+      toast.error("City / Location name is required.");
+      return;
+    }
+    if (!vendorForm.address.trim()) {
+      toast.error("Store address or area is required for buyer verification.");
+      return;
+    }
+
     setBecomingVendor(true);
     try {
       const updatedUser = await api.becomeVendor();
@@ -197,7 +265,29 @@ export function SiteHeader() {
       if (token && updatedUser) {
         storeSession({ accessToken: token, user: updatedUser });
       }
-      toast.success("🎉 Welcome to V2 Business! Your vendor account is now active.");
+
+      const storeData = {
+        id: user.id,
+        name: vendorForm.storeName.trim(),
+        slug: slugify(vendorForm.storeName.trim()),
+        phone: vendorForm.phone.trim(),
+        city: vendorForm.city.trim(),
+        address: vendorForm.address.trim(),
+        state: vendorForm.state.trim() || "Andhra Pradesh",
+        pincode: vendorForm.pincode.trim() || "533101",
+        businessType: vendorForm.businessType,
+        categories: ["General"],
+        rating: 5.0,
+        reviewCount: 1,
+        joinedYear: 2026,
+      };
+      localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(storeData));
+
+      if (user.id && vendorForm.storeName.trim() !== user.name) {
+        await api.updateUser(user.id, { name: vendorForm.storeName.trim() }).catch(() => {});
+      }
+
+      toast.success(`🎉 Verified vendor storefront registered in ${vendorForm.city.trim()}!`);
       setBecomeVendorOpen(false);
       navigate({ to: "/vendor" });
     } catch (err: any) {
@@ -916,54 +1006,190 @@ export function SiteHeader() {
 
       {/* BECOME A VENDOR DIALOG */}
       <Dialog open={becomeVendorOpen} onOpenChange={setBecomeVendorOpen}>
-        <DialogContent className="sm:max-w-md rounded-3xl p-6">
+        <DialogContent className="sm:max-w-lg rounded-3xl p-6 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 shadow-inner">
-              <Store className="h-7 w-7" />
+            <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-600 shadow-inner">
+              <Store className="h-6 w-6" />
             </div>
             <DialogTitle className="text-center text-xl font-bold">
-              Become a V2 Business Vendor
+              Register as a Verified Vendor
             </DialogTitle>
-            <DialogDescription className="text-center text-sm text-muted-foreground pt-1">
-              Start selling your products directly to buyers across India with zero commission and instant seller tools.
+            <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
+              Please provide your contact phone number and storefront location to activate your vendor account.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-2 text-xs text-muted-foreground bg-muted/40 rounded-2xl p-4 border border-border/70">
-            <div className="flex items-start gap-2.5">
-              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
-              <span className="text-foreground"><strong className="font-semibold">0% Commission:</strong> Keep 100% of your product sales and revenue.</span>
+          <form onSubmit={handleBecomeVendor} className="space-y-4 py-2">
+            {/* 1. Store Name */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Store / Business Name <span className="text-rose-500">*</span></span>
+              </Label>
+              <div className="relative">
+                <Store className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={vendorForm.storeName}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, storeName: e.target.value }))}
+                  placeholder="e.g. Balaji Silks & Sarees"
+                  required
+                  className="pl-9 h-10 rounded-xl text-xs"
+                />
+              </div>
             </div>
-            <div className="flex items-start gap-2.5">
-              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
-              <span className="text-foreground"><strong className="font-semibold">Full Seller Dashboard:</strong> Manage products, orders, coupons, and delivery logistics.</span>
-            </div>
-            <div className="flex items-start gap-2.5">
-              <div className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-emerald-500/20 text-emerald-600 font-bold">✓</div>
-              <span className="text-foreground"><strong className="font-semibold">Retain Buyer Privileges:</strong> Continue shopping and ordering anytime with the same account.</span>
-            </div>
-          </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
-            <Button
-              type="button"
-              variant="ghost"
-              className="rounded-2xl"
-              disabled={becomingVendor}
-              onClick={() => setBecomeVendorOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              className="rounded-2xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
-              disabled={becomingVendor}
-              onClick={handleBecomeVendor}
-            >
-              {becomingVendor ? "Activating Seller Tools…" : "Activate Vendor Account"}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </DialogFooter>
+            {/* 2. Phone Number */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Contact Phone Number <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-muted-foreground">For order updates & buyer verification</span>
+              </Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="tel"
+                  value={vendorForm.phone}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, phone: e.target.value }))}
+                  placeholder="e.g. 9876543210 (10-digit mobile number)"
+                  required
+                  className="pl-9 h-10 rounded-xl text-xs"
+                />
+              </div>
+            </div>
+
+            {/* 3. Location / City */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>City / Town Location <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-muted-foreground">Used for local search & buyers</span>
+              </Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-500" />
+                <Input
+                  value={vendorForm.city}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, city: e.target.value }))}
+                  placeholder="e.g. Rajahmundry"
+                  required
+                  className="pl-9 h-10 rounded-xl text-xs"
+                />
+              </div>
+              {/* Quick city suggestions */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] text-muted-foreground">Quick pick:</span>
+                {["Rajahmundry", "Danavaipeta", "Kakinada", "Vijayawada", "Visakhapatnam", "Hyderabad"].map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setVendorForm((prev) => ({ ...prev, city }))}
+                    className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
+                      vendorForm.city.toLowerCase() === city.toLowerCase()
+                        ? "bg-rose-500 text-white border-rose-500 font-semibold"
+                        : "bg-muted/60 text-foreground/80 border-border hover:bg-muted"
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 4. Store Address / Area */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground">
+                Storefront Address / Street Area <span className="text-rose-500">*</span>
+              </Label>
+              <Input
+                value={vendorForm.address}
+                onChange={(e) => setVendorForm((prev) => ({ ...prev, address: e.target.value }))}
+                placeholder="e.g. Shop #4, Main Road, Danavaipeta"
+                required
+                className="h-10 rounded-xl text-xs"
+              />
+            </div>
+
+            {/* 5. Pincode & State */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-foreground">Pincode</Label>
+                <Input
+                  value={vendorForm.pincode}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, pincode: e.target.value }))}
+                  placeholder="533101"
+                  className="h-10 rounded-xl text-xs"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold text-foreground">State</Label>
+                <Input
+                  value={vendorForm.state}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, state: e.target.value }))}
+                  placeholder="Andhra Pradesh"
+                  className="h-10 rounded-xl text-xs"
+                />
+              </div>
+            </div>
+
+            {/* 6. Business Type */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground">Business Store Type</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVendorForm((prev) => ({ ...prev, businessType: "physical_shop" }))}
+                  className={`p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs transition-all ${
+                    vendorForm.businessType === "physical_shop"
+                      ? "border-amber-500 bg-amber-500/10 text-amber-900 dark:text-amber-200 font-semibold"
+                      : "border-border bg-card hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Building2 className="h-4 w-4 shrink-0 text-amber-600" />
+                  <div>
+                    <p className="font-semibold text-[11px]">Retail Store</p>
+                    <p className="text-[9px] text-muted-foreground">Commercial shop</p>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVendorForm((prev) => ({ ...prev, businessType: "home_cloud" }))}
+                  className={`p-2.5 rounded-xl border text-left flex items-center gap-2 text-xs transition-all ${
+                    vendorForm.businessType === "home_cloud"
+                      ? "border-amber-500 bg-amber-500/10 text-amber-900 dark:text-amber-200 font-semibold"
+                      : "border-border bg-card hover:bg-muted text-muted-foreground"
+                  }`}
+                >
+                  <Store className="h-4 w-4 shrink-0 text-amber-600" />
+                  <div>
+                    <p className="font-semibold text-[11px]">Home / Cloud Studio</p>
+                    <p className="text-[9px] text-muted-foreground">Online seller</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+              <span>0% Commission · Instant Seller Tools · Verified Store Badge</span>
+            </div>
+
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="rounded-2xl"
+                disabled={becomingVendor}
+                onClick={() => setBecomeVendorOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="rounded-2xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
+                disabled={becomingVendor}
+              >
+                {becomingVendor ? "Activating Store…" : "Complete Registration & Activate"}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </header>

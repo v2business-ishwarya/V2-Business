@@ -122,8 +122,13 @@ function VendorStore() {
   const save = async () => {
     if (!user) return;
     if (!form.name.trim()) return toast.error("Store name is required");
+    const cleanedPhone = form.phone.replace(/\D/g, "");
+    if (!form.phone.trim()) return toast.error("Contact phone number is required for store orders and buyer verification");
+    if (cleanedPhone.length < 10) return toast.error("Please enter a valid 10-digit contact phone number");
     if (!form.city.trim() || !form.state.trim())
       return toast.error("City and State location are required for buyer verification");
+    if (!form.address.trim())
+      return toast.error("Street or store address is required for store location verification");
 
     setLoading(true);
     try {
@@ -336,7 +341,7 @@ function VendorStore() {
                 />
               </div>
               <div>
-                <Label>Contact Phone</Label>
+                <Label>Contact Phone *</Label>
                 <Input
                   type="tel"
                   placeholder="+91 98765 43210"
