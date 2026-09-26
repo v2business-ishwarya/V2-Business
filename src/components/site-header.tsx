@@ -46,7 +46,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { formatMoney, slugify } from "@/lib/utils-app";
 import { Badge } from "@/components/ui/badge";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy } from "@/data/categories";
 import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
