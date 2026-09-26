@@ -396,31 +396,21 @@ function Home() {
 
             {/* Top Brand Identity */}
             <div className="relative z-10">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 shadow-2xs">
-                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
-                  RAJAHMUNDRY HYPERLOCAL
+              <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
+                {/* Big Prominent V2 Business Brand Name & Logo */}
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/v2b-gold-logo.png"
+                    alt="V2 Business"
+                    className="h-11 w-auto sm:h-13 shrink-0 drop-shadow-[0_2px_10px_rgba(245,158,11,0.25)] transition-transform group-hover:scale-105 duration-300"
+                  />
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-foreground">
+                    V2 Business
+                  </h1>
                 </div>
-                <span className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 tracking-widest uppercase">
+                <span className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 tracking-widest uppercase self-start pt-1">
                   v2business.in
                 </span>
-              </div>
-
-              {/* Big Prominent V2B Brand Name */}
-              <div className="flex items-center gap-3">
-                <img
-                  src="/v2b-gold-logo.png"
-                  alt="V2B Logo"
-                  className="h-11 w-auto sm:h-13 shrink-0 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] transition-transform group-hover:scale-105 duration-300"
-                />
-                <div>
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-xs">
-                    V2B
-                  </h1>
-                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mt-0.5">
-                    V2 Business Marketplace
-                  </p>
-                </div>
               </div>
 
               {/* Unique / Non-Routine Local Caption */}
@@ -438,7 +428,7 @@ function Home() {
             <div className="relative z-10 pt-3 border-t border-border/60">
               <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 text-[10px] sm:text-[11px] font-semibold">
                 <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
-                  ⚡ Hyperlocal Drop
+                  ⚡ Fast Local Drop
                 </span>
                 <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
                   🛡️ Verified Stores
@@ -465,7 +455,7 @@ function Home() {
                     className="rounded-full text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 h-8"
                   >
                     <Store className="h-3.5 w-3.5 mr-1" />
-                    <span>Sell on V2B</span>
+                    <span>Sell on V2 Business</span>
                   </Button>
                 </Link>
               </div>
