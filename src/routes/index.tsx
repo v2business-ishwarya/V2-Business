@@ -114,7 +114,7 @@ const HERO_SLIDES = [
   },
 ];
 
-// Multi-category 3 Hero Banner Cards (Starting with Jewellery, Toys, Clothing)
+// Multi-category 4 Hero Banner Cards (Jewellery, Toys, Clothing, Electronics)
 const HERO_BANNERS = [
   {
     id: "banner-1",
@@ -154,6 +154,19 @@ const HERO_BANNERS = [
       "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
     themeColor: "from-rose-950/85 via-pink-900/40 to-transparent",
     accentBadge: "NEW ARRIVALS",
+  },
+  {
+    id: "banner-4",
+    brandLogo: "ELECTRONICS & GADGETS",
+    title: "Mobiles & Smart Living",
+    subtitle: "Brand Warranty & Best Local Prices",
+    discountTag: "Up To 40% Off",
+    linkText: "Shop Now →",
+    targetSlug: "electronics-home-appliances",
+    bgImage:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=95",
+    themeColor: "from-blue-950/85 via-indigo-900/40 to-transparent",
+    accentBadge: "TOP DEALS",
   },
 ];
 
@@ -439,15 +452,15 @@ function Home() {
           <span className="h-px w-10 bg-amber-500/40" />
         </div>
 
-        {/* 3 Compact Multi-Category Banner Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* 4 Compact Multi-Category Banner Cards: 2x2 grid on phone, 4 across on PC */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
           {HERO_BANNERS.map((banner) => (
             <div
               key={banner.id}
               onClick={() =>
                 navigate({ to: "/category/$slug", params: { slug: banner.targetSlug } })
               }
-              className="group relative h-[240px] sm:h-[280px] rounded-2xl overflow-hidden shadow-md border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+              className="group relative h-[155px] sm:h-[190px] md:h-[240px] lg:h-[270px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
             >
               {/* Background Cover Image */}
               <img
@@ -462,40 +475,40 @@ function Home() {
               />
 
               {/* Brand Watermark / Badge Top Left */}
-              <div className="absolute top-3 left-3 z-10">
-                <span className="rounded-lg bg-black/60 backdrop-blur-md px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-amber-300 border border-amber-500/40 shadow-xs flex items-center gap-1">
-                  <Flame className="h-3 w-3 text-amber-400" />
-                  {banner.brandLogo}
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 max-w-[68%]">
+                <span className="rounded-md sm:rounded-lg bg-black/60 backdrop-blur-md px-1.5 sm:px-2.5 py-0.5 sm:py-1 text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-amber-300 border border-amber-500/40 shadow-xs flex items-center gap-1 truncate">
+                  <Flame className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-amber-400 shrink-0" />
+                  <span className="truncate">{banner.brandLogo}</span>
                 </span>
               </div>
 
               {/* Top Right Tag */}
-              <div className="absolute top-3 right-3 z-10">
-                <Badge className="bg-white text-black font-black text-[9px] uppercase tracking-wider shadow-xs px-2 py-0.5">
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10">
+                <Badge className="bg-white text-black font-black text-[8px] sm:text-[9px] uppercase tracking-wider shadow-xs px-1.5 sm:px-2 py-0.2 sm:py-0.5">
                   {banner.accentBadge}
                 </Badge>
               </div>
 
               {/* Bottom Details & Shop Now Button */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 z-10 space-y-1.5">
+              <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3 md:p-4 z-10 space-y-1 sm:space-y-1.5">
                 <div>
-                  <span className="inline-block rounded-md bg-amber-500 text-black px-2 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-xs">
+                  <span className="inline-block rounded-md bg-amber-500 text-black px-1.5 py-0.2 sm:px-2 sm:py-0.5 text-[8px] sm:text-[11px] font-black uppercase tracking-wider shadow-xs">
                     {banner.discountTag}
                   </span>
-                  <h3 className="mt-1 text-base sm:text-lg font-black text-white leading-tight drop-shadow-sm">
+                  <h3 className="mt-0.5 sm:mt-1 text-xs sm:text-base md:text-lg font-black text-white leading-tight drop-shadow-sm line-clamp-1 sm:line-clamp-2">
                     {banner.title}
                   </h3>
-                  <p className="text-[11px] text-white/90 font-medium drop-shadow-xs">
+                  <p className="hidden md:block text-[11px] text-white/90 font-medium drop-shadow-xs line-clamp-1">
                     {banner.subtitle}
                   </p>
                 </div>
 
                 <Button
                   size="sm"
-                  className="h-7 rounded-full bg-white hover:bg-amber-400 text-black font-extrabold text-[11px] px-3.5 shadow-sm group-hover:translate-x-1 transition-all flex items-center gap-1"
+                  className="h-6 sm:h-7 rounded-full bg-white hover:bg-amber-400 text-black font-extrabold text-[10px] sm:text-[11px] px-2.5 sm:px-3.5 shadow-sm group-hover:translate-x-1 transition-all flex items-center gap-1"
                 >
                   <span>Shop Now</span>
-                  <ArrowRight className="h-3 w-3" />
+                  <ArrowRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 </Button>
               </div>
             </div>
