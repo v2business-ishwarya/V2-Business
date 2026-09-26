@@ -36,12 +36,21 @@ function ProductDetail() {
       const res = await api.getProduct(slug);
       return res;
     },
+    staleTime: 1000 * 60 * 5,
     initialData: () => {
       // 1. Check direct cache
       const cached = qc.getQueryData<any>(["product", slug]);
       if (cached) return cached;
 
-      // 2. Check search-products cache
+      // 2. Check home-products cache
+      const homeData = qc.getQueryData<any>(["home-products"]);
+      if (homeData) {
+        const list = (homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : []);
+        const found = list.find((p: any) => p.id === slug || p.slug === slug);
+        if (found) return found;
+      }
+
+      // 3. Check search-products cache
       const searchQueries = qc.getQueriesData<any>({ queryKey: ["search-products"] });
       for (const [_, data] of searchQueries) {
         const list = (data as any)?.data ?? (Array.isArray(data) ? data : []);
@@ -49,9 +58,17 @@ function ProductDetail() {
         if (found) return found;
       }
 
-      // 3. Check cat-products cache
+      // 4. Check cat-products cache
       const catQueries = qc.getQueriesData<any>({ queryKey: ["cat-products"] });
       for (const [_, data] of catQueries) {
+        const list = (data as any)?.data ?? (Array.isArray(data) ? data : []);
+        const found = list.find((p: any) => p.id === slug || p.slug === slug);
+        if (found) return found;
+      }
+
+      // 5. Check store-products cache
+      const storeQueries = qc.getQueriesData<any>({ queryKey: ["store-products"] });
+      for (const [_, data] of storeQueries) {
         const list = (data as any)?.data ?? (Array.isArray(data) ? data : []);
         const found = list.find((p: any) => p.id === slug || p.slug === slug);
         if (found) return found;

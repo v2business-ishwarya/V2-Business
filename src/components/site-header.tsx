@@ -227,9 +227,16 @@ export function SiteHeader() {
     queryKey: ["cart-count", user?.id],
     enabled: !!user,
     queryFn: async () => {
+      const cachedCart = qc.getQueryData<any>(["cart", user?.id]);
+      if (cachedCart) {
+        const items = (cachedCart as any)?.items ?? (Array.isArray(cachedCart) ? cachedCart : []);
+        return items.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+      }
       const cart = await api.getCart();
-      return cart.items?.reduce((sum: number, item: any) => sum + item.quantity, 0) ?? 0;
+      qc.setQueryData(["cart", user?.id], cart);
+      return cart.items?.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0) ?? 0;
     },
+    staleTime: 1000 * 60 * 3,
   });
 
   const submit = (e: React.FormEvent) => {

@@ -29,15 +29,11 @@ function CheckoutPage() {
     queryKey: ["cart", user?.id],
     enabled: !!user,
     queryFn: () => api.getCart(),
-  });
-
-  const { data: paymentProviders = [] } = useQuery({
-    queryKey: ["checkout-payment-providers"],
-    queryFn: () => api.getPaymentProviders(),
+    initialData: () => qc.getQueryData(["cart", user?.id]),
+    staleTime: 1000 * 60 * 3,
   });
 
   const cartItems: any[] = (cartData as any)?.items ?? (Array.isArray(cartData) ? cartData : []);
-  const activeProviders: any[] = (paymentProviders as any)?.filter((p: any) => p.isEnabled) ?? [];
 
   const [shippingAddress, setShippingAddress] = useState({
     name: user?.name || "",
@@ -66,8 +62,21 @@ function CheckoutPage() {
       </div>
     );
 
-  if (cartLoading) {
-    return <div className="p-12 text-center text-muted-foreground">Loading checkout…</div>;
+  if (cartLoading && !cartData) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 animate-pulse">
+        <div className="h-8 w-48 rounded bg-muted/60 mb-6" />
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="h-64 rounded-2xl bg-muted/50" />
+            <div className="h-44 rounded-2xl bg-muted/50" />
+          </div>
+          <div>
+            <div className="h-72 rounded-2xl bg-muted/60" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (cartItems.length === 0)

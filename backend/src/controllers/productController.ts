@@ -32,6 +32,18 @@ const uploadToCloudinary = (buffer: Buffer, filename: string): Promise<string> =
   });
 };
 
+// Fast In-Memory Cache for Products
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+const productCache = new Map<string, CacheEntry<any>>();
+const CACHE_TTL_MS = 60 * 1000; // 60s cache TTL
+
+export const invalidateProductCache = () => {
+  productCache.clear();
+};
+
 // Zod schema for product creation/update
 const productSchema = z.object({
   name: z.string().min(2),
@@ -98,6 +110,7 @@ export const createProduct = asyncHandler(
     const product = await prisma.product.create({
       data: prismaData,
     });
+    invalidateProductCache();
     res.status(201).json(product);
   },
 );
@@ -146,7 +159,13 @@ export const getAllProducts = asyncHandler(
       where.featured = req.query.featured === "true";
     }
 
-    const [items, total] = await prisma.$transaction([
+    const cacheKey = `list:${JSON.stringify(req.query)}`;
+    const cached = productCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return res.json(cached.data);
+    }
+
+    const [items, total] = await Promise.all([
       prisma.product.findMany({
         skip,
         take: limit,
@@ -157,7 +176,16 @@ export const getAllProducts = asyncHandler(
       prisma.product.count({ where }),
     ]);
 
-    res.json({ data: items, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+    const result = { data: items, pagination: { page, limit, total, pages: Math.ceil(total / limit) } };
+    productCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+    // Pre-populate individual product caches for ultra-fast product detail navigation
+    for (const item of items) {
+      if (item.id) productCache.set(`single:${item.id}`, { data: item, timestamp: Date.now() });
+      if ((item as any).slug) productCache.set(`single:${(item as any).slug}`, { data: item, timestamp: Date.now() });
+    }
+
+    res.json(result);
   },
 );
 
@@ -166,6 +194,12 @@ export const getOneProduct = asyncHandler(
     const { id } = req.params;
     if (!id || id === "undefined" || id === "null") {
       return res.status(404).json({ error: "Product not found" });
+    }
+
+    const cacheKey = `single:${id}`;
+    const cached = productCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      return res.json(cached.data);
     }
 
     // Try finding by ID
@@ -197,6 +231,9 @@ export const getOneProduct = asyncHandler(
     }
 
     if (!product) return res.status(404).json({ error: "Product not found" });
+    productCache.set(cacheKey, { data: product, timestamp: Date.now() });
+    if (product.id) productCache.set(`single:${product.id}`, { data: product, timestamp: Date.now() });
+    if ((product as any).slug) productCache.set(`single:${(product as any).slug}`, { data: product, timestamp: Date.now() });
     res.json(product);
   },
 );
@@ -257,6 +294,7 @@ export const updateProduct = asyncHandler(
       where: { id },
       data: updateData,
     });
+    invalidateProductCache();
     res.json(updated);
   },
 );
@@ -273,6 +311,7 @@ export const deleteProduct = asyncHandler(
       return res.status(403).json({ error: "Not authorized" });
     }
     await prisma.product.delete({ where: { id } });
+    invalidateProductCache();
     res.status(204).send();
   },
 );

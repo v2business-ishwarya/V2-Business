@@ -37,6 +37,7 @@ export function ProductCard({ product }: { product: Product }) {
     <Link
       to="/product/$slug"
       params={{ slug: productIdentifier }}
+      preload="intent"
       className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-soft transition hover:shadow-card"
     >
       <div className="relative aspect-square overflow-hidden bg-surface-muted">

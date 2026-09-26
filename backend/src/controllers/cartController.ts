@@ -22,7 +22,13 @@ export const getCart = asyncHandler(async (req, res) => {
   const userId = (req as any).userId;
   const cartItems = await prisma.cartItem.findMany({
     where: { userId },
-    include: { product: { include: { vendor: true } } },
+    include: {
+      product: {
+        include: {
+          vendor: { select: { id: true, name: true } },
+        },
+      },
+    },
   });
 
   // Calculate totals

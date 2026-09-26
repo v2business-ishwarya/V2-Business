@@ -313,6 +313,7 @@ function Home() {
   const { data: rawProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ["home-products"],
     queryFn: () => api.getProducts({ limit: 12, isActive: true }),
+    staleTime: 1000 * 60 * 5,
   });
 
   const products: any[] =

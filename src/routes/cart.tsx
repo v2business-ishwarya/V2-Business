@@ -20,7 +20,7 @@ function CartPage() {
   const qc = useQueryClient();
 
   const {
-    data: items = [],
+    data: cartData,
     isLoading,
     refetch,
   } = useQuery({
@@ -28,10 +28,13 @@ function CartPage() {
     enabled: !!user,
     queryFn: async () => {
       const cart = await api.getCart();
-      // Expect cart to contain items array with product details populated
-      return cart.items ?? [];
+      return cart;
     },
+    initialData: () => qc.getQueryData(["cart", user?.id]),
+    staleTime: 1000 * 60 * 3,
   });
+
+  const items: any[] = (cartData as any)?.items ?? (Array.isArray(cartData) ? cartData : []);
 
   if (!loading && !user) {
     return (
@@ -49,7 +52,7 @@ function CartPage() {
     );
   }
 
-  if (isLoading) return <div className="p-8 text-sm text-muted-foreground">Loading cart...</div>;
+  if (isLoading && items.length === 0) return <div className="p-8 text-sm text-muted-foreground">Loading cart...</div>;
 
   if (items.length === 0) {
     return (
