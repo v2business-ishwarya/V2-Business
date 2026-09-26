@@ -355,31 +355,23 @@ function Home() {
       <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-1.5 shadow-sm overflow-hidden whitespace-nowrap select-none">
         <div className="animate-marquee flex items-center text-xs font-extrabold tracking-wider uppercase">
           <div className="flex items-center gap-8 px-4 shrink-0">
-            <span>✨ WELCOME TO V2B (V2 BUSINESS) — RAJAHMUNDRY'S #1 MARKETPLACE!</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛍️ 29 RETAIL CATEGORIES LIVE ACROSS RAJAHMUNDRY</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>⚡ FREE DOORSTEP DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛡️ 100% VERIFIED V2B MERCHANTS & DIRECT LOCAL PRICES</span>
-            <span className="text-yellow-200/80">✦</span>
-            <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
-            <span className="text-yellow-200/80">✦</span>
-            <span>🚀 FAST HOME DELIVERY ACROSS RAJAHMUNDRY & SURROUNDING AREAS</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
           </div>
           <div className="flex items-center gap-8 px-4 shrink-0" aria-hidden="true">
-            <span>✨ WELCOME TO V2B (V2 BUSINESS) — RAJAHMUNDRY'S #1 MARKETPLACE!</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛍️ 29 RETAIL CATEGORIES LIVE ACROSS RAJAHMUNDRY</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>⚡ FREE DOORSTEP DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛡️ 100% VERIFIED V2B MERCHANTS & DIRECT LOCAL PRICES</span>
-            <span className="text-yellow-200/80">✦</span>
-            <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
-            <span className="text-yellow-200/80">✦</span>
-            <span>🚀 FAST HOME DELIVERY ACROSS RAJAHMUNDRY & SURROUNDING AREAS</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS)</span>
             <span className="text-yellow-200/80">✦</span>
           </div>
         </div>
