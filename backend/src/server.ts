@@ -21,7 +21,7 @@ import deliveryRouter from "./routes/delivery";
 import invoiceRouter from "./routes/invoice";
 import categoryRouter from "./routes/category";
 import spotlightRouter from "./routes/spotlight";
-import { apiLimiter, authLimiter } from "./middleware/rateLimit";
+import { apiLimiter } from "./middleware/rateLimit";
 import { auditLogger } from "./middleware/auditMiddleware";
 import { xssSanitizer, sensitiveDataFilter } from "./middleware/securityMiddleware";
 
@@ -31,6 +31,8 @@ dotenv.config();
 export { prisma };
 
 const app = express();
+// Enable trust proxy for Render, Cloudflare & reverse proxies to get actual client IP
+app.set("trust proxy", 1);
 const PORT = process.env.PORT ?? 5000;
 
 // Middleware
@@ -68,8 +70,7 @@ app.use(sensitiveDataFilter);
 app.use(auditLogger);
 
 // Rate limiting
-app.use("/api/auth", authLimiter);
-app.use("/auth", authLimiter);
+// (auth-specific routes use granular protection directly in routes/auth.ts)
 app.use(apiLimiter);
 
 // Health check
