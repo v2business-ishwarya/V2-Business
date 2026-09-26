@@ -48,7 +48,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
-import { MovingGradientButton } from "@/components/originkit/ui/moving-gradient-button";
+import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -389,9 +389,25 @@ export function SiteHeader() {
 
         {/* 4. Desktop Search Bar (Hidden on Mobile) */}
         <div ref={searchContainerRef} className="relative hidden sm:block flex-1 min-w-0 max-w-2xl mx-2">
-          <form
+          <MovingGradientFrame
+            as="form"
             onSubmit={submit}
-            className="flex items-center h-10 w-full rounded-full border border-amber-500/30 bg-background px-3 shadow-xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
+            className="flex items-center h-10 w-full rounded-full bg-background px-3 shadow-xs focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
+            rounded={100}
+            border={{
+              borderWidth: 2,
+              borderStyle: "solid",
+              borderColor: "rgba(245, 158, 11, 0.35)",
+            }}
+            stroke={{
+              headColor: "#FEF08A",
+              color: "#F59E0B",
+              movement: "continuous",
+              direction: "cw",
+              count: 2,
+              trail: 65,
+              speed: 40,
+            }}
           >
             {/* Search Input Field */}
             <div className="relative flex-1 min-w-0 flex items-center">
@@ -424,42 +440,16 @@ export function SiteHeader() {
               )}
             </div>
 
-            {/* Originkit Moving Gradient Search Action Button */}
-            <MovingGradientButton
+            {/* Search Action Button - Highlighted */}
+            <Button
               type="submit"
-              padding="0px 14px"
-              rounded={100}
-              className="h-8 shrink-0 ml-1 shadow-md hover:shadow-lg shadow-amber-500/25 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
-              colors={{
-                fill: "#D97706",
-                hoverFill: "#B45309",
-                textColor: "#FFFFFF",
-                hoverTextColor: "#FFFFFF",
-              }}
-              border={{
-                borderWidth: 2,
-                borderStyle: "solid",
-                borderColor: "rgba(251, 191, 36, 0.4)",
-              }}
-              stroke={{
-                headColor: "#FEF08A",
-                color: "#F59E0B",
-                movement: "continuous",
-                direction: "cw",
-                count: 2,
-                trail: 80,
-                speed: 35,
-              }}
-              font={{
-                fontSize: 12,
-                fontWeight: 700,
-                fontFamily: "inherit",
-              }}
+              size="sm"
+              className="h-8 rounded-full px-4 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md hover:shadow-lg shadow-amber-500/25 border border-amber-400/40 gap-1.5 ml-1 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
             >
-              <Search className="h-3.5 w-3.5 text-white stroke-[2.5] mr-1.5" />
+              <Search className="h-3.5 w-3.5 text-white stroke-[2.5]" />
               <span>Search</span>
-            </MovingGradientButton>
-          </form>
+            </Button>
+          </MovingGradientFrame>
 
           {/* Live Autocomplete Dropdown (Desktop) */}
           {showDropdown && q.trim().length >= 2 && (
@@ -850,9 +840,25 @@ export function SiteHeader() {
 
       {/* Mobile Dedicated Search Bar (Visible only on < sm) */}
       <div className="block sm:hidden px-3 pb-2.5 pt-0">
-        <form
+        <MovingGradientFrame
+          as="form"
           onSubmit={submit}
-          className="relative flex items-center h-9 w-full rounded-full border border-amber-500/30 bg-background px-2.5 shadow-xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
+          className="relative flex items-center h-9 w-full rounded-full bg-background px-2.5 shadow-xs focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
+          rounded={100}
+          border={{
+            borderWidth: 2,
+            borderStyle: "solid",
+            borderColor: "rgba(245, 158, 11, 0.35)",
+          }}
+          stroke={{
+            headColor: "#FEF08A",
+            color: "#F59E0B",
+            movement: "continuous",
+            direction: "cw",
+            count: 2,
+            trail: 65,
+            speed: 40,
+          }}
         >
           <div className="relative flex-1 min-w-0 flex items-center">
             <Search className="h-3.5 w-3.5 text-amber-500/80 shrink-0 mr-1.5" />
@@ -883,42 +889,16 @@ export function SiteHeader() {
               </button>
             )}
           </div>
-          {/* Originkit Moving Gradient Mobile Search Action Button */}
-          <MovingGradientButton
+          {/* Highlighted Mobile Search Action Button */}
+          <Button
             type="submit"
-            padding="0px 10px"
-            rounded={100}
-            className="h-7 shrink-0 ml-1 shadow-md shadow-amber-500/25 transition-transform duration-200 active:scale-[0.97] cursor-pointer"
-            colors={{
-              fill: "#D97706",
-              hoverFill: "#B45309",
-              textColor: "#FFFFFF",
-              hoverTextColor: "#FFFFFF",
-            }}
-            border={{
-              borderWidth: 2,
-              borderStyle: "solid",
-              borderColor: "rgba(251, 191, 36, 0.4)",
-            }}
-            stroke={{
-              headColor: "#FEF08A",
-              color: "#F59E0B",
-              movement: "continuous",
-              direction: "cw",
-              count: 2,
-              trail: 80,
-              speed: 35,
-            }}
-            font={{
-              fontSize: 11,
-              fontWeight: 700,
-              fontFamily: "inherit",
-            }}
+            size="sm"
+            className="h-7 rounded-full px-3 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md shadow-amber-500/25 border border-amber-400/40 gap-1 ml-1 transition-all duration-200"
           >
-            <Search className="h-3 w-3 text-white stroke-[2.5] mr-1" />
+            <Search className="h-3 w-3 text-white stroke-[2.5]" />
             <span>Search</span>
-          </MovingGradientButton>
-        </form>
+          </Button>
+        </MovingGradientFrame>
 
         {/* Live Autocomplete Dropdown (Mobile) */}
         {showDropdown && q.trim().length >= 2 && (

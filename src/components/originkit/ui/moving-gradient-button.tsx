@@ -628,4 +628,220 @@ export function MovingGradientButton(props: Props) {
   );
 }
 
+export type MovingGradientFrameProps = {
+  as?: React.ElementType;
+  children?: React.ReactNode;
+  className?: string;
+  style?: React.CSSProperties;
+  rounded?: number;
+  border?: {
+    borderWidth?: number;
+    borderStyle?: string;
+    borderColor?: string;
+    borderTopWidth?: number;
+    borderLeftWidth?: number;
+    borderRightWidth?: number;
+    borderBottomWidth?: number;
+  };
+  stroke?: {
+    headColor?: string;
+    color?: string;
+    direction?: "cw" | "ccw";
+    movement?: "step" | "continuous";
+    count?: number;
+    trail?: number;
+    speed?: number;
+  };
+  onSubmit?: React.FormEventHandler<any>;
+  onClick?: React.MouseEventHandler<any>;
+};
+
+export function MovingGradientFrame({
+  as: Component = "div",
+  children,
+  className = "",
+  style,
+  rounded = 100,
+  border = {
+    borderWidth: 2,
+    borderStyle: "solid",
+    borderColor: "rgba(245, 158, 11, 0.35)",
+    borderTopWidth: 2,
+    borderLeftWidth: 2,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+  },
+  stroke = {
+    headColor: "#FEF08A",
+    color: "#F59E0B",
+    direction: "cw",
+    movement: "continuous",
+    count: 2,
+    trail: 60,
+    speed: 35,
+  },
+  onSubmit,
+  onClick,
+  ...restProps
+}: MovingGradientFrameProps & Record<string, any>) {
+  const {
+    headColor: strokeHeadColor = "#FEF08A",
+    color: strokeColor = "#F59E0B",
+    direction = "cw",
+    movement = "continuous",
+    count = 2,
+    trail = 60,
+    speed: speedPct = 35,
+  } = stroke;
+
+  const speed = 2 * (Math.max(0, Math.min(100, Math.round(speedPct))) / 50);
+
+  const containerRef = useRef<HTMLElement | null>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const dashRefs = useRef<Array<SVGPathElement | null>>([]);
+
+  useIsoLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      setBox((prev) => (prev.w === w && prev.h === h ? prev : { w, h }));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const radiusPx = radiusFromPercent(box.w, box.h, rounded);
+
+  const live = useRef({
+    pxPerSec: 0,
+    sign: 1,
+    movement,
+    lens: [] as number[],
+  });
+  live.current.movement = movement;
+  const sign = direction === "ccw" ? -1 : 1;
+  live.current.sign = sign;
+  // Increase speed for wide container so beam glides smoothly and visibly
+  live.current.pxPerSec = Math.max(0, speed) * 90 * sign;
+
+  useEffect(() => {
+    let raf = 0;
+    let last = 0;
+    let head = 0;
+    const tick = (t: number) => {
+      if (!last) last = t;
+      const dt = (t - last) / 1000;
+      last = t;
+      const l = live.current;
+
+      if (l.movement === "continuous") {
+        head += l.pxPerSec * dt;
+        for (let i = 0; i < dashRefs.current.length; i++) {
+          const el = dashRefs.current[i];
+          const len = l.lens[i];
+          if (el && len !== undefined)
+            el.style.strokeDashoffset = String(
+              l.sign >= 0 ? len - head : -head
+            );
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const n = Math.max(1, Math.round(count));
+  const perimeter = perimeterOf(box.w, box.h, radiusPx);
+  const slice = perimeter > 0 ? perimeter / n : 0;
+  const trailLen = Math.max(1, (slice * Math.max(0, Math.min(100, trail))) / 100);
+
+  const dashLayers = React.useMemo(() => {
+    const out: Array<{ len: number; color: string; opacity: number }> = [];
+    for (let i = 0; i < TRAIL_LAYERS; i++) {
+      const len = (trailLen * (TRAIL_LAYERS - i)) / TRAIL_LAYERS;
+      out.push({
+        len,
+        color: i === TRAIL_LAYERS - 1 ? strokeHeadColor : strokeColor,
+        opacity: (i + 1) / TRAIL_LAYERS,
+      });
+    }
+    return out;
+  }, [trailLen, strokeColor, strokeHeadColor]);
+  live.current.lens = dashLayers.map((d) => d.len);
+
+  const band = bandWidthsOf(border);
+  const bandPadding = `${band.top}px ${band.right}px ${band.bottom}px ${band.left}px`;
+  const strokeWidth = 2 * Math.max(band.top, band.right, band.bottom, band.left) + 2;
+
+  return (
+    <Component
+      ref={containerRef}
+      onSubmit={onSubmit}
+      onClick={onClick}
+      className={`relative ${className}`}
+      style={{
+        borderRadius: radiusPx,
+        ...style,
+      }}
+      {...restProps}
+    >
+      {/* Animated moving gradient border overlay */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: 0,
+          boxSizing: "border-box",
+          padding: bandPadding,
+          borderRadius: radiusPx,
+          zIndex: 2,
+          pointerEvents: "none",
+          ...BAND_MASK,
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: borderColorOf(border),
+          }}
+        />
+
+        {movement === "continuous" && box.w > 0 && box.h > 0 && (
+          <svg
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${box.w} ${box.h}`}
+            preserveAspectRatio="none"
+            style={{ position: "absolute", inset: 0, overflow: "visible" }}
+          >
+            {dashLayers.map((d, i) => (
+              <path
+                key={i}
+                ref={(el) => {
+                  dashRefs.current[i] = el;
+                }}
+                d={outlinePath(box.w, box.h, radiusPx)}
+                fill="none"
+                stroke={d.color}
+                strokeOpacity={d.opacity}
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${d.len} ${Math.max(0.01, slice - d.len)}`}
+                strokeLinecap="butt"
+              />
+            ))}
+          </svg>
+        )}
+      </div>
+
+      {children}
+    </Component>
+  );
+}
+
 export default MovingGradientButton;
