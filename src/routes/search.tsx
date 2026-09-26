@@ -143,15 +143,27 @@ function SearchPage() {
         return autoData.products;
       }
 
-      // 2. Check home products cache
+      // 2. Check quick catalog and home products cache
+      const catalogData = qc.getQueryData<any>(["quick-catalog"]);
       const homeData = qc.getQueryData<any>(["home-products"]);
-      if (homeData) {
-        const list = (homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : []);
-        const matched = list.filter((p: any) =>
-          (p.name && p.name.toLowerCase().includes(cleanQ)) ||
-          (p.category && p.category.toLowerCase().includes(cleanQ)) ||
-          (p.description && p.description.toLowerCase().includes(cleanQ))
-        );
+      const pool = [
+        ...((catalogData as any)?.data ?? (Array.isArray(catalogData) ? catalogData : [])),
+        ...((homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : [])),
+      ];
+      if (pool.length > 0) {
+        const matchedCats = matchCategoryFuzzy(cleanQ);
+        const matchedCatNames = matchedCats.map((c) => c.name.toLowerCase());
+        const matched = pool.filter((p: any) => {
+          const n = (p.name || "").toLowerCase();
+          const c = (p.category || "").toLowerCase();
+          const d = (p.description || "").toLowerCase();
+          return (
+            n.includes(cleanQ) ||
+            c.includes(cleanQ) ||
+            d.includes(cleanQ) ||
+            matchedCatNames.some((mcn) => c.includes(mcn))
+          );
+        });
         if (matched.length > 0) return matched;
       }
 

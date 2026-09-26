@@ -40,9 +40,36 @@ interface CacheEntry<T> {
 const productCache = new Map<string, CacheEntry<any>>();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache TTL (automatically invalidated on changes)
 
+// Fast In-Memory Active Product Catalog for sub-millisecond search & catalog queries
+let activeProductsCatalog: any[] | null = null;
+let activeProductsCatalogTime = 0;
+const CATALOG_CACHE_TTL = 5 * 60 * 1000;
+
 export const invalidateProductCache = () => {
   productCache.clear();
+  activeProductsCatalog = null;
+  activeProductsCatalogTime = 0;
 };
+
+export async function getOrFetchActiveCatalog() {
+  if (activeProductsCatalog && Date.now() - activeProductsCatalogTime < CATALOG_CACHE_TTL) {
+    return activeProductsCatalog;
+  }
+  try {
+    const catalog = await prisma.product.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      include: { vendor: { select: { id: true, name: true } } },
+      take: 1000,
+    });
+    activeProductsCatalog = catalog;
+    activeProductsCatalogTime = Date.now();
+    return activeProductsCatalog;
+  } catch (err) {
+    console.error("Failed to load active catalog into memory:", err);
+    return null;
+  }
+}
 
 // Zod schema for product creation/update
 const productSchema = z.object({
@@ -163,6 +190,73 @@ export const getAllProducts = asyncHandler(
     const cached = productCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       return res.json(cached.data);
+    }
+
+    // Serve from ultra-fast in-memory catalog when possible (< 1ms response)
+    if (req.query.isActive !== "false") {
+      const catalog = await getOrFetchActiveCatalog();
+      if (catalog && (skip + limit <= catalog.length || catalog.length < 1000)) {
+        let filtered = catalog;
+
+        if (search) {
+          const s = search.toLowerCase();
+          filtered = filtered.filter((p: any) => {
+            const n = (p.name || "").toLowerCase();
+            const d = (p.description || "").toLowerCase();
+            const c = (p.category || "").toLowerCase();
+            const vn = (p.vendor?.name || "").toLowerCase();
+            const tags = Array.isArray(p.tags) ? p.tags.map((t: string) => String(t).toLowerCase()) : [];
+            return (
+              n.includes(s) ||
+              c.includes(s) ||
+              vn.includes(s) ||
+              d.includes(s) ||
+              tags.some((t: string) => t.includes(s))
+            );
+          });
+        }
+
+        if (req.query.category) {
+          const cat = String(req.query.category).trim().toLowerCase();
+          const cleanCat = cat.replace(/[-_]/g, " ");
+          const words = cat.split(/[\s&-_]+/).filter((w) => w.length > 2);
+          filtered = filtered.filter((p: any) => {
+            const pc = (p.category || "").toLowerCase();
+            return (
+              pc === cat ||
+              pc === cleanCat ||
+              pc.includes(cleanCat) ||
+              words.some((w) => pc.includes(w))
+            );
+          });
+        }
+
+        if (req.query.vendorId) {
+          const vid = String(req.query.vendorId);
+          filtered = filtered.filter((p: any) => p.vendorId === vid || p.vendor?.id === vid);
+        }
+
+        if (req.query.featured !== undefined) {
+          const isFeat = req.query.featured === "true";
+          filtered = filtered.filter((p: any) => Boolean(p.featured) === isFeat);
+        }
+
+        const total = filtered.length;
+        const sliced = filtered.slice(skip, skip + limit);
+        const result = {
+          data: sliced,
+          pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+        };
+        productCache.set(cacheKey, { data: result, timestamp: Date.now() });
+
+        for (const item of sliced) {
+          if (item.id) productCache.set(`single:${item.id}`, { data: item, timestamp: Date.now() });
+          if ((item as any).slug)
+            productCache.set(`single:${(item as any).slug}`, { data: item, timestamp: Date.now() });
+        }
+
+        return res.json(result);
+      }
     }
 
     const items = await prisma.product.findMany({

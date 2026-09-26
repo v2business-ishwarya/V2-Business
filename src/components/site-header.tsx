@@ -60,6 +60,18 @@ import {
 } from "@/components/ui/select";
 import { LocationMapPicker } from "@/components/location-map-picker";
 
+const KNOWN_LOCATIONS = [
+  "Rajahmundry",
+  "Danavaipeta",
+  "Main Road",
+  "Aryapuram",
+  "Morampudi",
+  "Kakinada",
+  "Vijayawada",
+  "Visakhapatnam",
+  "Hyderabad",
+];
+
 export function SiteHeader() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -118,19 +130,75 @@ export function SiteHeader() {
     }
   }, [becomeVendorOpen, user]);
 
-  // Debounce search query so typing fast doesn't barrage the backend
+  // Prefetch active product catalog in background for instant (0ms) client-side search
+  const { data: quickCatalogRaw } = useQuery({
+    queryKey: ["quick-catalog"],
+    queryFn: async () => {
+      const res = await api.getProducts({ limit: 100, isActive: true });
+      return (res as any)?.data ?? (Array.isArray(res) ? res : []);
+    },
+    staleTime: 1000 * 60 * 15,
+  });
+
+  // Debounce search query so typing fast doesn't barrage the backend (150ms)
   const [debouncedQ, setDebouncedQ] = useState("");
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQ(q.trim().toLowerCase());
-    }, 250);
+    }, 150);
     return () => clearTimeout(timer);
   }, [q]);
 
   // Instant local category suggestions directly from memory (0ms perceived latency)
   const instantMatchingCats = useMemo(() => {
-    return q.trim().length >= 2 ? matchCategoryFuzzy(q) : [];
+    return q.trim().length >= 1 ? matchCategoryFuzzy(q) : [];
   }, [q]);
+
+  // Instant local location suggestions directly from memory (0ms perceived latency)
+  const instantMatchingLocations = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return [];
+    return KNOWN_LOCATIONS.filter((loc) => loc.toLowerCase().includes(term)).slice(0, 3);
+  }, [q]);
+
+  // Instant local product suggestions directly from memory (0ms perceived latency)
+  const instantMatchingProducts = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return [];
+
+    const catPool =
+      (quickCatalogRaw as any)?.data ?? (Array.isArray(quickCatalogRaw) ? quickCatalogRaw : []);
+    const homeData = qc.getQueryData<any>(["home-products"]);
+    const homePool = (homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : []);
+
+    const pool = [...catPool, ...homePool];
+    if (pool.length === 0) return [];
+
+    const matchedCats = matchCategoryFuzzy(term);
+    const matchedCatNames = matchedCats.map((c) => c.name.toLowerCase());
+
+    const matched: any[] = [];
+    const seen = new Set<string>();
+
+    for (const p of pool) {
+      if (!p.id || seen.has(p.id)) continue;
+      const n = (p.name || "").toLowerCase();
+      const c = (p.category || "").toLowerCase();
+      const d = (p.description || "").toLowerCase();
+
+      const isNameMatch = n.includes(term);
+      const isCatMatch = c.includes(term) || matchedCatNames.some((mcn) => c.includes(mcn));
+      const isDescMatch = d.includes(term);
+
+      if (isNameMatch || isCatMatch || isDescMatch) {
+        seen.add(p.id);
+        matched.push(p);
+        if (matched.length >= 4) break;
+      }
+    }
+
+    return matched;
+  }, [q, quickCatalogRaw, qc]);
 
   // Live Instant Search query (covering Categories, Locations, Vendors, and Products)
   const { data: searchResults, isLoading: isSearching } = useQuery({
@@ -143,17 +211,6 @@ export function SiteHeader() {
       const matchingCats = matchCategoryFuzzy(term).slice(0, 3);
 
       // 2. Matching Locations / Cities
-      const KNOWN_LOCATIONS = [
-        "Rajahmundry",
-        "Danavaipeta",
-        "Main Road",
-        "Aryapuram",
-        "Morampudi",
-        "Kakinada",
-        "Vijayawada",
-        "Visakhapatnam",
-        "Hyderabad",
-      ];
       const matchingLocations = KNOWN_LOCATIONS.filter((loc) =>
         loc.toLowerCase().includes(term)
       ).slice(0, 3);
@@ -225,7 +282,24 @@ export function SiteHeader() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const displayCategories = instantMatchingCats.length > 0 ? instantMatchingCats.slice(0, 3) : (searchResults?.categories || []);
+  const displayCategories =
+    instantMatchingCats.length > 0 ? instantMatchingCats.slice(0, 3) : (searchResults?.categories || []);
+
+  const displayLocations =
+    instantMatchingLocations.length > 0 ? instantMatchingLocations.slice(0, 3) : (searchResults?.locations || []);
+
+  const displayProducts =
+    instantMatchingProducts.length > 0
+      ? instantMatchingProducts
+      : (searchResults?.products || []);
+
+  const displayStores = searchResults?.stores || [];
+
+  const hasAnyResults =
+    displayCategories.length > 0 ||
+    displayLocations.length > 0 ||
+    displayProducts.length > 0 ||
+    displayStores.length > 0;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -502,11 +576,16 @@ export function SiteHeader() {
           </MovingGradientFrame>
 
           {/* Live Autocomplete Dropdown (Desktop) */}
-          {showDropdown && q.trim().length >= 2 && (
+          {showDropdown && q.trim().length >= 1 && (
             <div className="absolute top-12 left-0 right-0 z-50 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-3 max-h-[440px] overflow-y-auto">
-              {isSearching ? (
+              {!hasAnyResults && isSearching ? (
+                <div className="p-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                  <Search className="h-3.5 w-3.5 animate-spin text-amber-500" />
+                  <span>Searching products, categories, stores & locations...</span>
+                </div>
+              ) : !hasAnyResults && !isSearching ? (
                 <div className="p-4 text-center text-xs text-muted-foreground">
-                  Searching products, categories, stores & locations...
+                  No instant matches found. Press Enter to search the entire marketplace catalogue.
                 </div>
               ) : (
                 <>
@@ -534,7 +613,7 @@ export function SiteHeader() {
                               </div>
                               <span className="text-xs font-semibold text-foreground truncate">{cat.name}</span>
                             </div>
-                            <Badge variant="outline" className="text-[10px] shrink-0">
+                            <Badge variant="outline" className="text-[10px] shrink-0 font-medium">
                               Category
                             </Badge>
                           </div>
@@ -544,7 +623,7 @@ export function SiteHeader() {
                   )}
 
                   {/* 2. Matching Locations */}
-                  {searchResults?.locations && searchResults.locations.length > 0 && (
+                  {displayLocations && displayLocations.length > 0 && (
                     <div className="space-y-1 pt-1 border-t border-border/50">
                       <div className="px-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -552,7 +631,7 @@ export function SiteHeader() {
                         </span>
                       </div>
                       <div className="space-y-1">
-                        {searchResults.locations.map((loc: string) => (
+                        {displayLocations.map((loc: string) => (
                           <div
                             key={loc}
                             onClick={() => {
@@ -565,7 +644,7 @@ export function SiteHeader() {
                               <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
                               <span className="font-semibold text-foreground">{loc}</span>
                             </div>
-                            <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-600 border-rose-500/20">
+                            <Badge variant="outline" className="text-[10px] bg-rose-500/10 text-rose-600 border-rose-500/20 font-medium">
                               Browse Area
                             </Badge>
                           </div>
@@ -575,7 +654,7 @@ export function SiteHeader() {
                   )}
 
                   {/* 3. Matching Stores / Vendors */}
-                  {searchResults?.stores && searchResults.stores.length > 0 && (
+                  {displayStores && displayStores.length > 0 && (
                     <div className="space-y-1.5 pt-1 border-t border-border/50">
                       <div className="flex items-center justify-between px-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -583,7 +662,7 @@ export function SiteHeader() {
                         </span>
                       </div>
                       <div className="space-y-1">
-                        {searchResults.stores.map((store: any) => (
+                        {displayStores.map((store: any) => (
                           <div
                             key={store.id}
                             onClick={() => {
@@ -613,7 +692,7 @@ export function SiteHeader() {
                   )}
 
                   {/* 4. Matching Products */}
-                  {searchResults?.products && searchResults.products.length > 0 && (
+                  {displayProducts && displayProducts.length > 0 && (
                     <div className="space-y-1.5 pt-1 border-t border-border/50">
                       <div className="px-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -621,7 +700,7 @@ export function SiteHeader() {
                         </span>
                       </div>
                       <div className="space-y-1">
-                        {searchResults.products.map((product: any) => {
+                        {displayProducts.map((product: any) => {
                           const img = product.images?.[0] || product.featured_image;
                           return (
                             <div
@@ -659,15 +738,13 @@ export function SiteHeader() {
                     </div>
                   )}
 
-                  {/* Empty state if no results */}
-                  {(!searchResults?.categories || searchResults.categories.length === 0) &&
-                    (!searchResults?.locations || searchResults.locations.length === 0) &&
-                    (!searchResults?.stores || searchResults.stores.length === 0) &&
-                    (!searchResults?.products || searchResults.products.length === 0) && (
-                      <div className="p-4 text-center text-xs text-muted-foreground">
-                        No direct matches found. Press Enter to view full catalogue search.
-                      </div>
-                    )}
+                  {/* Subtle in-flight indicator when results are visible and server is still querying */}
+                  {isSearching && (
+                    <div className="flex items-center justify-center gap-1.5 py-1 text-[11px] text-amber-500/80 animate-pulse font-medium border-t border-border/40">
+                      <Search className="h-3 w-3 animate-spin text-amber-500" />
+                      <span>Checking full database...</span>
+                    </div>
+                  )}
 
                   {/* View All Button */}
                   <div className="pt-2 border-t border-border/60">
@@ -987,21 +1064,26 @@ export function SiteHeader() {
         </MovingGradientFrame>
 
         {/* Live Autocomplete Dropdown (Mobile) */}
-        {showDropdown && q.trim().length >= 2 && (
+        {showDropdown && q.trim().length >= 1 && (
           <div className="mt-1.5 rounded-2xl border border-border bg-card/95 p-3 shadow-2xl backdrop-blur-xl space-y-2.5 max-h-[350px] overflow-y-auto">
-            {isSearching ? (
+            {!hasAnyResults && isSearching ? (
+              <div className="p-3 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
+                <Search className="h-3.5 w-3.5 animate-spin text-amber-500" />
+                <span>Searching products, categories, stores & locations...</span>
+              </div>
+            ) : !hasAnyResults && !isSearching ? (
               <div className="p-3 text-center text-xs text-muted-foreground">
-                Searching products, categories, stores & locations...
+                No instant matches found. Press Enter to search marketplace.
               </div>
             ) : (
               <>
                 {/* 1. Categories */}
-                {searchResults?.categories && searchResults.categories.length > 0 && (
+                {displayCategories && displayCategories.length > 0 && (
                   <div className="space-y-1">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
                       <Sparkles className="h-3 w-3 text-primary" /> Categories
                     </span>
-                    {searchResults.categories.map((cat: any) => (
+                    {displayCategories.map((cat: any) => (
                       <div
                         key={cat.id}
                         onClick={() => {
@@ -1025,12 +1107,12 @@ export function SiteHeader() {
                 )}
 
                 {/* 2. Locations */}
-                {searchResults?.locations && searchResults.locations.length > 0 && (
+                {displayLocations && displayLocations.length > 0 && (
                   <div className="space-y-1 pt-1 border-t border-border/50">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
                       <MapPin className="h-3 w-3 text-rose-500" /> Locations & Cities
                     </span>
-                    {searchResults.locations.map((loc: string) => (
+                    {displayLocations.map((loc: string) => (
                       <div
                         key={loc}
                         onClick={() => {
@@ -1052,12 +1134,12 @@ export function SiteHeader() {
                 )}
 
                 {/* 3. Stores */}
-                {searchResults?.stores && searchResults.stores.length > 0 && (
+                {displayStores && displayStores.length > 0 && (
                   <div className="space-y-1 pt-1 border-t border-border/50">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
                       <Store className="h-3 w-3 text-primary" /> Verified Stores & Vendors
                     </span>
-                    {searchResults.stores.map((store: any) => (
+                    {displayStores.map((store: any) => (
                       <div
                         key={store.id}
                         onClick={() => {
@@ -1084,12 +1166,12 @@ export function SiteHeader() {
                 )}
 
                 {/* 4. Products */}
-                {searchResults?.products && searchResults.products.length > 0 && (
+                {displayProducts && displayProducts.length > 0 && (
                   <div className="space-y-1 pt-1 border-t border-border/50">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground px-1">
                       Matching Products
                     </span>
-                    {searchResults.products.map((product: any) => (
+                    {displayProducts.map((product: any) => (
                       <div
                         key={product.id}
                         onClick={() => {
@@ -1106,6 +1188,14 @@ export function SiteHeader() {
                         </span>
                       </div>
                     ))}
+                  </div>
+                )}
+
+                {/* Subtle in-flight indicator */}
+                {isSearching && (
+                  <div className="flex items-center justify-center gap-1.5 py-1 text-[10px] text-amber-500/80 animate-pulse font-medium border-t border-border/40">
+                    <Search className="h-2.5 w-2.5 animate-spin text-amber-500" />
+                    <span>Searching database...</span>
                   </div>
                 )}
 

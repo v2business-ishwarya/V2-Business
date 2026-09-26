@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
 import * as z from "zod";
 import { authenticate } from "../middleware/authMiddleware";
+import { getOrFetchActiveCatalog } from "./productController";
 
 // Helper
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
@@ -59,7 +60,59 @@ export const searchProducts = asyncHandler(async (req, res) => {
   const limitNum = Math.min(parseInt(limit, 10), 100);
   const skip = (pageNum - 1) * limitNum;
 
-  // Build where clause
+  // Ultra-fast in-memory catalog search (< 1ms response)
+  const catalog = await getOrFetchActiveCatalog();
+  if (catalog && (skip + limitNum <= catalog.length || catalog.length < 1000)) {
+    let filtered = catalog;
+
+    if (q && q.trim() !== "") {
+      const term = q.trim().toLowerCase();
+      filtered = filtered.filter((p: any) => {
+        const n = (p.name || "").toLowerCase();
+        const d = (p.description || "").toLowerCase();
+        const c = (p.category || "").toLowerCase();
+        const vn = (p.vendor?.name || "").toLowerCase();
+        return n.includes(term) || d.includes(term) || c.includes(term) || vn.includes(term);
+      });
+    }
+
+    if (category) {
+      const cat = category.toLowerCase();
+      filtered = filtered.filter((p: any) => (p.category || "").toLowerCase().includes(cat));
+    }
+    if (isActive !== undefined) {
+      filtered = filtered.filter((p: any) => Boolean(p.isActive) === (isActive === "true"));
+    }
+    if (featured !== undefined) {
+      filtered = filtered.filter((p: any) => Boolean(p.featured) === (featured === "true"));
+    }
+    if (minPrice !== undefined) {
+      filtered = filtered.filter((p: any) => p.price >= minPrice);
+    }
+    if (maxPrice !== undefined) {
+      filtered = filtered.filter((p: any) => p.price <= maxPrice);
+    }
+
+    // Sort
+    if (sortBy === "price") {
+      filtered.sort((a, b) => (sortOrder === "asc" ? a.price - b.price : b.price - a.price));
+    } else if (sortBy === "name") {
+      filtered.sort((a, b) =>
+        sortOrder === "asc" ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      );
+    }
+
+    const total = filtered.length;
+    const sliced = filtered.slice(skip, skip + limitNum);
+    const responseData = {
+      data: sliced,
+      pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) },
+    };
+    searchCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+    return res.json(responseData);
+  }
+
+  // Build where clause fallback
   const where: any = {};
 
   if (q && q.trim() !== "") {
@@ -129,6 +182,20 @@ export const searchSuggestions = asyncHandler(async (req, res) => {
   }
 
   const limit = 5;
+  const catalog = await getOrFetchActiveCatalog();
+  if (catalog) {
+    const matched = catalog
+      .filter(
+        (p: any) =>
+          (p.name || "").toLowerCase().includes(cleanQ) ||
+          (p.category || "").toLowerCase().includes(cleanQ)
+      )
+      .slice(0, limit)
+      .map((p: any) => ({ id: p.id, name: p.name }));
+    searchCache.set(suggCacheKey, { data: matched, timestamp: Date.now() });
+    return res.json(matched);
+  }
+
   const products = await prisma.product.findMany({
     where: {
       OR: [
