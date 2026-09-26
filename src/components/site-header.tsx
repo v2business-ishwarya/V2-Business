@@ -48,6 +48,7 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
+import { MovingGradientButton } from "@/components/originkit/ui/moving-gradient-button";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -423,15 +424,41 @@ export function SiteHeader() {
               )}
             </div>
 
-            {/* Search Action Button - Highlighted */}
-            <Button
+            {/* Originkit Moving Gradient Search Action Button */}
+            <MovingGradientButton
               type="submit"
-              size="sm"
-              className="h-8 rounded-full px-4 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md hover:shadow-lg shadow-amber-500/25 border border-amber-400/40 gap-1.5 ml-1 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
+              padding="0px 14px"
+              rounded={100}
+              className="h-8 shrink-0 ml-1 shadow-md hover:shadow-lg shadow-amber-500/25 transition-transform duration-200 hover:scale-[1.03] active:scale-[0.97] cursor-pointer"
+              colors={{
+                fill: "#D97706",
+                hoverFill: "#B45309",
+                textColor: "#FFFFFF",
+                hoverTextColor: "#FFFFFF",
+              }}
+              border={{
+                borderWidth: 2,
+                borderStyle: "solid",
+                borderColor: "rgba(251, 191, 36, 0.4)",
+              }}
+              stroke={{
+                headColor: "#FEF08A",
+                color: "#F59E0B",
+                movement: "continuous",
+                direction: "cw",
+                count: 2,
+                trail: 80,
+                speed: 35,
+              }}
+              font={{
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: "inherit",
+              }}
             >
-              <Search className="h-3.5 w-3.5 text-white stroke-[2.5]" />
+              <Search className="h-3.5 w-3.5 text-white stroke-[2.5] mr-1.5" />
               <span>Search</span>
-            </Button>
+            </MovingGradientButton>
           </form>
 
           {/* Live Autocomplete Dropdown (Desktop) */}
@@ -856,15 +883,41 @@ export function SiteHeader() {
               </button>
             )}
           </div>
-          {/* Highlighted Mobile Search Action Button */}
-          <Button
+          {/* Originkit Moving Gradient Mobile Search Action Button */}
+          <MovingGradientButton
             type="submit"
-            size="sm"
-            className="h-7 rounded-full px-3 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md shadow-amber-500/25 border border-amber-400/40 gap-1 ml-1 transition-all duration-200"
+            padding="0px 10px"
+            rounded={100}
+            className="h-7 shrink-0 ml-1 shadow-md shadow-amber-500/25 transition-transform duration-200 active:scale-[0.97] cursor-pointer"
+            colors={{
+              fill: "#D97706",
+              hoverFill: "#B45309",
+              textColor: "#FFFFFF",
+              hoverTextColor: "#FFFFFF",
+            }}
+            border={{
+              borderWidth: 2,
+              borderStyle: "solid",
+              borderColor: "rgba(251, 191, 36, 0.4)",
+            }}
+            stroke={{
+              headColor: "#FEF08A",
+              color: "#F59E0B",
+              movement: "continuous",
+              direction: "cw",
+              count: 2,
+              trail: 80,
+              speed: 35,
+            }}
+            font={{
+              fontSize: 11,
+              fontWeight: 700,
+              fontFamily: "inherit",
+            }}
           >
-            <Search className="h-3 w-3 text-white stroke-[2.5]" />
+            <Search className="h-3 w-3 text-white stroke-[2.5] mr-1" />
             <span>Search</span>
-          </Button>
+          </MovingGradientButton>
         </form>
 
         {/* Live Autocomplete Dropdown (Mobile) */}
