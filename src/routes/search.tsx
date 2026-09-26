@@ -26,10 +26,12 @@ import {
   Sparkles,
   X,
   ArrowRight,
+  Camera,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
+import { VisualSearchModal } from "@/components/visual-search-modal";
 
 const KNOWN_LOCATIONS = [
   "Rajahmundry",
@@ -49,6 +51,8 @@ const searchSchema = z.object({
   vendor: z.string().optional(),
   location: z.string().optional(),
   sort: z.enum(["new", "price_asc", "price_desc"]).optional(),
+  visual: z.string().optional(),
+  visualLabel: z.string().optional(),
 });
 
 export const Route = createFileRoute("/search")({
@@ -74,6 +78,7 @@ function SearchPage() {
   const [sort, setSort] = useState(params.sort ?? "new");
   const [categoryFilterSearch, setCategoryFilterSearch] = useState("");
   const [locationFilterSearch, setLocationFilterSearch] = useState("");
+  const [visualModalOpen, setVisualModalOpen] = useState(false);
 
   useEffect(() => {
     setTerm(params.q ?? "");
@@ -557,12 +562,22 @@ function SearchPage() {
             <button
               type="button"
               onClick={handleClearQuery}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full transition-colors"
+              className="absolute right-11 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground rounded-full transition-colors cursor-pointer"
               aria-label="Clear search"
             >
               <X className="h-4 w-4" />
             </button>
           )}
+          {/* Visual Camera Search Trigger */}
+          <button
+            type="button"
+            onClick={() => setVisualModalOpen(true)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground/75 hover:text-amber-500 rounded-full hover:bg-amber-500/10 transition-colors cursor-pointer flex items-center justify-center"
+            title="Search by image or camera"
+            aria-label="Visual Image Search"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
         </div>
         <Button
           type="submit"
@@ -572,6 +587,56 @@ function SearchPage() {
           <span>Search</span>
         </Button>
       </form>
+
+      {/* Visual Search Match Banner */}
+      {params.visual === "true" && (
+        <div className="mb-5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-600 shrink-0">
+              <Camera className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
+                  Visual Lens Search Result
+                </span>
+                <Badge className="bg-amber-500 text-white text-[10px] px-2 py-0.5">
+                  AI Matched
+                </Badge>
+              </div>
+              <p className="text-xs sm:text-sm text-foreground/90 font-medium mt-0.5">
+                Showing matching products for <strong>"{params.visualLabel || params.q || 'Selected Item'}"</strong>
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setVisualModalOpen(true)}
+              className="h-8 rounded-full border-amber-500/40 hover:bg-amber-500/10 text-xs font-semibold gap-1.5"
+            >
+              <Camera className="h-3.5 w-3.5 text-amber-600" />
+              <span>Search Another Photo</span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() =>
+                navigate({
+                  to: "/search",
+                  search: { ...params, visual: undefined, visualLabel: undefined },
+                })
+              }
+              className="h-8 rounded-full text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Active Filter Badges */}
       <div className="mb-6 flex flex-wrap items-center gap-2">
@@ -745,6 +810,12 @@ function SearchPage() {
           )}
         </div>
       </div>
+
+      {/* Visual Image Search Modal */}
+      <VisualSearchModal
+        open={visualModalOpen}
+        onOpenChange={setVisualModalOpen}
+      />
     </div>
   );
 }

@@ -18,6 +18,7 @@ import {
   Phone,
   Building2,
   ShieldCheck,
+  Camera,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
+import { VisualSearchModal } from "@/components/visual-search-modal";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -59,6 +61,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [becomeVendorOpen, setBecomeVendorOpen] = useState(false);
+  const [visualSearchOpen, setVisualSearchOpen] = useState(false);
   const [becomingVendor, setBecomingVendor] = useState(false);
   const [vendorForm, setVendorForm] = useState({
     storeName: "",
@@ -437,6 +440,16 @@ export function SiteHeader() {
                   <X className="h-3.5 w-3.5" />
                 </button>
               )}
+              {/* Visual / Image Search Camera Button */}
+              <button
+                type="button"
+                onClick={() => setVisualSearchOpen(true)}
+                className="p-1.5 text-muted-foreground/75 hover:text-amber-500 rounded-full hover:bg-amber-500/10 transition-colors mr-1 shrink-0 flex items-center justify-center cursor-pointer"
+                title="Search products by photo or camera"
+                aria-label="Search by image or camera"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
             </div>
 
             {/* Search Action Button - Highlighted */}
@@ -913,6 +926,16 @@ export function SiteHeader() {
                 <X className="h-3 w-3" />
               </button>
             )}
+            {/* Mobile Visual / Image Search Camera Button */}
+            <button
+              type="button"
+              onClick={() => setVisualSearchOpen(true)}
+              className="p-1 text-muted-foreground/75 hover:text-amber-500 rounded-full hover:bg-amber-500/10 transition-colors mr-1 shrink-0 flex items-center justify-center cursor-pointer"
+              title="Search products by photo or camera"
+              aria-label="Search by image or camera"
+            >
+              <Camera className="h-3.5 w-3.5" />
+            </button>
           </div>
           {/* Highlighted Mobile Search Action Button */}
           <Button
@@ -1253,6 +1276,12 @@ export function SiteHeader() {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Visual Image Search Modal */}
+      <VisualSearchModal
+        open={visualSearchOpen}
+        onOpenChange={setVisualSearchOpen}
+      />
     </header>
   );
 }
