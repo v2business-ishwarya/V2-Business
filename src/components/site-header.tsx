@@ -51,6 +51,14 @@ import { V2Logo } from "@/components/v2-logo";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
 import { VisualSearchModal } from "@/components/visual-search-modal";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LocationMapPicker } from "@/components/location-map-picker";
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -64,6 +72,7 @@ export function SiteHeader() {
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
   const [becomingVendor, setBecomingVendor] = useState(false);
   const [vendorForm, setVendorForm] = useState({
+    category: "Clothing & Fashion",
     storeName: "",
     phone: "",
     city: "Rajahmundry",
@@ -71,6 +80,8 @@ export function SiteHeader() {
     pincode: "533101",
     state: "Andhra Pradesh",
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
+    latitude: 16.9890,
+    longitude: 81.7840,
   });
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -86,6 +97,7 @@ export function SiteHeader() {
         try {
           const parsed = JSON.parse(existing);
           setVendorForm({
+            category: parsed.category || (Array.isArray(parsed.categories) ? parsed.categories[0] : "Clothing & Fashion"),
             storeName: parsed.name || user.name || "",
             phone: parsed.phone || "",
             city: parsed.city || "Rajahmundry",
@@ -93,6 +105,8 @@ export function SiteHeader() {
             pincode: parsed.pincode || "533101",
             state: parsed.state || "Andhra Pradesh",
             businessType: parsed.businessType || "physical_shop",
+            latitude: parsed.latitude || 16.9890,
+            longitude: parsed.longitude || 81.7840,
           });
           return;
         } catch {}
@@ -275,12 +289,15 @@ export function SiteHeader() {
         name: vendorForm.storeName.trim(),
         slug: slugify(vendorForm.storeName.trim()),
         phone: vendorForm.phone.trim(),
+        category: vendorForm.category,
+        categories: [vendorForm.category],
         city: vendorForm.city.trim(),
         address: vendorForm.address.trim(),
         state: vendorForm.state.trim() || "Andhra Pradesh",
         pincode: vendorForm.pincode.trim() || "533101",
+        latitude: vendorForm.latitude,
+        longitude: vendorForm.longitude,
         businessType: vendorForm.businessType,
-        categories: ["General"],
         rating: 5.0,
         reviewCount: 1,
         joinedYear: 2026,
@@ -1104,7 +1121,30 @@ export function SiteHeader() {
           </DialogHeader>
 
           <form onSubmit={handleBecomeVendor} className="space-y-4 py-2">
-            {/* 1. Store Name */}
+            {/* 1. Category Dropdown Menu (on the top of Business Name) */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Primary Business Category <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-muted-foreground">Select your retail department</span>
+              </Label>
+              <Select
+                value={vendorForm.category}
+                onValueChange={(val) => setVendorForm((prev) => ({ ...prev, category: val }))}
+              >
+                <SelectTrigger className="h-10 rounded-xl text-xs bg-background">
+                  <SelectValue placeholder="Select Business Category..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-[260px] rounded-xl z-50">
+                  {MARKETPLACE_CATEGORIES.map((cat) => (
+                    <SelectItem key={cat.slug} value={cat.name} className="text-xs">
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 2. Store / Business Name */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
                 <span>Store / Business Name <span className="text-rose-500">*</span></span>
@@ -1121,7 +1161,7 @@ export function SiteHeader() {
               </div>
             </div>
 
-            {/* 2. Phone Number */}
+            {/* 3. Phone Number */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
                 <span>Contact Phone Number <span className="text-rose-500">*</span></span>
@@ -1140,7 +1180,35 @@ export function SiteHeader() {
               </div>
             </div>
 
-            {/* 3. Location / City */}
+            {/* 4. Interactive Location Map Picker */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+                <span>Select Storefront Location on Map <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-muted-foreground">Pin your shop or use live GPS</span>
+              </Label>
+              <LocationMapPicker
+                initialLocation={{
+                  city: vendorForm.city,
+                  address: vendorForm.address,
+                  pincode: vendorForm.pincode,
+                  latitude: vendorForm.latitude,
+                  longitude: vendorForm.longitude,
+                }}
+                onLocationSelect={(loc) => {
+                  setVendorForm((prev) => ({
+                    ...prev,
+                    city: loc.city,
+                    address: loc.address,
+                    pincode: loc.pincode,
+                    state: loc.state,
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                  }));
+                }}
+              />
+            </div>
+
+            {/* 5. Location / City */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
                 <span>City / Town Location <span className="text-rose-500">*</span></span>

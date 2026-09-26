@@ -14,6 +14,15 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Phone, MapPin, Building2, ShieldCheck, ArrowRight } from "lucide-react";
 import { slugify } from "@/lib/utils-app";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { LocationMapPicker } from "@/components/location-map-picker";
+import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
   head: () => ({ meta: [{ title: "Vendor — V2 Business" }, { name: "robots", content: "noindex" }] }),
@@ -61,6 +70,7 @@ function VendorOnboardingForm() {
   const { user, loading: sessionLoading } = useSession();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
+    category: "Clothing & Fashion",
     storeName: user?.name || "",
     phone: "",
     city: "Rajahmundry",
@@ -68,6 +78,8 @@ function VendorOnboardingForm() {
     pincode: "533101",
     state: "Andhra Pradesh",
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
+    latitude: 16.9890,
+    longitude: 81.7840,
   });
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -112,12 +124,15 @@ function VendorOnboardingForm() {
         name: form.storeName.trim(),
         slug: slugify(form.storeName.trim()),
         phone: form.phone.trim(),
+        category: form.category,
+        categories: [form.category],
         city: form.city.trim(),
         address: form.address.trim(),
         state: form.state.trim() || "Andhra Pradesh",
         pincode: form.pincode.trim() || "533101",
+        latitude: form.latitude,
+        longitude: form.longitude,
         businessType: form.businessType,
-        categories: ["General"],
         rating: 5.0,
         reviewCount: 1,
         joinedYear: 2026,
@@ -158,7 +173,30 @@ function VendorOnboardingForm() {
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4">
-        {/* Store Name */}
+        {/* 1. Category Dropdown Menu (on the top of Business Name) */}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+            <span>Primary Business Category <span className="text-rose-500">*</span></span>
+            <span className="text-[10px] text-muted-foreground">Select your retail department</span>
+          </Label>
+          <Select
+            value={form.category}
+            onValueChange={(val) => setForm((prev) => ({ ...prev, category: val }))}
+          >
+            <SelectTrigger className="h-10 rounded-xl text-xs bg-background">
+              <SelectValue placeholder="Select Business Category..." />
+            </SelectTrigger>
+            <SelectContent className="max-h-[260px] rounded-xl z-50">
+              {MARKETPLACE_CATEGORIES.map((cat) => (
+                <SelectItem key={cat.slug} value={cat.name} className="text-xs">
+                  {cat.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* 2. Store / Business Name */}
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold">Store / Business Name *</Label>
           <div className="relative">
@@ -173,7 +211,7 @@ function VendorOnboardingForm() {
           </div>
         </div>
 
-        {/* Phone Number */}
+        {/* 3. Phone Number */}
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold flex items-center justify-between">
             <span>Contact Phone Number *</span>
@@ -192,7 +230,35 @@ function VendorOnboardingForm() {
           </div>
         </div>
 
-        {/* City Location */}
+        {/* 4. Interactive Location Map Picker */}
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
+            <span>Select Storefront Location on Map <span className="text-rose-500">*</span></span>
+            <span className="text-[10px] text-muted-foreground">Pin your shop or use live GPS</span>
+          </Label>
+          <LocationMapPicker
+            initialLocation={{
+              city: form.city,
+              address: form.address,
+              pincode: form.pincode,
+              latitude: form.latitude,
+              longitude: form.longitude,
+            }}
+            onLocationSelect={(loc) => {
+              setForm((prev) => ({
+                ...prev,
+                city: loc.city,
+                address: loc.address,
+                pincode: loc.pincode,
+                state: loc.state,
+                latitude: loc.latitude,
+                longitude: loc.longitude,
+              }));
+            }}
+          />
+        </div>
+
+        {/* 5. City Location */}
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold flex items-center justify-between">
             <span>City / Town Location *</span>
