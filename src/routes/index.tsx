@@ -397,18 +397,13 @@ function Home() {
             {/* Top Brand Identity */}
             <div className="relative z-10">
               <div className="flex items-center justify-between gap-2 mb-2 sm:mb-3">
-                {/* Big Prominent V2 Business Brand Name & Logo */}
-                <div className="flex items-center gap-3">
-                  <img
-                    src="/v2b-gold-logo.png"
-                    alt="V2 Business"
-                    className="h-11 w-auto sm:h-13 shrink-0 drop-shadow-[0_2px_10px_rgba(245,158,11,0.25)] transition-transform group-hover:scale-105 duration-300"
-                  />
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight text-foreground">
-                    V2 Business
-                  </h1>
-                </div>
-                <span className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 tracking-widest uppercase self-start pt-1">
+                {/* Luxury V2B Gold Logo Emblem */}
+                <img
+                  src="/v2b-gold-logo.png"
+                  alt="V2B - V2 Business"
+                  className="h-12 w-auto sm:h-14 lg:h-16 shrink-0 drop-shadow-[0_4px_12px_rgba(245,158,11,0.28)] transition-transform group-hover:scale-105 duration-300"
+                />
+                <span className="text-[10px] sm:text-xs font-bold text-amber-600/75 dark:text-amber-400/75 tracking-widest uppercase self-start pt-1">
                   v2business.in
                 </span>
               </div>
