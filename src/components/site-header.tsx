@@ -386,21 +386,7 @@ export function SiteHeader() {
           </DropdownMenu>
         </div>
 
-        {/* 3. Become a Seller Button (Desktop) */}
-        <div className="hidden lg:block shrink-0">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleBecomeSellerClick}
-            className="flex items-center gap-1.5 rounded-full px-3 text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-500/15 bg-amber-500/10 border border-amber-500/30 cursor-pointer transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
-          >
-            <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <span>Become a Seller</span>
-          </Button>
-        </div>
-
-        {/* 4. Desktop Search Bar (Hidden on Mobile) */}
+        {/* Desktop Search Bar (Hidden on Mobile) */}
         <div ref={searchContainerRef} className="relative hidden sm:block flex-1 min-w-0 max-w-2xl mx-2">
           <MovingGradientFrame
             as="form"
@@ -660,7 +646,7 @@ export function SiteHeader() {
             </Link>
           )}
 
-          {/* 6. Cart Button */}
+          {/* Cart Button */}
           <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" aria-label="Cart" className="rounded-full">
               <ShoppingCart className="h-5 w-5 text-foreground" />
@@ -671,6 +657,20 @@ export function SiteHeader() {
               )}
             </Button>
           </Link>
+
+          {/* Become a Seller Button (Left of Sign In, Right of Cart) */}
+          <div className="hidden sm:block shrink-0">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleBecomeSellerClick}
+              className="flex items-center gap-1.5 rounded-full px-3 text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-500/15 bg-amber-500/10 border border-amber-500/30 cursor-pointer transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+              <span>Become a Seller</span>
+            </Button>
+          </div>
 
           {/* Sign in / Profile button */}
           {!user ? (
