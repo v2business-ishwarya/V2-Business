@@ -150,9 +150,9 @@ function VendorStore() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Seller Profile & Verification</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Seller Profile & Store Setup</h1>
         <p className="text-sm text-muted-foreground">
-          Manage your business credentials, GST details, location, and shop photos to earn the <strong>Verified Seller</strong> badge.
+          Manage your business credentials, GST details, location, and storefront presentation.
         </p>
       </div>
 
@@ -365,7 +365,7 @@ function VendorStore() {
               <FileCheck2 className="h-5 w-5 text-primary" /> 3. GST & Legal Tax Details
             </h2>
             <p className="text-xs text-muted-foreground">
-              Entering a valid 15-digit Indian GSTIN grants your store the <strong>GST Verified</strong> trust seal.
+              Entering a valid 15-digit Indian GSTIN displays your official business tax registration.
             </p>
 
             <div className="grid gap-4 sm:grid-cols-2">

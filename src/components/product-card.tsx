@@ -1,6 +1,11 @@
-import { Link } from "@tanstack/react-router";
-import { Package } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Package, Zap } from "lucide-react";
 import { finalPrice, discountPercent, formatMoney } from "@/lib/utils-app";
+import { useSession } from "@/hooks/use-session";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/services/api";
+import { useState } from "react";
+import { toast } from "sonner";
 
 type Product = {
   id: string;
@@ -18,6 +23,11 @@ type Product = {
 };
 
 export function ProductCard({ product }: { product: Product }) {
+  const { user } = useSession();
+  const nav = useNavigate();
+  const qc = useQueryClient();
+  const [buying, setBuying] = useState(false);
+
   const fp = finalPrice(product.price, product.discount_price ?? product.compareAtPrice);
   const pct = discountPercent(product.price, product.discount_price ?? product.compareAtPrice);
   
@@ -32,6 +42,34 @@ export function ProductCard({ product }: { product: Product }) {
   const productIdentifier = product.slug && product.slug !== "undefined" ? product.slug : product.id;
 
   const vendorName = product.vendors?.name || product.vendor?.name;
+
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (product.stock === 0) {
+      toast.error("Product is out of stock");
+      return;
+    }
+
+    if (!user) {
+      toast.info("Please sign in to complete checkout");
+      return nav({ to: "/auth", search: { redirect: `/product/${productIdentifier}` } });
+    }
+
+    setBuying(true);
+    try {
+      await api.addToCart(product.id, 1);
+      await qc.invalidateQueries({ queryKey: ["cart-count"] });
+      await qc.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Proceeding to checkout…");
+      nav({ to: "/checkout" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to proceed to checkout");
+    } finally {
+      setBuying(false);
+    }
+  };
 
   return (
     <Link
@@ -73,13 +111,25 @@ export function ProductCard({ product }: { product: Product }) {
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-medium leading-snug">
           {product.name}
         </h3>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="text-base font-semibold">{formatMoney(fp)}</span>
-          {pct > 0 && (
-            <span className="text-xs text-muted-foreground line-through">
-              {formatMoney(product.price)}
-            </span>
-          )}
+        <div className="mt-auto pt-2 flex items-center justify-between gap-1.5">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-base font-bold text-foreground">{formatMoney(fp)}</span>
+            {pct > 0 && (
+              <span className="text-xs text-muted-foreground line-through">
+                {formatMoney(product.price)}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            disabled={product.stock === 0 || buying}
+            onClick={handleBuyNow}
+            className="inline-flex items-center gap-1 rounded-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-2.5 py-1 text-xs font-bold shadow-sm transition hover:shadow active:scale-95 shrink-0"
+            title="Buy Now"
+          >
+            <Zap className="h-3 w-3 fill-white" />
+            <span>{buying ? "…" : "Buy Now"}</span>
+          </button>
         </div>
       </div>
     </Link>

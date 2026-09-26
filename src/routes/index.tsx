@@ -1177,7 +1177,7 @@ function Home() {
 
 
 
-      {/* 11. VERIFIED RAJAHMUNDRY STORES SPOTLIGHT */}
+      {/* 11. RAJAHMUNDRY STORES SPOTLIGHT */}
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-b from-card via-card to-amber-500/5 p-6 sm:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
@@ -1189,7 +1189,7 @@ function Home() {
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                Shop directly from authenticated storefronts in Main Road, Danavaipeta, Morampudi & across Rajahmundry
+                Shop directly from storefronts in Main Road, Danavaipeta, Morampudi & across Rajahmundry
               </p>
             </div>
 
@@ -1280,7 +1280,7 @@ function Home() {
               review:
                 "Ordered a festive Kanchipuram silk saree for my sister's wedding. Delivered within 4 hours directly from Anand Silks. Exceptional quality!",
               rating: 5,
-              tag: "Verified Saree Buyer",
+              tag: "Recent Saree Buyer",
             },
             {
               name: "Venkat Rao M.",
@@ -1288,7 +1288,7 @@ function Home() {
               review:
                 "Got my new smartphone & wireless earbuds from Sri Sai Tech on V2 Business. Genuine warranty, store walk-in bill & ultra-fast local delivery.",
               rating: 5,
-              tag: "Verified Tech Buyer",
+              tag: "Recent Tech Buyer",
             },
             {
               name: "Pooja Reddy",

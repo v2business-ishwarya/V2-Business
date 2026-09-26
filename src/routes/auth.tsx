@@ -262,7 +262,7 @@ function AuthPage() {
               <p className="text-stone-300 mt-0.5">Trusted by 100+ stores & 10,000+ buyers</p>
             </div>
             <Badge variant="outline" className="border-amber-400/40 text-amber-200 bg-amber-950/40 text-[10px] font-semibold">
-              Verified
+              Top Rated
             </Badge>
           </div>
         </div>
@@ -280,7 +280,7 @@ function AuthPage() {
             <p className="text-xs text-muted-foreground font-medium mt-1">
               {mode === "signin"
                 ? "Access your orders, cart, and personalized shopping feed"
-                : "Shop thousands of verified products with fast delivery & buyer protection"}
+                : "Shop thousands of quality products with fast delivery & buyer protection"}
             </p>
           </div>
 
@@ -296,7 +296,7 @@ function AuthPage() {
                   <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">0% Commission</Badge>
                 </div>
                 <p className="text-muted-foreground mt-0.5 text-xs">
-                  Create your free account to open your store across 29 retail categories with instant seller tools and verified merchant badge.
+                  Create your free account to open your store across 29 retail categories with instant seller tools.
                 </p>
               </div>
             </div>

@@ -16,7 +16,7 @@ export const Route = createFileRoute("/categories")({
       { title: "Browse 30+ Categories — V2 Business" },
       {
         name: "description",
-        content: "Explore 30 verified marketplace categories across retail, fashion, electronics, grocery, and professional services.",
+        content: "Explore 30 marketplace categories across retail, fashion, electronics, grocery, and professional services.",
       },
     ],
   }),

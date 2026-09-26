@@ -137,7 +137,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
               <span className="font-semibold text-foreground truncate block">
                 {hasGst ? (
                   <span className="text-amber-700 dark:text-amber-300 font-bold">
-                    GSTIN: {vendor.gstNumber} (Verified)
+                    GSTIN: {vendor.gstNumber}
                   </span>
                 ) : (
                   <span className="text-muted-foreground">GST Exempt / Micro-Seller</span>

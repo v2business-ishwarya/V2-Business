@@ -142,7 +142,7 @@ function StorePage() {
                 <Package className="h-6 w-6 text-primary" /> Store Catalog ({storeProducts.length} Items)
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Authentic, quality-inspected products shipped directly from {storeName}'s verified inventory.
+                Authentic, quality-inspected products shipped directly from {storeName}'s inventory.
               </p>
             </div>
 

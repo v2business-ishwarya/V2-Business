@@ -350,7 +350,7 @@ function CategoryPage() {
                             {vendor.gstNumber ? (
                               <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-medium text-[11px]">
                                 <FileCheck2 className="h-3.5 w-3.5 shrink-0" />
-                                <span>GSTIN: {vendor.gstNumber} (Verified)</span>
+                                <span>GSTIN: {vendor.gstNumber}</span>
                               </div>
                             ) : (
                               <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
@@ -412,7 +412,7 @@ function CategoryPage() {
                   <Package className="h-5 w-5 text-primary" /> Products in {title}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Browse products listed by all verified sellers in this department.
+                  Browse products listed by all sellers in this department.
                 </p>
               </div>
               <Badge variant="outline" className="font-bold text-xs">

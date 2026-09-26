@@ -21,7 +21,7 @@ function AboutPage() {
             About <span className="bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">V2 Business</span>
           </h1>
           <p className="text-base sm:text-lg text-foreground/80 font-medium leading-relaxed">
-            Connecting customers with certified independent merchants across 29 retail categories with fair pricing, verified trust, and rapid doorstep delivery.
+            Connecting customers with certified independent merchants across 29 retail categories with fair pricing, authentic trust, and rapid doorstep delivery.
           </p>
         </div>
 
@@ -33,7 +33,7 @@ function AboutPage() {
             </div>
             <h3 className="text-lg font-black text-foreground">Direct From Sellers</h3>
             <p className="text-sm text-foreground/75 leading-relaxed">
-              When you shop on V2 Business, you buy directly from verified physical and digital merchants with authentic products and real local prices.
+              When you shop on V2 Business, you buy directly from physical and digital merchants with authentic products and real local prices.
             </p>
           </div>
 

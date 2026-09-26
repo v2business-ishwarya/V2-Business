@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatMoney, finalPrice, discountPercent } from "@/lib/utils-app";
-import { Package, Store, Star, Heart, Truck, ShieldCheck } from "lucide-react";
+import { Package, Store, Star, Heart, Truck, ShieldCheck, Zap, ShoppingBag } from "lucide-react";
 import { useSession } from "@/hooks/use-session";
 import { SellerTrustCard } from "@/components/seller-trust-card";
 import { useState } from "react";
@@ -132,6 +132,8 @@ function ProductDetail() {
   const fp = finalPrice(displayPrice, salePrice);
   const pct = discountPercent(displayPrice, salePrice);
 
+  const [buyingNow, setBuyingNow] = useState(false);
+
   const addToCart = async () => {
     if (!user) return nav({ to: "/auth", search: { redirect: `/product/${slug}` } });
     try {
@@ -141,6 +143,26 @@ function ProductDetail() {
       toast.success("Added to cart");
     } catch (err) {
       toast.error("Failed to add to cart");
+    }
+  };
+
+  const buyNow = async () => {
+    if (product.stock === 0) return toast.error("Product is out of stock");
+    if (!user) {
+      toast.info("Please sign in to complete checkout");
+      return nav({ to: "/auth", search: { redirect: `/product/${slug}` } });
+    }
+    setBuyingNow(true);
+    try {
+      await api.addToCart(product.id, qty);
+      await qc.invalidateQueries({ queryKey: ["cart-count"] });
+      await qc.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Proceeding to checkout…");
+      nav({ to: "/checkout" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to proceed to checkout");
+    } finally {
+      setBuyingNow(false);
     }
   };
 
@@ -262,30 +284,50 @@ function ProductDetail() {
             </p>
           )}
 
-          <div className="mt-8 flex items-center gap-3">
-            <div className="flex items-center rounded-full border border-border">
-              <button onClick={() => setQty(Math.max(1, qty - 1))} className="px-3 py-2">
+          <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex items-center justify-between sm:justify-start rounded-full border border-border px-1 self-start sm:self-auto h-11">
+              <button
+                onClick={() => setQty(Math.max(1, qty - 1))}
+                className="px-3.5 py-2 font-bold text-muted-foreground hover:text-foreground"
+              >
                 −
               </button>
-              <span className="w-8 text-center text-sm">{qty}</span>
+              <span className="w-8 text-center text-sm font-semibold">{qty}</span>
               <button
                 onClick={() => setQty(Math.min(product.stock ?? 99, qty + 1))}
-                className="px-3 py-2"
+                className="px-3.5 py-2 font-bold text-muted-foreground hover:text-foreground"
               >
                 +
               </button>
             </div>
-            <Button
-              size="lg"
-              onClick={addToCart}
-              disabled={product.stock === 0}
-              className="flex-1 rounded-full"
-            >
-              Add to cart
-            </Button>
-            <Button size="lg" variant="outline" onClick={toggleWishlist} className="rounded-full">
-              <Heart className="h-4 w-4" />
-            </Button>
+            <div className="flex flex-1 items-center gap-2.5">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={addToCart}
+                disabled={product.stock === 0}
+                className="flex-1 rounded-full font-semibold h-11"
+              >
+                <ShoppingBag className="mr-2 h-4 w-4" /> Add to cart
+              </Button>
+              <Button
+                size="lg"
+                onClick={buyNow}
+                disabled={product.stock === 0 || buyingNow}
+                className="flex-1 rounded-full font-bold bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg transition-all h-11"
+              >
+                <Zap className="mr-1.5 h-4 w-4 fill-white" /> {buyingNow ? "Processing…" : "Buy Now"}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={toggleWishlist}
+                className="rounded-full shrink-0 h-11 w-11 p-0"
+                aria-label="Wishlist"
+              >
+                <Heart className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-2 gap-3 text-xs text-muted-foreground">
