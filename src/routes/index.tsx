@@ -213,12 +213,12 @@ function Home() {
   const [currentSlide, setCurrentSlide] = React.useState(0);
   const [isPaused, setIsPaused] = React.useState(false);
 
-  // Auto-advance slides fast (every 2.5 seconds) when not hovered
+  // Auto-advance slides fast (every 1 second) when not hovered
   React.useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 2500);
+    }, 1000);
     return () => clearInterval(interval);
   }, [isPaused]);
 
@@ -401,7 +401,7 @@ function Home() {
             return (
               <div
                 key={slide.id}
-                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
                   isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
                 }`}
               >
