@@ -298,6 +298,19 @@ export function SiteHeader() {
     }
   };
 
+  const handleBecomeSellerClick = () => {
+    if (!user) {
+      toast.info("Register or sign in to open your verified seller store.");
+      navigate({ to: "/auth", search: { redirect: "/vendor" } });
+      return;
+    }
+    if (isVendor) {
+      navigate({ to: "/vendor" });
+      return;
+    }
+    setBecomeVendorOpen(true);
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md shadow-xs">
       <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-4 sm:px-6 lg:px-8">
@@ -373,18 +386,18 @@ export function SiteHeader() {
           </DropdownMenu>
         </div>
 
-        {/* 3. Vendors Button (Desktop) */}
-        <div className="hidden lg:block">
-          <Link to="/vendors">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold text-foreground/85 hover:text-primary hover:bg-primary/5"
-            >
-              <Store className="h-4 w-4 text-primary" />
-              <span>Vendors</span>
-            </Button>
-          </Link>
+        {/* 3. Become a Seller Button (Desktop) */}
+        <div className="hidden lg:block shrink-0">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleBecomeSellerClick}
+            className="flex items-center gap-1.5 rounded-full px-3 text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-500/15 bg-amber-500/10 border border-amber-500/30 cursor-pointer transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <span>Become a Seller</span>
+          </Button>
         </div>
 
         {/* 4. Desktop Search Bar (Hidden on Mobile) */}
@@ -698,7 +711,7 @@ export function SiteHeader() {
                     onClick={() => setBecomeVendorOpen(true)}
                     className="cursor-pointer font-semibold text-amber-600 dark:text-amber-400 focus:text-amber-600 focus:bg-amber-500/10"
                   >
-                    <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Vendor
+                    <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
                   </DropdownMenuItem>
                 )}
                 {isAdmin && (
@@ -791,9 +804,21 @@ export function SiteHeader() {
 
               <div className="border-t pt-4 space-y-2">
                 {!user ? (
-                  <Link to="/auth" onClick={() => setOpen(false)} className="block">
-                    <Button className="w-full rounded-full">Sign In / Register</Button>
-                  </Link>
+                  <div className="space-y-2">
+                    <Link to="/auth" onClick={() => setOpen(false)} className="block">
+                      <Button className="w-full rounded-full">Sign In / Register</Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setOpen(false);
+                        navigate({ to: "/auth", search: { redirect: "/vendor" } });
+                      }}
+                      className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
+                    >
+                      <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
+                    </Button>
+                  </div>
                 ) : (
                   <div className="space-y-2">
                     <div className="px-2 text-xs text-muted-foreground truncate">{user.email}</div>
@@ -817,7 +842,7 @@ export function SiteHeader() {
                         }}
                         className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
                       >
-                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Vendor
+                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
                       </Button>
                     )}
                     <Button
@@ -1048,10 +1073,10 @@ export function SiteHeader() {
               <Store className="h-6 w-6" />
             </div>
             <DialogTitle className="text-center text-xl font-bold">
-              Register as a Verified Vendor
+              Register to Become a Seller
             </DialogTitle>
             <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
-              Please provide your contact phone number and storefront location to activate your vendor account.
+              Please provide your contact phone number and storefront location to register and activate your verified seller account.
             </DialogDescription>
           </DialogHeader>
 
@@ -1221,7 +1246,7 @@ export function SiteHeader() {
                 className="rounded-2xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
                 disabled={becomingVendor}
               >
-                {becomingVendor ? "Activating Store…" : "Complete Registration & Activate"}
+                {becomingVendor ? "Activating Store…" : "Complete Registration & Start Selling"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>

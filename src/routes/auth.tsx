@@ -56,8 +56,9 @@ function AuthPage() {
   const navigate = useNavigate();
   const { redirect } = useSearch({ from: "/auth" });
   const target = (redirect && redirect.startsWith("/") ? redirect : "/") as string;
+  const isSellerIntent = target === "/vendor" || target.startsWith("/vendor");
 
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(isSellerIntent ? "signup" : "signin");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -91,7 +92,9 @@ function AuthPage() {
         const parsedUser = JSON.parse(decodeURIComponent(rawUser));
         storeSession({ accessToken: token, user: parsedUser });
         toast.success("Signed in with Google successfully!");
-        if (parsedUser.role === "ADMIN") {
+        if (isSellerIntent) {
+          navigate({ to: "/vendor", replace: true });
+        } else if (parsedUser.role === "ADMIN") {
           navigate({ to: "/admin", replace: true });
         } else if (parsedUser.role === "VENDOR") {
           navigate({ to: "/vendor", replace: true });
@@ -102,7 +105,7 @@ function AuthPage() {
         console.error("Failed to parse Google auth payload", err);
       }
     }
-  }, []);
+  }, [isSellerIntent, target]);
 
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +113,9 @@ function AuthPage() {
     try {
       const res = await login(email, password);
       toast.success("Welcome back to V2 Business!");
-      if (target && target !== "/" && target !== "/auth") {
+      if (isSellerIntent) {
+        navigate({ to: "/vendor", replace: true });
+      } else if (target && target !== "/" && target !== "/auth") {
         navigate({ to: target, replace: true });
       } else if (res.user?.role === "ADMIN" || (res.user as any)?.role === "admin") {
         navigate({ to: "/admin", replace: true });
@@ -133,9 +138,12 @@ function AuthPage() {
     try {
       const res = await api.register({ email, password, name });
       storeSession(res);
-      toast.success("Account created successfully!");
-      // All users register as customers and are directed to products catalogue
-      navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
+      toast.success(isSellerIntent ? "Account created! Let's set up your store." : "Account created successfully!");
+      if (isSellerIntent) {
+        navigate({ to: "/vendor", replace: true });
+      } else {
+        navigate({ to: target && target !== "/" && target !== "/auth" ? target : "/search", replace: true });
+      }
     } catch (err: any) {
       toast.error(err.response?.data?.error ?? err.message ?? "Sign up failed");
     } finally {
@@ -276,6 +284,24 @@ function AuthPage() {
             </p>
           </div>
 
+          {/* Seller Registration Intent Banner */}
+          {isSellerIntent && (
+            <div className="mb-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 p-4 text-xs text-amber-950 dark:text-amber-200 flex items-start gap-3 shadow-xs">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-600">
+                <Store className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 font-bold text-sm text-foreground">
+                  <span>Register to Become a Seller</span>
+                  <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">0% Commission</Badge>
+                </div>
+                <p className="text-muted-foreground mt-0.5 text-xs">
+                  Create your free account to open your store across 29 retail categories with instant seller tools and verified merchant badge.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Creative Segmented Mode Switcher */}
           <div className="flex rounded-full bg-muted p-1 mb-5 shadow-inner max-w-sm mx-auto w-full">
             <button
@@ -298,7 +324,7 @@ function AuthPage() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Create Account
+              {isSellerIntent ? "Register Seller" : "Create Account"}
             </button>
           </div>
 
@@ -470,7 +496,7 @@ function AuthPage() {
                 className="w-full h-11 rounded-2xl font-bold text-sm shadow-lg shadow-primary/25 mt-1"
                 disabled={loading}
               >
-                {loading ? "Creating Account…" : "Create Account"}
+                {loading ? "Creating Account…" : (isSellerIntent ? "Register & Continue to Seller Setup" : "Create Account")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
 
