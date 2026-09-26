@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services/api";
+import { useSession } from "@/hooks/use-session";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   CreditCard,
@@ -18,6 +19,12 @@ import {
   Sparkles,
   Info,
   Send,
+  Wallet,
+  ArrowRight,
+  PackageCheck,
+  Truck,
+  Check,
+  HelpCircle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor/payments")({
@@ -26,8 +33,107 @@ export const Route = createFileRoute("/_authenticated/vendor/payments")({
 });
 
 function VendorPaymentsPage() {
+  const { user } = useSession();
   const [utrNumber, setUtrNumber] = useState("");
   const [utrSubmitted, setUtrSubmitted] = useState(false);
+
+  // Vendor Payout Form State
+  const [payoutForm, setPayoutForm] = useState({
+    accountHolder: "",
+    bankName: "",
+    accountNumber: "",
+    confirmAccountNumber: "",
+    ifscCode: "",
+    upiId: "",
+  });
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingPayout, setSavingPayout] = useState(false);
+
+  useEffect(() => {
+    if (user?.id) {
+      const stored = localStorage.getItem(`vendor_payout_${user.id}`);
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setPayoutForm({
+            accountHolder: parsed.accountHolder || user.name || "",
+            bankName: parsed.bankName || "",
+            accountNumber: parsed.accountNumber || "",
+            confirmAccountNumber: parsed.accountNumber || "",
+            ifscCode: parsed.ifscCode || "",
+            upiId: parsed.upiId || "",
+          });
+          setIsSaved(Boolean(parsed.accountNumber || parsed.upiId));
+          return;
+        } catch {}
+      }
+      // Check fallback from vendor store
+      const storedStore = localStorage.getItem(`vendor_store_${user.id}`);
+      if (storedStore) {
+        try {
+          const parsedStore = JSON.parse(storedStore);
+          if (parsedStore.bankAccount || parsedStore.ifscCode || parsedStore.upiId) {
+            setPayoutForm({
+              accountHolder: parsedStore.name || user.name || "",
+              bankName: parsedStore.bankName || "",
+              accountNumber: parsedStore.bankAccount || "",
+              confirmAccountNumber: parsedStore.bankAccount || "",
+              ifscCode: parsedStore.ifscCode || "",
+              upiId: parsedStore.upiId || "",
+            });
+            setIsSaved(true);
+          }
+        } catch {}
+      }
+    }
+  }, [user]);
+
+  const handleSavePayout = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return toast.error("Please login to save payment details");
+    if (!payoutForm.accountNumber.trim() && !payoutForm.upiId.trim()) {
+      return toast.error("Please provide at least a Bank Account Number or UPI ID to receive payouts");
+    }
+    if (payoutForm.accountNumber.trim()) {
+      if (!payoutForm.ifscCode.trim()) return toast.error("IFSC Code is required when providing a Bank Account");
+      if (payoutForm.accountNumber.trim() !== payoutForm.confirmAccountNumber.trim()) {
+        return toast.error("Account Numbers do not match. Please re-check.");
+      }
+    }
+
+    setSavingPayout(true);
+    try {
+      const payload = {
+        accountHolder: payoutForm.accountHolder.trim() || user.name || "Vendor",
+        bankName: payoutForm.bankName.trim(),
+        accountNumber: payoutForm.accountNumber.trim(),
+        ifscCode: payoutForm.ifscCode.trim().toUpperCase(),
+        upiId: payoutForm.upiId.trim(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`vendor_payout_${user.id}`, JSON.stringify(payload));
+
+      // Sync into vendor_store as well
+      const storeStr = localStorage.getItem(`vendor_store_${user.id}`);
+      if (storeStr) {
+        try {
+          const parsed = JSON.parse(storeStr);
+          parsed.bankAccount = payload.accountNumber;
+          parsed.ifscCode = payload.ifscCode;
+          parsed.upiId = payload.upiId;
+          parsed.bankName = payload.bankName;
+          localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(parsed));
+        } catch {}
+      }
+
+      setIsSaved(true);
+      toast.success("Payout details saved! You are 100% ready to receive direct sales payments.");
+    } catch (e: any) {
+      toast.error(e.message || "Failed to save payout details");
+    } finally {
+      setSavingPayout(false);
+    }
+  };
 
   const { data: providers = [], isLoading } = useQuery({
     queryKey: ["payment-providers"],
@@ -87,9 +193,9 @@ function VendorPaymentsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Seller Plan & Payment Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Seller Payouts & Plan Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Enjoy <strong>0% Commission on all sales</strong> and manage your monthly store maintenance subscription.
+          Enjoy <strong>0% Commission on all product sales</strong> and set up your direct bank/UPI payout account.
         </p>
       </div>
 
@@ -139,7 +245,173 @@ function VendorPaymentsPage() {
         </Card>
       </div>
 
-      {/* Owner Bank & UPI Details for Monthly Fee Payments */}
+      {/* ─────────────────────────────────────────────────────────────
+          1. YOUR PAYOUT BANK & UPI DETAILS (WHERE VENDORS RECEIVE MONEY)
+          ───────────────────────────────────────────────────────────── */}
+      <Card className="p-6 space-y-6 border-2 border-primary/20 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
+          <div>
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary" /> Your Receiving Bank & UPI Payout Details
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Enter your bank account or UPI ID. <strong>100% of your sales money (0% commission deducted)</strong> is transferred directly here after customer orders are fulfilled.
+            </p>
+          </div>
+          <div>
+            {isSaved ? (
+              <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white flex items-center gap-1.5 py-1 px-3">
+                <CheckCircle2 className="h-4 w-4" /> Ready for Payouts
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="border-amber-400 bg-amber-50 text-amber-800 flex items-center gap-1.5 py-1 px-3">
+                <Info className="h-4 w-4" /> Action Required: Add Payout Info
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        <form onSubmit={handleSavePayout} className="space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label className="text-xs font-semibold">Beneficiary / Account Holder Name *</Label>
+              <Input
+                placeholder="Name as printed in your bank account / passbook"
+                value={payoutForm.accountHolder}
+                onChange={(e) => setPayoutForm({ ...payoutForm, accountHolder: e.target.value })}
+                className="mt-1"
+                required
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">Bank Name *</Label>
+              <Input
+                placeholder="e.g. State Bank of India, HDFC Bank, ICICI Bank"
+                value={payoutForm.bankName}
+                onChange={(e) => setPayoutForm({ ...payoutForm, bankName: e.target.value })}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">Bank Account Number</Label>
+              <Input
+                type="text"
+                placeholder="e.g. 50100234567890"
+                value={payoutForm.accountNumber}
+                onChange={(e) => setPayoutForm({ ...payoutForm, accountNumber: e.target.value.replace(/\s/g, "") })}
+                className="mt-1 font-mono"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">Confirm Bank Account Number</Label>
+              <Input
+                type="text"
+                placeholder="Re-enter bank account number"
+                value={payoutForm.confirmAccountNumber}
+                onChange={(e) => setPayoutForm({ ...payoutForm, confirmAccountNumber: e.target.value.replace(/\s/g, "") })}
+                className="mt-1 font-mono"
+              />
+            </div>
+
+            <div>
+              <Label className="text-xs font-semibold">Bank IFSC Code</Label>
+              <Input
+                placeholder="e.g. SBIN0001234 or HDFC0001234"
+                maxLength={11}
+                value={payoutForm.ifscCode}
+                onChange={(e) => setPayoutForm({ ...payoutForm, ifscCode: e.target.value.toUpperCase().replace(/\s/g, "") })}
+                className="mt-1 font-mono uppercase"
+              />
+              <span className="text-[11px] text-muted-foreground mt-0.5 block">11-character Indian Financial System Code</span>
+            </div>
+
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 space-y-1">
+              <Label className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+                <QrCode className="h-4 w-4 text-emerald-600" /> Instant UPI ID (Google Pay / PhonePe / Paytm / BHIM)
+              </Label>
+              <Input
+                placeholder="e.g. yourname@okhdfcbank or 9876543210@ybl"
+                value={payoutForm.upiId}
+                onChange={(e) => setPayoutForm({ ...payoutForm, upiId: e.target.value.trim().toLowerCase() })}
+                className="mt-1 font-mono bg-background"
+              />
+              <span className="text-[11px] text-emerald-700">For fast, instant mobile settlements directly to your UPI app.</span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-xs text-muted-foreground">
+              {isSaved ? "✓ Your receiving details are active and secured." : "Provide your details so customer payments can be disbursed to you."}
+            </p>
+            <Button type="submit" disabled={savingPayout} className="font-bold shrink-0">
+              {savingPayout ? "Saving..." : "Save Payout Details"}
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. HOW VENDOR PAYOUTS WORK (4-STEP EXPLAINER)
+          ───────────────────────────────────────────────────────────── */}
+      <Card className="p-6 bg-gradient-to-br from-slate-50 to-muted/40 border space-y-5">
+        <div>
+          <h2 className="text-base font-bold flex items-center gap-2">
+            <HelpCircle className="h-5 w-5 text-primary" /> How You Receive Your Money (No Gateway Knowledge Needed!)
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            As a seller on V2 Business, you <strong>do not need to register on Razorpay or write any code</strong>. The platform handles everything seamlessly:
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-4">
+          <div className="rounded-xl bg-card border p-4 space-y-2">
+            <div className="h-8 w-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm">
+              1
+            </div>
+            <p className="font-semibold text-xs text-foreground">Customer Buys & Pays</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Customer orders on V2 Business using UPI, Cards, or NetBanking. Payments are securely held in platform escrow.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-card border p-4 space-y-2">
+            <div className="h-8 w-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+              2
+            </div>
+            <p className="font-semibold text-xs text-foreground">You Dispatch The Order</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              You receive the order in your Vendor Orders tab, pack the item, and ship it to the customer.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-card border p-4 space-y-2">
+            <div className="h-8 w-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm">
+              3
+            </div>
+            <p className="font-semibold text-xs text-foreground">Delivery Verified</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Shipment arrives at the customer's door. The standard return window clears without issues.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-card border p-4 space-y-2 border-emerald-500/30 bg-emerald-500/5">
+            <div className="h-8 w-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+              4
+            </div>
+            <p className="font-semibold text-xs text-emerald-900 font-bold">100% Payout Received</p>
+            <p className="text-[11px] text-emerald-800 leading-relaxed">
+              100% of product price (0% commission deducted) is disbursed directly to your Bank Account or UPI ID!
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. OWNER PLATFORM BANK & UPI DETAILS (FOR MONTHLY SUBSCRIPTION)
+          ───────────────────────────────────────────────────────────── */}
       <Card className="p-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-4">
           <div>
@@ -207,7 +479,9 @@ function VendorPaymentsPage() {
         </div>
       </Card>
 
-      {/* Customer Checkout Gateways */}
+      {/* ─────────────────────────────────────────────────────────────
+          4. CUSTOMER CHECKOUT GATEWAYS
+          ───────────────────────────────────────────────────────────── */}
       <section className="space-y-3">
         <h2 className="text-base font-semibold">Active Customer Checkout Gateways</h2>
         <p className="text-xs text-muted-foreground">
@@ -249,3 +523,4 @@ function VendorPaymentsPage() {
 }
 
 export default VendorPaymentsPage;
+
