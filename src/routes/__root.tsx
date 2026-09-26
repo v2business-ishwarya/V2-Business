@@ -146,15 +146,15 @@ function RootShell({ children }: { children: ReactNode }) {
     description: "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace connecting verified merchants across 29 categories directly with shoppers.",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Danavaipeta, Main Road",
+      streetAddress: "Mangalavaripeta",
       addressLocality: "Rajahmundry",
       addressRegion: "Andhra Pradesh",
-      postalCode: "533101",
+      postalCode: "533105",
       addressCountry: "IN"
     },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+91-1800-123-4567",
+      telephone: "+91-81217-78999",
       contactType: "customer service",
       areaServed: ["IN", "IN-AP", "Rajahmundry"],
       availableLanguage: ["English", "Telugu", "Hindi"]
@@ -177,18 +177,18 @@ function RootShell({ children }: { children: ReactNode }) {
   const jsonLdLocalBusiness = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    name: "V2B — V2 Business Rajahmundry",
+    name: "V2B",
     image: "https://v2business.in/v2b-gold-logo.png",
     "@id": "https://v2business.in/#localbusiness",
     url: "https://v2business.in/",
-    telephone: "+91-1800-123-4567",
+    telephone: "+91-81217-78999",
     priceRange: "₹₹",
     address: {
       "@type": "PostalAddress",
-      streetAddress: "Danavaipeta, Main Road",
+      streetAddress: "Mangalavaripeta",
       addressLocality: "Rajahmundry",
       addressRegion: "Andhra Pradesh",
-      postalCode: "533101",
+      postalCode: "533105",
       addressCountry: "IN"
     },
     geo: {

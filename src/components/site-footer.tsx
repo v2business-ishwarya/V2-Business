@@ -13,8 +13,8 @@ export function SiteFooter() {
             <strong className="text-foreground">V2B (V2 Business)</strong> is Rajahmundry's #1 multi-vendor online marketplace. Connecting shoppers directly with verified local merchants across 29 retail categories with doorstep delivery.
           </p>
           <div className="mt-3 text-xs text-muted-foreground space-y-1">
-            <p>📍 Main Road, Danavaipeta, Rajahmundry, Andhra Pradesh — 533103</p>
-            <p>✉️ support@v2business.in | 🌐 <a href="https://v2business.in" className="hover:text-foreground underline underline-offset-2">v2business.in</a></p>
+            <p>📍 Mangalavaripeta, Rajahmundry, Andhra Pradesh — 533105</p>
+            <p>📞 +91 81217 78999 | ✉️ support@v2business.in | 🌐 <a href="https://v2business.in" className="hover:text-foreground underline underline-offset-2">v2business.in</a></p>
           </div>
         </div>
         <div>
