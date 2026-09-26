@@ -30,6 +30,7 @@ function CategoriesList() {
   const { data: rawCats = [] } = useQuery({
     queryKey: ["all-cats-public"],
     queryFn: () => api.getCategories(),
+    staleTime: 1000 * 60 * 10,
   });
 
   // Master 30 marketplace categories

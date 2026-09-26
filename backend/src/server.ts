@@ -138,6 +138,23 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+
+  // Prevent Render Free Tier spin-down by self-pinging every 9 minutes (Render sleeps after 15m)
+  const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || "https://v2-business.onrender.com";
+  if (process.env.NODE_ENV === "production" || process.env.RENDER) {
+    const PING_INTERVAL = 9 * 60 * 1000;
+    setInterval(async () => {
+      try {
+        const pingUrl = `${RENDER_EXTERNAL_URL.replace(/\/+$/, "")}/health`;
+        const res = await fetch(pingUrl);
+        if (res.ok) {
+          console.log(`[KEEP-ALIVE] Ping to ${pingUrl} successful`);
+        }
+      } catch (err: any) {
+        console.warn("[KEEP-ALIVE] Ping warning:", err?.message);
+      }
+    }, PING_INTERVAL);
+  }
 });
 
 export default app;

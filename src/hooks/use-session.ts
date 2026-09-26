@@ -17,8 +17,19 @@ function notifySessionChange() {
 }
 
 export function useSession() {
-  const [session, setSession] = useState<{ user: SessionUser | null } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<{ user: SessionUser | null } | null>(() => {
+    if (typeof window === "undefined") return null;
+    const token = localStorage.getItem("accessToken");
+    if (!token) return null;
+    const user = readStoredUser();
+    return user ? { user } : null;
+  });
+  const [loading, setLoading] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const token = localStorage.getItem("accessToken");
+    if (!token) return false;
+    return !readStoredUser();
+  });
 
   // Sync with localStorage changes (e.g., from other tabs)
   useEffect(() => {

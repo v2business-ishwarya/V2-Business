@@ -39,6 +39,7 @@ function StorePage() {
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["store-products", slug],
     queryFn: () => api.getProducts({ vendorId: slug, isActive: true }),
+    staleTime: 1000 * 60 * 5,
   });
 
   const apiProducts: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);

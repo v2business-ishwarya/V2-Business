@@ -24,15 +24,25 @@ interface SpotlightAd {
 
 const SETTING_KEY = "SPOTLIGHT_ADS";
 
+let cachedAds: SpotlightAd[] | null = null;
+let cachedAdsTime = 0;
+const ADS_CACHE_TTL = 60 * 1000; // 60s cache
+
 async function getStoredAds(): Promise<SpotlightAd[]> {
   try {
+    if (cachedAds && Date.now() - cachedAdsTime < ADS_CACHE_TTL) {
+      return cachedAds;
+    }
     const setting = await prisma.marketplaceSettings.findUnique({
       where: { key: SETTING_KEY },
     });
     if (setting && setting.value && Array.isArray(setting.value)) {
-      return setting.value as unknown as SpotlightAd[];
+      cachedAds = setting.value as unknown as SpotlightAd[];
+    } else {
+      cachedAds = [];
     }
-    return [];
+    cachedAdsTime = Date.now();
+    return cachedAds;
   } catch (err) {
     console.error("[SPOTLIGHT GET ERROR]", err);
     return [];
@@ -40,6 +50,7 @@ async function getStoredAds(): Promise<SpotlightAd[]> {
 }
 
 async function saveStoredAds(ads: SpotlightAd[]): Promise<void> {
+  cachedAds = null; // Invalidate
   await prisma.marketplaceSettings.upsert({
     where: { key: SETTING_KEY },
     update: {

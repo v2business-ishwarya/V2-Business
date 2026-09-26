@@ -104,7 +104,7 @@ const HERO_SLIDES = [
     ctaText: "Shop V2B Deals",
     targetLink: "/search",
     bgImage:
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=95",
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1280&q=80",
     themeColor: "from-black/90 via-amber-950/60 to-transparent",
     badgeColor: "bg-gradient-to-r from-amber-500 to-yellow-500 text-black",
   },
@@ -117,7 +117,7 @@ const HERO_SLIDES = [
     ctaText: "Explore Jewellery",
     targetLink: "/category/jewellery-accessories",
     bgImage:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1920&q=95",
+      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1280&q=80",
     themeColor: "from-black/90 via-yellow-950/60 to-transparent",
     badgeColor: "bg-yellow-400 text-black",
   },
@@ -130,7 +130,7 @@ const HERO_SLIDES = [
     ctaText: "Explore Electronics",
     targetLink: "/category/electronics-home-appliances",
     bgImage:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1920&q=95",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1280&q=80",
     themeColor: "from-black/90 via-blue-950/60 to-transparent",
     badgeColor: "bg-indigo-500 text-white",
   },
@@ -143,7 +143,7 @@ const HERO_SLIDES = [
     ctaText: "Shop Fashion",
     targetLink: "/category/clothing-fashion",
     bgImage:
-      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1920&q=95",
+      "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=1280&q=80",
     themeColor: "from-black/90 via-rose-950/60 to-transparent",
     badgeColor: "bg-rose-500 text-white",
   },
@@ -160,7 +160,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "jewellery-accessories",
     bgImage:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1200&q=95",
+      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80",
     themeColor: "from-amber-950/90 via-amber-900/50 to-transparent",
     accentBadge: "HALLMARKED",
   },
@@ -173,7 +173,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "kids-baby",
     bgImage:
-      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=1200&q=95",
+      "https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?auto=format&fit=crop&w=800&q=80",
     themeColor: "from-purple-950/85 via-indigo-900/40 to-transparent",
     accentBadge: "KIDS SPECIAL",
   },
@@ -186,7 +186,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "clothing-fashion",
     bgImage:
-      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=1200&q=95",
+      "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80",
     themeColor: "from-rose-950/85 via-pink-900/40 to-transparent",
     accentBadge: "NEW ARRIVALS",
   },
@@ -199,7 +199,7 @@ const HERO_BANNERS = [
     linkText: "Shop Now →",
     targetSlug: "electronics-home-appliances",
     bgImage:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=95",
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
     themeColor: "from-blue-950/85 via-indigo-900/40 to-transparent",
     accentBadge: "TOP DEALS",
   },
@@ -263,10 +263,14 @@ function Home() {
     let timer: any;
     const fetchTodaySpotlight = async () => {
       try {
+        const dismissedDate = sessionStorage.getItem("v2_dismissed_spotlight_ad");
+        const today = new Date().toISOString().split("T")[0];
+        if (dismissedDate && dismissedDate.startsWith(today)) {
+          return;
+        }
+
         const ad = await api.getTodaySpotlightAd();
         if (ad && (ad.status === "APPROVED" || ad.status === "approved")) {
-          const dismissedDate = sessionStorage.getItem("v2_dismissed_spotlight_ad");
-          const today = new Date().toISOString().split("T")[0];
           if (dismissedDate !== `${today}_${ad.id}`) {
             setSpotlightAd(ad);
             timer = setTimeout(() => {

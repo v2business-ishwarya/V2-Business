@@ -233,6 +233,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    // Non-blocking background keep-awake / warm-up ping
+    try {
+      fetch("https://v2-business.onrender.com/health", { method: "GET", mode: "no-cors" }).catch(() => {});
+    } catch {}
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <div className="flex min-h-screen flex-col bg-background">

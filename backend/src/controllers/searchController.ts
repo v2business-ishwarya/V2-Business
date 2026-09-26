@@ -26,11 +26,22 @@ const searchSchema = z.object({
 
 type TSearchParams = z.infer<typeof searchSchema>;
 
+// Fast In-Memory Cache for Search
+const searchCache = new Map<string, { data: any; timestamp: number }>();
+const SEARCH_CACHE_TTL = 60 * 1000; // 60s
+
 export const searchProducts = asyncHandler(async (req, res) => {
   const parseResult = searchSchema.safeParse(req.query);
   if (!parseResult.success) {
     return res.status(400).json({ error: parseResult.error.errors });
   }
+
+  const cacheKey = `search:${JSON.stringify(req.query)}`;
+  const cached = searchCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL) {
+    return res.json(cached.data);
+  }
+
   const {
     q,
     category,
@@ -51,19 +62,11 @@ export const searchProducts = asyncHandler(async (req, res) => {
   // Build where clause
   const where: any = {};
 
-  // Full-text search using PostgreSQL @@ operator and to_tsquery
   if (q && q.trim() !== "") {
-    // We'll use Prisma's full-text search via `search` (requires @db.TsVector column)
-    // Assuming we have a `searchVector` column on Product
     where.OR = [
       { name: { contains: q, mode: "insensitive" } },
       { description: { contains: q, mode: "insensitive" } },
-      // For full-text search using tsvector, we can use Prisma's `$queryRaw` but keep simple
     ];
-    // If you have a tsvector column, you could do:
-    // where.AND = [
-    //   { search: { search: q } },
-    // ];
   }
 
   if (category) {
@@ -90,7 +93,7 @@ export const searchProducts = asyncHandler(async (req, res) => {
     orderBy.createdAt = "desc";
   }
 
-  const [products, total] = await prisma.$transaction([
+  const [products, total] = await Promise.all([
     prisma.product.findMany({
       skip,
       take: limitNum,
@@ -101,10 +104,13 @@ export const searchProducts = asyncHandler(async (req, res) => {
     prisma.product.count({ where }),
   ]);
 
-  res.json({
+  const responseData = {
     data: products,
     pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) },
-  });
+  };
+  searchCache.set(cacheKey, { data: responseData, timestamp: Date.now() });
+
+  res.json(responseData);
 });
 
 // Optional: endpoint for search suggestions (autocomplete)
@@ -113,18 +119,26 @@ export const searchSuggestions = asyncHandler(async (req, res) => {
   if (!q || typeof q !== "string" || q.trim().length < 2) {
     return res.json([]);
   }
+  const cleanQ = (q as string).trim().toLowerCase();
+  const suggCacheKey = `sugg:${cleanQ}`;
+  const cachedSugg = searchCache.get(suggCacheKey);
+  if (cachedSugg && Date.now() - cachedSugg.timestamp < SEARCH_CACHE_TTL) {
+    return res.json(cachedSugg.data);
+  }
+
   const limit = 5;
   const products = await prisma.product.findMany({
     where: {
       OR: [
-        { name: { contains: q as string, mode: "insensitive" } },
-        { description: { contains: q as string, mode: "insensitive" } },
+        { name: { contains: cleanQ, mode: "insensitive" } },
+        { description: { contains: cleanQ, mode: "insensitive" } },
       ],
       isActive: true,
     },
     select: { id: true, name: true },
     take: limit,
   });
+  searchCache.set(suggCacheKey, { data: products, timestamp: Date.now() });
   res.json(products);
 });
 

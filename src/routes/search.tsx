@@ -115,6 +115,7 @@ function SearchPage() {
       const list: any[] = (res as any)?.data ?? (Array.isArray(res) ? res : []);
       return list;
     },
+    staleTime: 1000 * 60 * 3,
   });
 
   const catList = MARKETPLACE_CATEGORIES;

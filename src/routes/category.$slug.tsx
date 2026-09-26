@@ -47,6 +47,7 @@ function CategoryPage() {
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["cat-products", slug, categoryName],
     queryFn: () => api.getProducts({ category: categoryName }),
+    staleTime: 1000 * 60 * 5,
   });
 
   const apiProducts: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);

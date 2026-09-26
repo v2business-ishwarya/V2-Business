@@ -26,6 +26,7 @@ function VendorsList() {
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["all-vendors-public"],
     queryFn: () => api.getProducts({ isActive: true }),
+    staleTime: 1000 * 60 * 5,
   });
 
   const products: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
