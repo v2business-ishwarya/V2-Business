@@ -48,7 +48,7 @@ import { formatMoney, slugify } from "@/lib/utils-app";
 import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect } from "react";
 import { V2Logo } from "@/components/v2-logo";
-import { MARKETPLACE_CATEGORIES } from "@/data/categories";
+import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy } from "@/data/categories";
 import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
 import { VisualSearchModal } from "@/components/visual-search-modal";
 import {
@@ -118,17 +118,29 @@ export function SiteHeader() {
     }
   }, [becomeVendorOpen, user]);
 
+  // Debounce search query so typing fast doesn't barrage the backend
+  const [debouncedQ, setDebouncedQ] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQ(q.trim().toLowerCase());
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [q]);
+
+  // Instant local category suggestions directly from memory (0ms perceived latency)
+  const instantMatchingCats = useMemo(() => {
+    return q.trim().length >= 2 ? matchCategoryFuzzy(q) : [];
+  }, [q]);
+
   // Live Instant Search query (covering Categories, Locations, Vendors, and Products)
   const { data: searchResults, isLoading: isSearching } = useQuery({
-    queryKey: ["live-search-autocomplete", q.trim().toLowerCase()],
-    enabled: q.trim().length >= 2,
+    queryKey: ["live-search-autocomplete", debouncedQ],
+    enabled: debouncedQ.length >= 2,
     queryFn: async () => {
-      const term = q.trim().toLowerCase();
+      const term = debouncedQ;
 
-      // 1. Matching Categories
-      const matchingCats = MARKETPLACE_CATEGORIES.filter((c) =>
-        c.name.toLowerCase().includes(term) || c.slug.toLowerCase().includes(term)
-      ).slice(0, 3);
+      // 1. Matching Categories with fuzzy typo tolerance
+      const matchingCats = matchCategoryFuzzy(term).slice(0, 3);
 
       // 2. Matching Locations / Cities
       const KNOWN_LOCATIONS = [
@@ -149,13 +161,13 @@ export function SiteHeader() {
       // 3. Products
       let items: any[] = [];
       try {
-        const res = await api.getProducts({ search: q.trim(), limit: 8 });
+        const res = await api.getProducts({ search: term, limit: 8, isActive: true });
         items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
       } catch {}
 
       if (items.length === 0 && matchingCats.length > 0) {
         try {
-          const res = await api.getProducts({ category: matchingCats[0].name, limit: 6 });
+          const res = await api.getProducts({ category: matchingCats[0].name, limit: 6, isActive: true });
           items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
         } catch {}
       }
@@ -210,8 +222,10 @@ export function SiteHeader() {
         products: items.slice(0, 4),
       };
     },
-    staleTime: 1000 * 30,
+    staleTime: 1000 * 60 * 5,
   });
+
+  const displayCategories = instantMatchingCats.length > 0 ? instantMatchingCats.slice(0, 3) : (searchResults?.categories || []);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -497,7 +511,7 @@ export function SiteHeader() {
               ) : (
                 <>
                   {/* 1. Matching Categories */}
-                  {searchResults?.categories && searchResults.categories.length > 0 && (
+                  {displayCategories && displayCategories.length > 0 && (
                     <div className="space-y-1">
                       <div className="px-2">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
@@ -505,7 +519,7 @@ export function SiteHeader() {
                         </span>
                       </div>
                       <div className="space-y-1">
-                        {searchResults.categories.map((cat: any) => (
+                        {displayCategories.map((cat: any) => (
                           <div
                             key={cat.id}
                             onClick={() => {

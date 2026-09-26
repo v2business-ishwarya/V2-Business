@@ -38,7 +38,7 @@ interface CacheEntry<T> {
   timestamp: number;
 }
 const productCache = new Map<string, CacheEntry<any>>();
-const CACHE_TTL_MS = 60 * 1000; // 60s cache TTL
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes cache TTL (automatically invalidated on changes)
 
 export const invalidateProductCache = () => {
   productCache.clear();
@@ -165,16 +165,18 @@ export const getAllProducts = asyncHandler(
       return res.json(cached.data);
     }
 
-    const [items, total] = await Promise.all([
-      prisma.product.findMany({
-        skip,
-        take: limit,
-        where,
-        orderBy: { createdAt: "desc" },
-        include: { vendor: { select: { id: true, name: true } } },
-      }),
-      prisma.product.count({ where }),
-    ]);
+    const items = await prisma.product.findMany({
+      skip,
+      take: limit,
+      where,
+      orderBy: { createdAt: "desc" },
+      include: { vendor: { select: { id: true, name: true } } },
+    });
+
+    let total = skip + items.length;
+    if (page > 1 || items.length === limit) {
+      total = await prisma.product.count({ where });
+    }
 
     const result = { data: items, pagination: { page, limit, total, pages: Math.ceil(total / limit) } };
     productCache.set(cacheKey, { data: result, timestamp: Date.now() });

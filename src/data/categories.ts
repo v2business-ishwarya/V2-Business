@@ -646,3 +646,42 @@ export function getVendorByIdOrSlug(idOrSlug: string): CategoryVendor | undefine
 
   return undefined;
 }
+
+export function matchCategoryFuzzy(term: string): MarketplaceCategory[] {
+  if (!term || term.trim().length < 2) return [];
+  const clean = term.toLowerCase().trim();
+  const cleanWords = clean.split(/[\s&-_]+/).filter((w) => w.length >= 2);
+
+  // 1. Direct substring match
+  const directMatches = MARKETPLACE_CATEGORIES.filter((c) => {
+    const cName = c.name.toLowerCase();
+    const cSlug = c.slug.toLowerCase();
+    const cTags = (c.popularTags || []).map((t) => t.toLowerCase());
+    return (
+      cName.includes(clean) ||
+      cSlug.includes(clean) ||
+      cTags.some((t) => t.includes(clean)) ||
+      cleanWords.some((w) => cName.includes(w) || cSlug.includes(w))
+    );
+  });
+
+  if (directMatches.length > 0) return directMatches;
+
+  // 2. Fuzzy typo tolerance (e.g. "jewwley" -> "jewellery", "electonic" -> "electronics", "clothng" -> "clothing")
+  return MARKETPLACE_CATEGORIES.filter((c) => {
+    const haystack = `${c.name.toLowerCase()} ${c.slug.toLowerCase()} ${(c.popularTags || []).join(" ").toLowerCase()}`;
+    return cleanWords.some((w) => {
+      if (w.length < 3) return false;
+      const prefix = w.slice(0, 3);
+      if (w.startsWith("jew") && haystack.includes("jewel")) return true;
+      if (w.startsWith("elec") && haystack.includes("electr")) return true;
+      if (w.startsWith("cloth") && haystack.includes("cloth")) return true;
+      if (w.startsWith("groc") && haystack.includes("grocer")) return true;
+      if (w.startsWith("sare") && haystack.includes("saree")) return true;
+      if (w.startsWith("toy") && haystack.includes("toy")) return true;
+      if (w.startsWith("mobil") && haystack.includes("mobile")) return true;
+      if (w.startsWith("beaut") && haystack.includes("beauty")) return true;
+      return haystack.includes(prefix);
+    });
+  });
+}

@@ -1,6 +1,6 @@
 import { createFileRoute, useSearch, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/services/api";
 import { ProductCard } from "@/components/product-card";
 import { EmptyState } from "@/components/empty-state";
@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { MARKETPLACE_CATEGORIES } from "@/data/categories";
+import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy } from "@/data/categories";
 import { VisualSearchModal } from "@/components/visual-search-modal";
 
 const KNOWN_LOCATIONS = [
@@ -73,6 +73,7 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const params = useSearch({ from: "/search" });
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [term, setTerm] = useState(params.q ?? "");
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000]);
   const [sort, setSort] = useState(params.sort ?? "new");
@@ -83,6 +84,12 @@ function SearchPage() {
   useEffect(() => {
     setTerm(params.q ?? "");
   }, [params.q]);
+
+  // Instant fuzzy match for categories from query (e.g. "jewellery" or "jewwley")
+  const matchedCategories = useMemo(() => {
+    return params.q ? matchCategoryFuzzy(params.q) : [];
+  }, [params.q]);
+  const matchedCategory = matchedCategories[0] || null;
 
   // Determine if search query includes or targets a known location
   const isLocationSearch =
@@ -104,16 +111,62 @@ function SearchPage() {
       sort,
     ],
     queryFn: async () => {
-      // When searching by location or vendor or category, omit raw DB text query
-      // so backend Prisma does not filter out valid items whose text lacks the location string
+      const cleanTerm = isLocationSearch ? undefined : params.q;
       const res = await api.getProducts({
-        search: isLocationSearch ? undefined : params.q,
-        category: params.category,
+        search: cleanTerm,
+        category: params.category || (matchedCategories.length > 0 && !cleanTerm ? matchedCategories[0].name : undefined),
         vendorId: params.vendor,
         isActive: true,
       });
-      const list: any[] = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+      let list: any[] = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+
+      // If text query returned 0 products, but matches a known category, fallback to category products!
+      if (list.length === 0 && matchedCategories.length > 0 && !params.category) {
+        try {
+          const catRes = await api.getProducts({
+            category: matchedCategories[0].name,
+            isActive: true,
+          });
+          list = (catRes as any)?.data ?? (Array.isArray(catRes) ? catRes : []);
+        } catch {}
+      }
+
       return list;
+    },
+    initialData: () => {
+      const cleanQ = (params.q || "").trim().toLowerCase();
+      if (!cleanQ) return undefined;
+
+      // 1. Check autocomplete cache from header
+      const autoData = qc.getQueryData<any>(["live-search-autocomplete", cleanQ]);
+      if (autoData?.products && autoData.products.length > 0) {
+        return autoData.products;
+      }
+
+      // 2. Check home products cache
+      const homeData = qc.getQueryData<any>(["home-products"]);
+      if (homeData) {
+        const list = (homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : []);
+        const matched = list.filter((p: any) =>
+          (p.name && p.name.toLowerCase().includes(cleanQ)) ||
+          (p.category && p.category.toLowerCase().includes(cleanQ)) ||
+          (p.description && p.description.toLowerCase().includes(cleanQ))
+        );
+        if (matched.length > 0) return matched;
+      }
+
+      // 3. Check category products cache if matching category
+      const matchedCats = matchCategoryFuzzy(cleanQ);
+      if (matchedCats.length > 0) {
+        const catKey = ["cat-products", matchedCats[0].slug, matchedCats[0].name];
+        const catData = qc.getQueryData<any>(catKey);
+        if (catData) {
+          const list = (catData as any)?.data ?? (Array.isArray(catData) ? catData : []);
+          if (list.length > 0) return list;
+        }
+      }
+
+      return undefined;
     },
     staleTime: 1000 * 60 * 3,
   });
@@ -686,21 +739,60 @@ function SearchPage() {
           </Badge>
         )}
 
-        {matchingCategory && !params.category && (
+        {matchedCategory && !params.category && (
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() =>
-              navigate({ to: "/category/$slug", params: { slug: matchingCategory.slug } })
+              navigate({ to: "/category/$slug", params: { slug: matchedCategory.slug } })
             }
-            className="h-7 text-xs rounded-full border-primary/40 text-primary gap-1"
+            className="h-7 text-xs rounded-full border-amber-500/40 text-amber-600 bg-amber-500/10 gap-1 font-bold"
           >
-            <span>View Category Page: {matchingCategory.name}</span>
+            <Sparkles className="h-3 w-3 text-amber-500" />
+            <span>Category: {matchedCategory.name}</span>
             <ArrowRight className="h-3 w-3" />
           </Button>
         )}
       </div>
+
+      {/* Prominent Matched Category Spotlight Card */}
+      {matchedCategory && (
+        <div className="mb-6 rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-2xl overflow-hidden bg-muted shrink-0 border border-amber-500/20 shadow-xs">
+              <img
+                src={matchedCategory.imageUrl}
+                alt={matchedCategory.name}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-amber-500 text-black text-[10px] font-black uppercase tracking-wider">
+                  Category Match
+                </Badge>
+                <span className="text-xs text-muted-foreground font-medium">{matchedCategory.itemCount}</span>
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-foreground mt-0.5">
+                {matchedCategory.name}
+              </h3>
+              <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+                {matchedCategory.description}
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/category/$slug"
+            params={{ slug: matchedCategory.slug }}
+            className="shrink-0"
+          >
+            <Button size="sm" className="rounded-full font-bold w-full sm:w-auto shadow-sm bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black">
+              Explore All {matchedCategory.name.split("&")[0].trim()} <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Matching Stores & Vendors Showcase Banner */}
       {matchingStores.length > 0 && (
@@ -797,7 +889,20 @@ function SearchPage() {
           </div>
         </aside>
         <div>
-          {filteredProducts.length === 0 && !products.isLoading ? (
+          {products.isLoading && filteredProducts.length === 0 ? (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div
+                  key={n}
+                  className="flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-card p-3 space-y-3 animate-pulse"
+                >
+                  <div className="aspect-square w-full rounded-xl bg-muted/60" />
+                  <div className="h-4 w-3/4 rounded bg-muted/60" />
+                  <div className="h-5 w-1/2 rounded bg-muted/60" />
+                </div>
+              ))}
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <EmptyState
               title="No products found"
               description="Try adjusting your search query, location, or filters to find what you're looking for."

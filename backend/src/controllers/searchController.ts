@@ -28,7 +28,7 @@ type TSearchParams = z.infer<typeof searchSchema>;
 
 // Fast In-Memory Cache for Search
 const searchCache = new Map<string, { data: any; timestamp: number }>();
-const SEARCH_CACHE_TTL = 60 * 1000; // 60s
+const SEARCH_CACHE_TTL = 5 * 60 * 1000; // 5 minutes cache
 
 export const searchProducts = asyncHandler(async (req, res) => {
   const parseResult = searchSchema.safeParse(req.query);
@@ -93,16 +93,18 @@ export const searchProducts = asyncHandler(async (req, res) => {
     orderBy.createdAt = "desc";
   }
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      skip,
-      take: limitNum,
-      where,
-      orderBy,
-      include: { vendor: { select: { id: true, name: true } } },
-    }),
-    prisma.product.count({ where }),
-  ]);
+  const products = await prisma.product.findMany({
+    skip,
+    take: limitNum,
+    where,
+    orderBy,
+    include: { vendor: { select: { id: true, name: true } } },
+  });
+
+  let total = skip + products.length;
+  if (pageNum > 1 || products.length === limitNum) {
+    total = await prisma.product.count({ where });
+  }
 
   const responseData = {
     data: products,
