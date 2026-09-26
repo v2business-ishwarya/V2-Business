@@ -218,16 +218,14 @@ export function SiteHeader() {
       // 3. Products
       let items: any[] = [];
       try {
-        const res = await api.getProducts({ search: term, limit: 8, isActive: true });
-        items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
-      } catch {}
-
-      if (items.length === 0 && matchingCats.length > 0) {
-        try {
+        if (matchingCats.length > 0) {
           const res = await api.getProducts({ category: matchingCats[0].name, limit: 6, isActive: true });
           items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
-        } catch {}
-      }
+        } else {
+          const res = await api.getProducts({ search: term, limit: 8, isActive: true });
+          items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+        }
+      } catch {}
 
       // 4. Stores / Vendors (matching by vendor name or location)
       const storeMap = new Map();

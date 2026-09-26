@@ -200,19 +200,40 @@ export const getAllProducts = asyncHandler(
 
         if (search) {
           const s = search.toLowerCase();
+
+          // Common category keywords and typos
+          const categoryKeywords: Record<string, string[]> = {
+            "jewellery": ["jewel", "jewwley", "jewelery", "jewlery", "necklace", "ring", "gold", "silver", "bangle", "earring"],
+            "clothing": ["cloth", "clothng", "fashion", "dress", "shirt", "pant", "saree", "kurti", "wear", "suit"],
+            "electronics": ["elect", "electonic", "electronic", "mobile", "phone", "gadget", "laptop", "appliance", "tv"],
+            "footwear": ["shoe", "shoes", "footwear", "chappal", "sandal", "sneaker", "boot"],
+            "food": ["food", "grocery", "groceries", "cake", "sweet", "snack", "bakery"],
+            "beauty": ["beauty", "cosmetic", "makeup", "skin", "hair", "perfume", "cream"],
+            "home": ["home", "kitchen", "decor", "furniture", "bed", "curtain", "cookware"],
+          };
+
+          const matchedCatKeywords = Object.entries(categoryKeywords)
+            .filter(([catKey, synonyms]) => synonyms.some((syn) => s.includes(syn) || syn.includes(s)))
+            .map(([catKey]) => catKey);
+
           filtered = filtered.filter((p: any) => {
             const n = (p.name || "").toLowerCase();
             const d = (p.description || "").toLowerCase();
             const c = (p.category || "").toLowerCase();
             const vn = (p.vendor?.name || "").toLowerCase();
             const tags = Array.isArray(p.tags) ? p.tags.map((t: string) => String(t).toLowerCase()) : [];
-            return (
+
+            const isDirectMatch = (
               n.includes(s) ||
               c.includes(s) ||
               vn.includes(s) ||
               d.includes(s) ||
               tags.some((t: string) => t.includes(s))
             );
+
+            const isCatSynonymMatch = matchedCatKeywords.some((kw) => c.includes(kw));
+
+            return isDirectMatch || isCatSynonymMatch;
           });
         }
 

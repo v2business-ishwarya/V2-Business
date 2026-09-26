@@ -112,30 +112,26 @@ function SearchPage() {
     ],
     queryFn: async () => {
       const cleanTerm = isLocationSearch ? undefined : params.q;
+      // If query is a known category or category typo, target the category directly in 1 request!
+      const targetCategory =
+        params.category || (matchedCategories.length > 0 ? matchedCategories[0].name : undefined);
+      const searchParam = targetCategory ? undefined : cleanTerm;
+
       const res = await api.getProducts({
-        search: cleanTerm,
-        category: params.category || (matchedCategories.length > 0 && !cleanTerm ? matchedCategories[0].name : undefined),
+        search: searchParam,
+        category: targetCategory,
         vendorId: params.vendor,
         isActive: true,
       });
       let list: any[] = (res as any)?.data ?? (Array.isArray(res) ? res : []);
-
-      // If text query returned 0 products, but matches a known category, fallback to category products!
-      if (list.length === 0 && matchedCategories.length > 0 && !params.category) {
-        try {
-          const catRes = await api.getProducts({
-            category: matchedCategories[0].name,
-            isActive: true,
-          });
-          list = (catRes as any)?.data ?? (Array.isArray(catRes) ? catRes : []);
-        } catch {}
-      }
-
       return list;
     },
     initialData: () => {
       const cleanQ = (params.q || "").trim().toLowerCase();
       if (!cleanQ) return undefined;
+
+      const matchedCats = matchCategoryFuzzy(cleanQ);
+      const matchedCatNames = matchedCats.map((c) => c.name.toLowerCase());
 
       // 1. Check autocomplete cache from header
       const autoData = qc.getQueryData<any>(["live-search-autocomplete", cleanQ]);
@@ -151,24 +147,24 @@ function SearchPage() {
         ...((homeData as any)?.data ?? (Array.isArray(homeData) ? homeData : [])),
       ];
       if (pool.length > 0) {
-        const matchedCats = matchCategoryFuzzy(cleanQ);
-        const matchedCatNames = matchedCats.map((c) => c.name.toLowerCase());
         const matched = pool.filter((p: any) => {
           const n = (p.name || "").toLowerCase();
           const c = (p.category || "").toLowerCase();
           const d = (p.description || "").toLowerCase();
+          const matchesCategoryFuzzy = matchedCatNames.some(
+            (mcn) => c.includes(mcn) || mcn.includes(c)
+          );
           return (
+            matchesCategoryFuzzy ||
             n.includes(cleanQ) ||
             c.includes(cleanQ) ||
-            d.includes(cleanQ) ||
-            matchedCatNames.some((mcn) => c.includes(mcn))
+            d.includes(cleanQ)
           );
         });
         if (matched.length > 0) return matched;
       }
 
       // 3. Check category products cache if matching category
-      const matchedCats = matchCategoryFuzzy(cleanQ);
       if (matchedCats.length > 0) {
         const catKey = ["cat-products", matchedCats[0].slug, matchedCats[0].name];
         const catData = qc.getQueryData<any>(catKey);
@@ -180,7 +176,7 @@ function SearchPage() {
 
       return undefined;
     },
-    staleTime: 1000 * 60 * 3,
+    staleTime: 1000 * 60 * 5,
   });
 
   const catList = MARKETPLACE_CATEGORIES;
@@ -325,6 +321,8 @@ function SearchPage() {
 
     // 2. Filter by search term across products, vendors, categories & locations
     if (qLower) {
+      const matchedCatNames = matchedCategories.map((c) => c.name.toLowerCase());
+
       list = list.filter((p: any) => {
         const pName = (p.name || "").toLowerCase();
         const pDesc = (p.description || "").toLowerCase();
@@ -338,7 +336,13 @@ function SearchPage() {
         const vCity = (vendorStore?.city || v?.city || "Rajahmundry").toLowerCase();
         const vAddr = (vendorStore?.address || v?.address || "").toLowerCase();
 
+        // If query matches a category via fuzzy match, products in that category ALWAYS match!
+        const matchesCategoryFuzzy = matchedCatNames.some(
+          (mcn) => pCat.includes(mcn) || mcn.includes(pCat)
+        );
+
         return (
+          matchesCategoryFuzzy ||
           pName.includes(qLower) ||
           pDesc.includes(qLower) ||
           pBrand.includes(qLower) ||

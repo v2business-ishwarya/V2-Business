@@ -67,12 +67,31 @@ export const searchProducts = asyncHandler(async (req, res) => {
 
     if (q && q.trim() !== "") {
       const term = q.trim().toLowerCase();
+
+      const categoryKeywords: Record<string, string[]> = {
+        "jewellery": ["jewel", "jewwley", "jewelery", "jewlery", "necklace", "ring", "gold", "silver", "bangle", "earring"],
+        "clothing": ["cloth", "clothng", "fashion", "dress", "shirt", "pant", "saree", "kurti", "wear", "suit"],
+        "electronics": ["elect", "electonic", "electronic", "mobile", "phone", "gadget", "laptop", "appliance", "tv"],
+        "footwear": ["shoe", "shoes", "footwear", "chappal", "sandal", "sneaker", "boot"],
+        "food": ["food", "grocery", "groceries", "cake", "sweet", "snack", "bakery"],
+        "beauty": ["beauty", "cosmetic", "makeup", "skin", "hair", "perfume", "cream"],
+        "home": ["home", "kitchen", "decor", "furniture", "bed", "curtain", "cookware"],
+      };
+
+      const matchedCatKeywords = Object.entries(categoryKeywords)
+        .filter(([catKey, synonyms]) => synonyms.some((syn) => term.includes(syn) || syn.includes(term)))
+        .map(([catKey]) => catKey);
+
       filtered = filtered.filter((p: any) => {
         const n = (p.name || "").toLowerCase();
         const d = (p.description || "").toLowerCase();
         const c = (p.category || "").toLowerCase();
         const vn = (p.vendor?.name || "").toLowerCase();
-        return n.includes(term) || d.includes(term) || c.includes(term) || vn.includes(term);
+
+        const isDirect = n.includes(term) || d.includes(term) || c.includes(term) || vn.includes(term);
+        const isCatMatch = matchedCatKeywords.some((kw) => c.includes(kw));
+
+        return isDirect || isCatMatch;
       });
     }
 
