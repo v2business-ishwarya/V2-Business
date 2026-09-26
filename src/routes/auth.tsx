@@ -231,7 +231,7 @@ function AuthPage() {
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">
                   <ShoppingBag className="h-4 w-4 text-amber-800" />
                 </div>
-                <span>Unified Multi-Vendor Cart & 1-Click Checkout</span>
+                <span>Unified Shopping Cart & 1-Click Checkout</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-stone-900/10 text-stone-900 backdrop-blur-xs border border-amber-900/20">

@@ -142,7 +142,7 @@ function CategoryPage() {
                   <Sparkles className="mr-1 h-3 w-3" /> Marketplace Category
                 </Badge>
                 <Badge variant="secondary" className="font-semibold text-xs bg-emerald-500/10 text-emerald-700 border-emerald-500/30">
-                  <Store className="mr-1 h-3 w-3" /> {categoryVendors.length} Verified Stores
+                  <Store className="mr-1 h-3 w-3" /> {categoryVendors.length} Local Stores
                 </Badge>
                 <Badge variant="secondary" className="font-semibold text-xs">
                   <Package className="mr-1 h-3 w-3" /> {allProducts.length} Products
@@ -151,7 +151,7 @@ function CategoryPage() {
 
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">{title}</h1>
               <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                {categoryMeta?.description || `Discover curated products and verified seller stores in ${title}.`}
+                {categoryMeta?.description || `Discover curated products and local seller stores in ${title}.`}
               </p>
 
               {/* Popular Tags */}
@@ -245,10 +245,10 @@ function CategoryPage() {
             <div className="flex items-center justify-between border-b pb-3">
               <div>
                 <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
-                  <Store className="h-5 w-5 text-primary" /> Verified Sellers & Stores in {title}
+                  <Store className="h-5 w-5 text-primary" /> Sellers & Stores in {title}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Click any verified vendor to inspect their physical/cloud authenticity credentials and view everything they are selling.
+                  Click any vendor to inspect their store credentials and view everything they are selling.
                 </p>
               </div>
               <Badge variant="outline" className="font-bold text-xs bg-emerald-500/10 text-emerald-700">
@@ -265,7 +265,7 @@ function CategoryPage() {
                 <p className="text-xs text-muted-foreground max-w-md mx-auto">
                   {searchQuery
                     ? "Try searching for a different store name or city."
-                    : `Be the first verified merchant to list and sell ${title} on V2 Business Marketplace.`}
+                    : `Be the first merchant to list and sell ${title} on V2 Business Marketplace.`}
                 </p>
                 <div className="pt-2">
                   <Link to="/auth">

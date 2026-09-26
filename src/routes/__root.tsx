@@ -65,11 +65,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace" },
+      { title: "V2B | V2 Business — Rajahmundry's #1 Online Shopping Marketplace" },
       {
         name: "description",
         content:
-          "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace. Shop authentic jewellery, electronics, clothing, groceries, toys & more from verified local merchants with fast doorstep delivery and 0% seller commission.",
+          "V2B (V2 Business) is Rajahmundry's official online marketplace. Shop authentic jewellery, electronics, clothing, groceries, toys & more from local merchants with fast doorstep delivery and 0% seller commission.",
       },
       {
         name: "keywords",
@@ -79,11 +79,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "application-name", content: "V2B" },
       { name: "author", content: "V2B (V2 Business)" },
       { property: "og:site_name", content: "V2B (V2 Business)" },
-      { property: "og:title", content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace" },
+      { property: "og:title", content: "V2B | V2 Business — Rajahmundry's #1 Online Shopping Marketplace" },
       {
         property: "og:description",
         content:
-          "Shop from verified stores in Rajahmundry across 29 categories on V2B (V2 Business). Authentic gold jewellery, gadgets, fashion & local goods with instant doorstep delivery.",
+          "Shop from local stores in Rajahmundry across 29 categories on V2B (V2 Business). Authentic gold jewellery, gadgets, fashion & local goods with instant doorstep delivery.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://v2business.in/" },
@@ -94,7 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "twitter:description",
         content:
-          "Rajahmundry's premier multi-vendor marketplace. Discover top local sellers and brands on V2B.",
+          "Rajahmundry's premier online marketplace. Discover top local sellers and brands on V2B.",
       },
       { name: "twitter:image", content: "https://v2business.in/v2b-gold-logo.png" },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
@@ -143,7 +143,7 @@ function RootShell({ children }: { children: ReactNode }) {
     ],
     url: "https://v2business.in/",
     logo: "https://v2business.in/v2b-gold-logo.png",
-    description: "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace connecting verified merchants across 29 categories directly with shoppers.",
+    description: "V2B (V2 Business) is Rajahmundry's official online marketplace connecting local merchants across 29 categories directly with shoppers.",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Mangalavaripeta",

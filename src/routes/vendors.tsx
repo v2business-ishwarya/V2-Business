@@ -13,7 +13,7 @@ export const Route = createFileRoute("/vendors")({
   head: () => ({
     meta: [
       { title: "Marketplace Vendors & Stores — V2 Business" },
-      { name: "description", content: "Discover verified seller stores across 30 departments on V2 Business Marketplace" },
+      { name: "description", content: "Discover seller stores across 30 departments on V2 Business Marketplace" },
     ],
   }),
   component: VendorsList,
@@ -49,7 +49,7 @@ function VendorsList() {
                   id: vData.id || key.replace("vendor_store_", ""),
                   name: vData.name || "Custom Seller Store",
                   slug: vData.slug || "custom-store",
-                  tagline: vData.tagline || "Verified Seller Storefront",
+                  tagline: vData.tagline || "Local Seller Storefront",
                   description: vData.description || "",
                   businessType: vData.businessType || "physical_shop",
                   gstNumber: vData.gstNumber || "",
@@ -78,7 +78,7 @@ function VendorsList() {
           id: v.id,
           name: v.name || "Seller Store",
           slug: v.slug || v.id,
-          tagline: "Verified Marketplace Seller",
+          tagline: "Marketplace Seller",
           description: "",
           businessType: v.businessType || "physical_shop",
           gstNumber: v.gstNumber || "",
@@ -126,12 +126,12 @@ function VendorsList() {
               <Sparkles className="mr-1 h-3 w-3" /> Seller Directory
             </Badge>
             <Badge variant="secondary" className="font-semibold text-xs">
-              {allVendors.length} Verified Stores
+              {allVendors.length} Local Stores
             </Badge>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1">Marketplace Stores & Vendors</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Browse authentic local stores, direct craft workshops, and verified suppliers across all 30 departments.
+            Browse authentic local stores, direct craft workshops, and local suppliers across all 30 departments.
           </p>
         </div>
 

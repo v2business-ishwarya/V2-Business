@@ -10,7 +10,7 @@ export function SiteFooter() {
             <V2Logo size="md" />
           </Link>
           <p className="mt-3 max-w-md text-sm text-muted-foreground">
-            <strong className="text-foreground">V2B (V2 Business)</strong> is Rajahmundry's #1 multi-vendor online marketplace. Connecting shoppers directly with verified local merchants across 29 retail categories with doorstep delivery.
+            <strong className="text-foreground">V2B (V2 Business)</strong> is Rajahmundry's #1 online marketplace. Connecting shoppers directly with local merchants across 29 retail categories with doorstep delivery.
           </p>
           <div className="mt-3 text-xs text-muted-foreground space-y-1">
             <p>📍 Mangalavaripeta, Rajahmundry, Andhra Pradesh — 533105</p>

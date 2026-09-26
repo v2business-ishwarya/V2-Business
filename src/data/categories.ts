@@ -498,7 +498,7 @@ export function resolveCategoryInfo(nameOrSlug: string): MarketplaceCategory {
     description: 'Explore curated products and independent stores',
     imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
     itemCount: 'Active',
-    popularTags: ['Verified Stores']
+    popularTags: ['Local Stores']
   };
 }
 

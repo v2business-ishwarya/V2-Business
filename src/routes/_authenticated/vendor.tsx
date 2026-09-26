@@ -165,10 +165,10 @@ function VendorOnboardingForm() {
           <Store className="h-7 w-7" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Register as a Verified Vendor
+          Register as a Vendor
         </h1>
         <p className="text-xs text-muted-foreground max-w-md mx-auto">
-          To sell on V2 Business, please provide your contact phone number and verified storefront location.
+          To sell on V2 Business, please provide your contact phone number and storefront location.
         </p>
       </div>
 
@@ -367,7 +367,7 @@ function VendorOnboardingForm() {
 
         <div className="rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
-          <span>0% Commission · Instant Seller Tools · Verified Store Badge</span>
+          <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
         </div>
 
         <Button

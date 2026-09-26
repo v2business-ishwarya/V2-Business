@@ -152,7 +152,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
           <div className="mt-3 pt-3 border-t border-border/60">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                <Store className="h-3 w-3 text-primary" /> Verified Shop Photos ({photos.length})
+                <Store className="h-3 w-3 text-primary" /> Store Photos ({photos.length})
               </span>
               <span className="text-[10px] text-muted-foreground">Click to inspect</span>
             </div>
@@ -190,17 +190,17 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
                 onClick={() => openPhotoModal(primaryPhoto)}
                 className="relative h-12 w-12 rounded-xl overflow-hidden border-2 border-emerald-500/30 cursor-pointer hover:opacity-90 shrink-0 shadow-sm"
               >
-                <img src={primaryPhoto} alt="Shop verification photo" className="h-full w-full object-cover" />
+                <img src={primaryPhoto} alt="Shop photo" className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                   <Camera className="h-4 w-4 text-white drop-shadow" />
                 </div>
               </div>
               <div className="text-xs">
                 <p className="font-semibold text-foreground">
-                  {isPhysical ? "Verified Storefront Photo" : "Verified Studio Workspace"}
+                  {isPhysical ? "Real Storefront Photo" : "Studio Workspace Photo"}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
-                  Inspected & authenticated by V2 Platform
+                  Direct seller on V2 Platform
                 </p>
               </div>
             </div>
@@ -241,7 +241,7 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
               {selectedPhoto && (
                 <img
                   src={selectedPhoto}
-                  alt="Verified store"
+                  alt="Storefront photo"
                   className="h-full w-full object-cover"
                 />
               )}

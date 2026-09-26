@@ -44,12 +44,12 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       {
-        title: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+        title: "V2B | V2 Business — Rajahmundry's #1 Online Shopping Marketplace",
       },
       {
         name: "description",
         content:
-          "V2B (V2 Business) is Rajahmundry's premier online multi-vendor marketplace. Shop Jewellery, Electronics, Silk Sarees, Groceries, Toys & more with fast local delivery in Rajahmundry.",
+          "V2B (V2 Business) is Rajahmundry's premier online marketplace. Shop Jewellery, Electronics, Silk Sarees, Groceries, Toys & more with fast local delivery in Rajahmundry.",
       },
       {
         name: "keywords",
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+        content: "V2B | V2 Business — Rajahmundry's #1 Online Shopping Marketplace",
       },
       {
         property: "og:description",
@@ -67,7 +67,7 @@ export const Route = createFileRoute("/")({
       },
       {
         name: "twitter:title",
-        content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+        content: "V2B | V2 Business — Rajahmundry's #1 Online Shopping Marketplace",
       },
       {
         name: "twitter:description",
@@ -99,8 +99,8 @@ const HERO_SLIDES = [
     id: "slide-1",
     tag: "🔥 V2B RAJAHMUNDRY GRAND MARKETPLACE",
     title: "V2B Mega Deals Up to 70% Off",
-    highlight: "Rajahmundry's #1 Online Multi-Vendor Platform",
-    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified Rajahmundry merchants on V2B (V2 Business).",
+    highlight: "Rajahmundry's #1 Online Shopping Platform",
+    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from local Rajahmundry merchants on V2B (V2 Business).",
     ctaText: "Shop V2B Deals",
     targetLink: "/search",
     bgImage:
@@ -423,7 +423,7 @@ function Home() {
                   ⚡ Fast Local Drop
                 </span>
                 <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
-                  🛡️ Verified Stores
+                  🛡️ Trusted Sellers
                 </span>
                 <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
                   🏷️ Direct Bazaar Rates
@@ -668,7 +668,7 @@ function Home() {
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Special daily discounted prices from verified Rajahmundry merchants
+                Special daily discounted prices from local Rajahmundry merchants
               </p>
             </div>
 
@@ -901,7 +901,7 @@ function Home() {
               Shop by Category
             </h2>
             <p className="text-xs text-muted-foreground">
-              Explore 29 verified departments across Rajahmundry
+              Explore 29 departments across Rajahmundry
             </p>
           </div>
           <Link
@@ -1134,7 +1134,7 @@ function Home() {
               </h2>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Direct from verified storefronts & local distributors
+              Direct from local storefronts & distributors
             </p>
           </div>
           <Link
@@ -1185,7 +1185,7 @@ function Home() {
               <div className="flex items-center gap-2">
                 <Store className="h-5 w-5 text-amber-500" />
                 <h2 className="text-lg sm:text-2xl font-black text-foreground">
-                  Verified Local Merchants
+                  Featured Local Merchants
                 </h2>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -1335,7 +1335,7 @@ function Home() {
               <ShieldCheck className="h-6 w-6" />
             </div>
             <h4 className="font-bold text-sm text-foreground">100% Genuine Stores</h4>
-            <p className="text-xs text-muted-foreground">Every vendor is verified with physical storefront checks</p>
+            <p className="text-xs text-muted-foreground">Direct sellers with physical storefront checks</p>
           </div>
 
           <div className="space-y-2 p-3">

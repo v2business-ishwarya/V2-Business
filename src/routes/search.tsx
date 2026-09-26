@@ -63,7 +63,7 @@ export const Route = createFileRoute("/search")({
       {
         name: "description",
         content:
-          "Search products, verified vendors, categories, and local store locations across V2 Business Marketplace.",
+          "Search products, local vendors, categories, and store locations across V2 Business Marketplace.",
       },
     ],
   }),
@@ -815,13 +815,13 @@ function SearchPage() {
         <div className="mb-8 rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 sm:p-6 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-200 flex items-center gap-1.5">
-              <Store className="h-4 w-4 text-amber-600" /> Matching Verified Stores ({matchingStores.length})
+              <Store className="h-4 w-4 text-amber-600" /> Matching Stores ({matchingStores.length})
             </span>
             <Badge
               variant="outline"
               className="text-[10px] bg-background text-amber-700 dark:text-amber-300 border-amber-500/30"
             >
-              Verified Storefronts
+              Local Storefronts
             </Badge>
           </div>
 

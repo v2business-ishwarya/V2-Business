@@ -68,7 +68,7 @@ function emailLayout(title: string, body: string): string {
     "<div style='max-width:600px;margin:0 auto;background:#111827;border-radius:16px;overflow:hidden;border:1px solid #1f2937;'>",
     "<div style='background:#090d16;padding:28px 24px;text-align:center;border-bottom:2px solid #f59e0b;'>",
     "<h1 style='font-size:24px;font-weight:900;color:#fff;margin:0;'>V2 <span style='color:#f59e0b;'>BUSINESS</span></h1>",
-    "<div style='color:#94a3b8;font-size:12px;margin-top:6px;text-transform:uppercase;letter-spacing:1px;'>Multi-Vendor Marketplace</div>",
+    "<div style='color:#94a3b8;font-size:12px;margin-top:6px;text-transform:uppercase;letter-spacing:1px;'>Online Marketplace</div>",
     "</div>",
     "<div style='padding:32px 24px;background:#111827;'>" + body + "</div>",
     "<div style='background:#090d16;padding:20px;text-align:center;border-top:1px solid #1f2937;color:#64748b;font-size:12px;'>",

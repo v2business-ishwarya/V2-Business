@@ -258,7 +258,7 @@ export function SiteHeader() {
                   if (!storeMap.has(sId)) {
                     storeMap.set(sId, {
                       id: sId,
-                      name: s.name || "Verified Store",
+                      name: s.name || "Storefront",
                       slug: s.slug || sId,
                       city: s.city || "Rajahmundry",
                     });
@@ -291,13 +291,10 @@ export function SiteHeader() {
       ? instantMatchingProducts
       : (searchResults?.products || []);
 
-  const displayStores = searchResults?.stores || [];
-
   const hasAnyResults =
     displayCategories.length > 0 ||
     displayLocations.length > 0 ||
-    displayProducts.length > 0 ||
-    displayStores.length > 0;
+    displayProducts.length > 0;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -401,7 +398,7 @@ export function SiteHeader() {
         await api.updateUser(user.id, { name: vendorForm.storeName.trim() }).catch(() => {});
       }
 
-      toast.success(`🎉 Verified vendor storefront registered in ${vendorForm.city.trim()}!`);
+      toast.success(`🎉 Vendor storefront registered in ${vendorForm.city.trim()}!`);
       setBecomeVendorOpen(false);
       navigate({ to: "/vendor" });
     } catch (err: any) {
@@ -413,7 +410,7 @@ export function SiteHeader() {
 
   const handleBecomeSellerClick = () => {
     if (!user) {
-      toast.info("Register or sign in to open your verified seller store.");
+      toast.info("Register or sign in to open your seller store.");
       navigate({ to: "/auth", search: { redirect: "/vendor" } });
       return;
     }
@@ -651,43 +648,7 @@ export function SiteHeader() {
                     </div>
                   )}
 
-                  {/* 3. Matching Stores / Vendors */}
-                  {displayStores && displayStores.length > 0 && (
-                    <div className="space-y-1.5 pt-1 border-t border-border/50">
-                      <div className="flex items-center justify-between px-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                          <Store className="h-3 w-3 text-primary" /> Verified Stores & Vendors
-                        </span>
-                      </div>
-                      <div className="space-y-1">
-                        {displayStores.map((store: any) => (
-                          <div
-                            key={store.id}
-                            onClick={() => {
-                              setShowDropdown(false);
-                              navigate({ to: "/store/$slug", params: { slug: store.slug || store.id } });
-                            }}
-                            className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer transition-colors"
-                          >
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary font-bold text-xs shrink-0">
-                                <Store className="h-4 w-4" />
-                              </div>
-                              <div className="truncate text-xs">
-                                <p className="font-bold text-foreground truncate">{store.name}</p>
-                                <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-                                  <MapPin className="h-2.5 w-2.5 text-primary" /> {store.city || "Rajahmundry"}
-                                </p>
-                              </div>
-                            </div>
-                            <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-700 shrink-0">
-                              Visit Shop
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+
 
                   {/* 4. Matching Products */}
                   {displayProducts && displayProducts.length > 0 && (
@@ -866,11 +827,7 @@ export function SiteHeader() {
                   <V2Logo size="sm" />
                 </div>
 
-                {/* Marketplace Info Badge */}
-                <div className="flex items-center gap-2 rounded-xl border border-border px-3 py-2 bg-muted/40 text-xs font-bold text-foreground">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span>Verified Multi-Vendor Marketplace</span>
-                </div>
+
 
                 <nav className="flex flex-col space-y-2 text-sm font-medium">
                   <Link
@@ -1131,37 +1088,7 @@ export function SiteHeader() {
                   </div>
                 )}
 
-                {/* 3. Stores */}
-                {displayStores && displayStores.length > 0 && (
-                  <div className="space-y-1 pt-1 border-t border-border/50">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
-                      <Store className="h-3 w-3 text-primary" /> Verified Stores & Vendors
-                    </span>
-                    {displayStores.map((store: any) => (
-                      <div
-                        key={store.id}
-                        onClick={() => {
-                          setShowDropdown(false);
-                          navigate({ to: "/store/$slug", params: { slug: store.slug || store.id } });
-                        }}
-                        className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 min-w-0 text-xs">
-                          <Store className="h-3.5 w-3.5 text-primary shrink-0" />
-                          <div className="truncate">
-                            <p className="font-bold text-foreground truncate">{store.name}</p>
-                            <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                              <MapPin className="h-2.5 w-2.5 text-primary" /> {store.city || "Rajahmundry"}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-700 shrink-0">
-                          Visit
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                )}
+
 
                 {/* 4. Products */}
                 {displayProducts && displayProducts.length > 0 && (
@@ -1225,7 +1152,7 @@ export function SiteHeader() {
               Register to Become a Seller
             </DialogTitle>
             <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
-              Please provide your contact phone number and storefront location to register and activate your verified seller account.
+              Please provide your contact phone number and storefront location to register and activate your seller account.
             </DialogDescription>
           </DialogHeader>
 
@@ -1428,7 +1355,7 @@ export function SiteHeader() {
 
             <div className="rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
-              <span>0% Commission · Instant Seller Tools · Verified Store Badge</span>
+              <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
             </div>
 
             <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">

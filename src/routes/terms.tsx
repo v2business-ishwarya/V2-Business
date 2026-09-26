@@ -44,7 +44,7 @@ function TermsPage() {
               Terms for Shoppers & Customers
             </h2>
             <p className="text-sm text-foreground/85 leading-relaxed">
-              V2 Business is a direct multi-vendor retail platform. When you buy goods, your contract of sale is formed directly with the individual verified merchant selling that item.
+              V2 Business is an online retail platform. When you buy goods, your contract of sale is formed directly with the individual merchant selling that item.
             </p>
             <div className="rounded-xl bg-muted/40 p-4 border border-border/60 space-y-2 text-xs sm:text-sm text-foreground/80 font-medium">
               <p>✦ <strong>Transparent Pricing:</strong> All listed prices include applicable GST/taxes unless explicitly noted otherwise.</p>
@@ -69,7 +69,7 @@ function TermsPage() {
               </div>
               <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60">
                 <p className="font-bold text-foreground">Settlements & Payouts</p>
-                <p className="text-foreground/75 mt-1">Earnings are credited directly to the vendor's verified bank account upon delivery confirmation.</p>
+                <p className="text-foreground/75 mt-1">Earnings are credited directly to the vendor's bank account or UPI upon delivery confirmation.</p>
               </div>
             </div>
           </div>
