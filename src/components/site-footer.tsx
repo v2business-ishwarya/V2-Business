@@ -14,7 +14,7 @@ export function SiteFooter() {
           </p>
           <div className="mt-3 text-xs text-muted-foreground space-y-1">
             <p>📍 Main Road, Danavaipeta, Rajahmundry, Andhra Pradesh — 533103</p>
-            <p>✉️ support@v2business.in | 🌐 v2business</p>
+            <p>✉️ support@v2business.in | 🌐 <a href="https://v2business.in" className="hover:text-foreground underline underline-offset-2">v2business.in</a></p>
           </div>
         </div>
         <div>

@@ -155,7 +155,7 @@ function AuthPage() {
     try {
       const rawApiUrl = import.meta.env.VITE_API_URL || "https://v2-business.onrender.com";
       const apiUrl = rawApiUrl.replace(/\/+$/, "");
-      const origin = typeof window !== "undefined" ? window.location.origin : "https://v2-business-alpha.vercel.app";
+      const origin = typeof window !== "undefined" ? window.location.origin : "https://v2business.in";
       window.location.href = `${apiUrl}/auth/google?origin=${encodeURIComponent(origin)}`;
     } catch (err: any) {
       toast.error(err.message || "Google sign-in failed");

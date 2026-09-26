@@ -1,5 +1,5 @@
 # robots.txt for V2B (V2 Business)
-# https://v2-business-alpha.vercel.app
+# https://v2business.in
 
 User-agent: *
 Allow: /
@@ -22,5 +22,5 @@ Disallow: /_authenticated/
 Disallow: /api/
 
 # Host & Sitemap definition
-Host: https://v2-business-alpha.vercel.app
-Sitemap: https://v2-business-alpha.vercel.app/sitemap.xml
+Host: https://v2business.in
+Sitemap: https://v2business.in/sitemap.xml

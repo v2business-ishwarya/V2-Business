@@ -86,8 +86,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Shop from verified stores in Rajahmundry across 29 categories on V2B (V2 Business). Authentic gold jewellery, gadgets, fashion & local goods with instant doorstep delivery.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "https://v2-business-alpha.vercel.app/" },
-      { property: "og:image", content: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png" },
+      { property: "og:url", content: "https://v2business.in/" },
+      { property: "og:image", content: "https://v2business.in/v2b-gold-logo.png" },
       { property: "og:locale", content: "en_IN" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "V2B | V2 Business Marketplace Rajahmundry" },
@@ -96,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "Rajahmundry's premier multi-vendor marketplace. Discover top local sellers and brands on V2B.",
       },
-      { name: "twitter:image", content: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png" },
+      { name: "twitter:image", content: "https://v2business.in/v2b-gold-logo.png" },
       { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
       { name: "googlebot", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
       { name: "geo.region", content: "IN-AP" },
@@ -105,7 +105,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "ICBM", content: "17.0005, 81.8040" },
     ],
     links: [
-      { rel: "canonical", href: "https://v2-business-alpha.vercel.app/" },
+      { rel: "canonical", href: "https://v2business.in/" },
       { rel: "manifest", href: "/manifest.json" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
@@ -141,8 +141,8 @@ function RootShell({ children }: { children: ReactNode }) {
       "v2business in rajahmundry",
       "V2B Marketplace"
     ],
-    url: "https://v2-business-alpha.vercel.app/",
-    logo: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png",
+    url: "https://v2business.in/",
+    logo: "https://v2business.in/v2b-gold-logo.png",
     description: "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace connecting verified merchants across 29 categories directly with shoppers.",
     address: {
       "@type": "PostalAddress",
@@ -166,10 +166,10 @@ function RootShell({ children }: { children: ReactNode }) {
     "@type": "WebSite",
     name: "V2B",
     alternateName: ["v2b", "V2 Business", "v2business", "V2B Rajahmundry"],
-    url: "https://v2-business-alpha.vercel.app/",
+    url: "https://v2business.in/",
     potentialAction: {
       "@type": "SearchAction",
-      target: "https://v2-business-alpha.vercel.app/search?q={search_term_string}",
+      target: "https://v2business.in/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -178,9 +178,9 @@ function RootShell({ children }: { children: ReactNode }) {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: "V2B — V2 Business Rajahmundry",
-    image: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png",
-    "@id": "https://v2-business-alpha.vercel.app/#localbusiness",
-    url: "https://v2-business-alpha.vercel.app/",
+    image: "https://v2business.in/v2b-gold-logo.png",
+    "@id": "https://v2business.in/#localbusiness",
+    url: "https://v2business.in/",
     telephone: "+91-1800-123-4567",
     priceRange: "₹₹",
     address: {

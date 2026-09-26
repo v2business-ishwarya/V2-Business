@@ -299,7 +299,7 @@ const getFrontendOrigin = (req: Request): string => {
     } catch {}
   }
   // 4. Default production frontend fallback
-  return "https://v2-business-alpha.vercel.app";
+  return "https://v2business.in";
 };
 
 export const googleRedirect = async (req: Request, res: Response) => {
