@@ -390,11 +390,11 @@ export function SiteHeader() {
         <div ref={searchContainerRef} className="relative hidden sm:block flex-1 min-w-0 max-w-2xl mx-2">
           <form
             onSubmit={submit}
-            className="flex items-center h-10 w-full rounded-full border border-border/80 bg-background px-3 shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+            className="flex items-center h-10 w-full rounded-full border border-amber-500/30 bg-background px-3 shadow-xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
           >
             {/* Search Input Field */}
             <div className="relative flex-1 min-w-0 flex items-center">
-              <Search className="h-4 w-4 text-muted-foreground/70 shrink-0 mr-2" />
+              <Search className="h-4 w-4 text-amber-500/80 shrink-0 mr-2" />
               <input
                 type="text"
                 value={q}
@@ -423,12 +423,13 @@ export function SiteHeader() {
               )}
             </div>
 
-            {/* Search Action Button */}
+            {/* Search Action Button - Highlighted */}
             <Button
               type="submit"
               size="sm"
-              className="h-7.5 rounded-full px-4 text-xs font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1 ml-1"
+              className="h-8 rounded-full px-4 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md hover:shadow-lg shadow-amber-500/25 border border-amber-400/40 gap-1.5 ml-1 transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
             >
+              <Search className="h-3.5 w-3.5 text-white stroke-[2.5]" />
               <span>Search</span>
             </Button>
           </form>
@@ -824,10 +825,10 @@ export function SiteHeader() {
       <div className="block sm:hidden px-3 pb-2.5 pt-0">
         <form
           onSubmit={submit}
-          className="relative flex items-center h-9 w-full rounded-full border border-border/80 bg-background px-2.5 shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all"
+          className="relative flex items-center h-9 w-full rounded-full border border-amber-500/30 bg-background px-2.5 shadow-xs focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/25 transition-all"
         >
           <div className="relative flex-1 min-w-0 flex items-center">
-            <Search className="h-3.5 w-3.5 text-muted-foreground/70 shrink-0 mr-1.5" />
+            <Search className="h-3.5 w-3.5 text-amber-500/80 shrink-0 mr-1.5" />
             <input
               type="text"
               value={q}
@@ -855,11 +856,13 @@ export function SiteHeader() {
               </button>
             )}
           </div>
+          {/* Highlighted Mobile Search Action Button */}
           <Button
             type="submit"
             size="sm"
-            className="h-6.5 rounded-full px-2.5 text-[11px] font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 shadow-2xs gap-1 ml-1"
+            className="h-7 rounded-full px-3 text-xs font-bold bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-500 hover:from-amber-600 hover:via-amber-700 hover:to-yellow-600 text-white shrink-0 shadow-md shadow-amber-500/25 border border-amber-400/40 gap-1 ml-1 transition-all duration-200"
           >
+            <Search className="h-3 w-3 text-white stroke-[2.5]" />
             <span>Search</span>
           </Button>
         </form>

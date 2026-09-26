@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { ImageUploader } from "@/components/image-uploader";
 import { SellerTrustCard } from "@/components/seller-trust-card";
+import { StoreShareCard } from "@/components/store-share-card";
 import { slugify } from "@/lib/utils-app";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -154,6 +155,12 @@ function VendorStore() {
           Manage your business credentials, GST details, location, and shop photos to earn the <strong>Verified Seller</strong> badge.
         </p>
       </div>
+
+      {/* Public Storefront Share Banner */}
+      <StoreShareCard
+        storeSlug={form.slug || slugify(form.name) || vendor?.id || user?.id || "my-store"}
+        storeName={form.name || vendor?.name || "My Store"}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Main Form (8 Columns) */}

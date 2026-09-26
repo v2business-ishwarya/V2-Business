@@ -164,7 +164,7 @@ function VendorProducts() {
   };
 
   const save = () => {
-    if (!form.name.trim() || !form.price) return toast.error("Name and price are required");
+    if (!form.name.trim() || !form.price) return toast.error("Product name and discount price are required");
     const payload = {
       name: form.name.trim(),
       description: form.description || undefined,
@@ -228,7 +228,7 @@ function VendorProducts() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label>Price (₹) *</Label>
+                  <Label>Discount Price (₹) *</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -238,7 +238,7 @@ function VendorProducts() {
                   />
                 </div>
                 <div>
-                  <Label>Original / MRP Price (₹)</Label>
+                  <Label>Original Price (₹)</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -274,18 +274,11 @@ function VendorProducts() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
+                <div className="col-span-2">
                   <Label>Brand (optional)</Label>
                   <Input
                     value={form.brand}
                     onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>SKU (optional)</Label>
-                  <Input
-                    value={form.sku}
-                    onChange={(e) => setForm({ ...form, sku: e.target.value })}
                   />
                 </div>
               </div>

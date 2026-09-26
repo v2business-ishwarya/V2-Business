@@ -4,12 +4,13 @@ import { api } from "@/services/api";
 import { ProductCard } from "@/components/product-card";
 import { EmptyState } from "@/components/empty-state";
 import { SellerTrustCard } from "@/components/seller-trust-card";
-import { Store, ShieldCheck, MapPin, Sparkles, Search, Tag, ArrowLeft, Star, Package } from "lucide-react";
+import { Store, ShieldCheck, MapPin, Sparkles, Search, Tag, ArrowLeft, Star, Package, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getVendorByIdOrSlug } from "@/data/categories";
 import { useState, useMemo } from "react";
+import { StoreShareModal } from "@/components/store-share-card";
 
 export const Route = createFileRoute("/store/$slug")({
   head: ({ params }) => {
@@ -29,6 +30,7 @@ function StorePage() {
   const { slug } = Route.useParams();
   const [search, setSearch] = useState("");
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [shareOpen, setShareOpen] = useState(false);
 
   const vendorMeta = useMemo(() => {
     return getVendorByIdOrSlug(slug);
@@ -87,13 +89,22 @@ function StorePage() {
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
         <div className="pointer-events-none absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-black/20 blur-2xl" />
 
-        <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-6xl px-4 pt-6 sm:px-6 lg:px-8 flex items-center justify-between">
           <Link
             to="/vendors"
             className="inline-flex items-center text-xs font-semibold text-white/80 hover:text-white transition-colors bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10"
           >
             <ArrowLeft className="mr-1.5 h-3.5 w-3.5" /> Back to All Vendors
           </Link>
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => setShareOpen(true)}
+            className="h-8 text-xs font-semibold bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/10 rounded-xl gap-1.5 shadow-sm"
+          >
+            <Share2 className="h-3.5 w-3.5" /> Share Store
+          </Button>
         </div>
       </div>
 
@@ -198,6 +209,13 @@ function StorePage() {
           )}
         </div>
       </div>
+
+      <StoreShareModal
+        open={shareOpen}
+        onOpenChange={setShareOpen}
+        storeSlug={slug}
+        storeName={storeName}
+      />
     </div>
   );
 }

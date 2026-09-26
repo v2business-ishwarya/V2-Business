@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { formatMoney } from "@/lib/utils-app";
 import { Package, ShoppingBag, DollarSign, Clock } from "lucide-react";
+import { StoreShareCard } from "@/components/store-share-card";
 
 export const Route = createFileRoute("/_authenticated/vendor/")({
   component: VendorOverview,
@@ -58,12 +59,29 @@ function VendorOverview() {
     { label: "Active Products", value: products.length, icon: Package },
   ];
 
+  const storeSlug =
+    typeof window !== "undefined"
+      ? (() => {
+          try {
+            const saved = localStorage.getItem(`vendor_store_${vendor?.id}`);
+            if (saved) {
+              const parsed = JSON.parse(saved);
+              if (parsed.slug) return parsed.slug;
+            }
+          } catch {}
+          return vendor.slug || vendor.id;
+        })()
+      : vendor.slug || vendor.id;
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold">Vendor Overview</h1>
         <p className="text-sm text-muted-foreground">Summary of your store activity and performance</p>
       </div>
+
+      {/* Public Storefront Share Banner */}
+      <StoreShareCard storeSlug={storeSlug} storeName={vendor.name} />
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {cards.map((c) => (

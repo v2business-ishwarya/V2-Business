@@ -20,7 +20,9 @@ import {
   CheckCircle2,
   Clock,
   Sparkles,
+  Share2,
 } from "lucide-react";
+import { StoreShareModal } from "@/components/store-share-card";
 
 export interface VendorTrustData {
   id?: string;
@@ -50,6 +52,7 @@ interface SellerTrustCardProps {
 export function SellerTrustCard({ vendor, className = "", compact = false }: SellerTrustCardProps) {
   const [photoOpen, setPhotoOpen] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [shareOpen, setShareOpen] = useState(false);
 
   const isPhysical = vendor.businessType !== "home_cloud";
   const hasGst = Boolean(vendor.gstNumber && vendor.gstNumber.trim().length >= 10);
@@ -89,13 +92,23 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
           </div>
 
           {vendor.id && (
-            <Link
-              to="/store/$slug"
-              params={{ slug: vendor.slug || vendor.id }}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-            >
-              Visit Store <ExternalLink className="h-3 w-3" />
-            </Link>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShareOpen(true)}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                title="Share store link"
+              >
+                <Share2 className="h-3 w-3" /> Share
+              </button>
+              <Link
+                to="/store/$slug"
+                params={{ slug: vendor.slug || vendor.id }}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              >
+                Visit Store <ExternalLink className="h-3 w-3" />
+              </Link>
+            </div>
           )}
         </div>
 
@@ -242,6 +255,15 @@ export function SellerTrustCard({ vendor, className = "", compact = false }: Sel
           </div>
         </DialogContent>
       </Dialog>
+
+      {vendor.id && (
+        <StoreShareModal
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          storeSlug={vendor.slug || vendor.id}
+          storeName={vendor.name}
+        />
+      )}
     </>
   );
 }
