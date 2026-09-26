@@ -29,7 +29,8 @@ export function V2LogoIcon({
   return (
     <img
       src="/v2b-gold-logo.png"
-      alt="V2B Logo"
+      alt="V2B — V2 Business Marketplace Rajahmundry"
+      title="V2B | V2 Business Rajahmundry"
       style={{ height: `${height}px`, width: "auto" }}
       className={`shrink-0 object-contain drop-shadow-[0_2px_8px_rgba(217,119,6,0.25)] hover:scale-105 transition-transform duration-200 ${className}`}
       onError={(e) => {

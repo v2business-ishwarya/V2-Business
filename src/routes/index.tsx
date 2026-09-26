@@ -41,6 +41,41 @@ import { toast } from "sonner";
 import * as React from "react";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      {
+        title: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+      },
+      {
+        name: "description",
+        content:
+          "V2B (V2 Business) is Rajahmundry's premier online multi-vendor marketplace. Shop Jewellery, Electronics, Silk Sarees, Groceries, Toys & more with fast local delivery in Rajahmundry.",
+      },
+      {
+        name: "keywords",
+        content:
+          "V2B, v2b, v2business, V2 Business, V2B Rajahmundry, v2business rajahmundry, online shopping rajahmundry, rajahmundry marketplace, local merchants rajahmundry, jewellery rajahmundry, electronics rajahmundry, v2b shopping",
+      },
+      {
+        property: "og:title",
+        content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+      },
+      {
+        property: "og:description",
+        content:
+          "Shop 29+ categories on V2B (V2 Business) in Rajahmundry. Best prices on Jewellery, Electronics, Silk Sarees, Fashion & Food with fast local delivery.",
+      },
+      {
+        name: "twitter:title",
+        content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "Shop 29+ categories on V2B (V2 Business) in Rajahmundry. Best prices on Jewellery, Electronics, Silk Sarees, Fashion & Food with fast local delivery.",
+      },
+    ],
+  }),
   component: Home,
 });
 
@@ -62,11 +97,11 @@ const QUICK_NAV_CATS = [
 const HERO_SLIDES = [
   {
     id: "slide-1",
-    tag: "🔥 GRAND MARKETPLACE FESTIVAL",
-    title: "Mega Deals Up to 70% Off",
-    highlight: "Across 29 Retail Categories",
-    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified merchants.",
-    ctaText: "Shop All Deals",
+    tag: "🔥 V2B RAJAHMUNDRY GRAND MARKETPLACE",
+    title: "V2B Mega Deals Up to 70% Off",
+    highlight: "Rajahmundry's #1 Online Multi-Vendor Platform",
+    subtitle: "Shop top brand electronics, festive jewellery, fashion & groceries directly from verified Rajahmundry merchants on V2B (V2 Business).",
+    ctaText: "Shop V2B Deals",
     targetLink: "/search",
     bgImage:
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1920&q=95",
@@ -320,27 +355,31 @@ function Home() {
       <div className="bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-600 text-white py-1.5 shadow-sm overflow-hidden whitespace-nowrap select-none">
         <div className="animate-marquee flex items-center text-xs font-extrabold tracking-wider uppercase">
           <div className="flex items-center gap-8 px-4 shrink-0">
-            <span>✨ 29 RETAIL CATEGORIES ARE LIVE ON V2 BUSINESS!</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS) — RAJAHMUNDRY'S #1 MARKETPLACE!</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>⚡ FREE DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span>🛍️ 29 RETAIL CATEGORIES LIVE ACROSS RAJAHMUNDRY</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛡️ 100% VERIFIED MERCHANTS & DIRECT LOCAL PRICES</span>
+            <span>⚡ FREE DOORSTEP DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🛡️ 100% VERIFIED V2B MERCHANTS & DIRECT LOCAL PRICES</span>
             <span className="text-yellow-200/80">✦</span>
             <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🚀 FAST HOME DELIVERY ACROSS MULTIPLE CITIES</span>
+            <span>🚀 FAST HOME DELIVERY ACROSS RAJAHMUNDRY & SURROUNDING AREAS</span>
             <span className="text-yellow-200/80">✦</span>
           </div>
           <div className="flex items-center gap-8 px-4 shrink-0" aria-hidden="true">
-            <span>✨ 29 RETAIL CATEGORIES ARE LIVE ON V2 BUSINESS!</span>
+            <span>✨ WELCOME TO V2B (V2 BUSINESS) — RAJAHMUNDRY'S #1 MARKETPLACE!</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>⚡ FREE DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span>🛍️ 29 RETAIL CATEGORIES LIVE ACROSS RAJAHMUNDRY</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🛡️ 100% VERIFIED MERCHANTS & DIRECT LOCAL PRICES</span>
+            <span>⚡ FREE DOORSTEP DELIVERY ON ORDERS ABOVE ₹499</span>
+            <span className="text-yellow-200/80">✦</span>
+            <span>🛡️ 100% VERIFIED V2B MERCHANTS & DIRECT LOCAL PRICES</span>
             <span className="text-yellow-200/80">✦</span>
             <span>🔥 NEW FESTIVE DISCOUNTS & FLASH DEALS EVERY HOUR</span>
             <span className="text-yellow-200/80">✦</span>
-            <span>🚀 FAST HOME DELIVERY ACROSS MULTIPLE CITIES</span>
+            <span>🚀 FAST HOME DELIVERY ACROSS RAJAHMUNDRY & SURROUNDING AREAS</span>
             <span className="text-yellow-200/80">✦</span>
           </div>
         </div>

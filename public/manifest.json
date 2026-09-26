@@ -1,0 +1,22 @@
+{
+  "short_name": "V2B",
+  "name": "V2B — V2 Business Marketplace Rajahmundry",
+  "icons": [
+    {
+      "src": "/v2b-gold-logo.png",
+      "type": "image/png",
+      "sizes": "192x192 512x512"
+    },
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#d97706",
+  "display": "standalone",
+  "orientation": "portrait",
+  "description": "V2B (V2 Business) — Rajahmundry's official multi-vendor shopping marketplace. Discover thousands of verified local stores, gold jewellery, fashion, gadgets and products at 0% commission."
+}

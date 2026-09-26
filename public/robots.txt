@@ -1,0 +1,26 @@
+# robots.txt for V2B (V2 Business)
+# https://v2-business-alpha.vercel.app
+
+User-agent: *
+Allow: /
+Allow: /search
+Allow: /categories
+Allow: /category/
+Allow: /vendors
+Allow: /store/
+Allow: /product/
+Allow: /about
+Allow: /contact
+Allow: /terms
+Allow: /privacy
+
+# Disallow private user, admin & vendor operations from index
+Disallow: /admin/
+Disallow: /vendor/
+Disallow: /account/
+Disallow: /_authenticated/
+Disallow: /api/
+
+# Host & Sitemap definition
+Host: https://v2-business-alpha.vercel.app
+Sitemap: https://v2-business-alpha.vercel.app/sitemap.xml

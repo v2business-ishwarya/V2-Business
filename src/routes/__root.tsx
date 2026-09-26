@@ -65,22 +65,48 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "V2 Business — Multi-Vendor Marketplace" },
+      { title: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace" },
       {
         name: "description",
         content:
-          "Discover independent stores and shop thousands of products from vendors around the world on V2 Business.",
+          "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace. Shop authentic jewellery, electronics, clothing, groceries, toys & more from verified local merchants with fast doorstep delivery and 0% seller commission.",
       },
-      { property: "og:title", content: "V2 Business — Multi-Vendor Marketplace" },
+      {
+        name: "keywords",
+        content:
+          "V2B, v2b, v2business, V2 Business, V2B Rajahmundry, v2business in rajahmundry, v2b marketplace, v2b online shopping, rajahmundry shopping, local vendors rajahmundry, andhra pradesh online marketplace",
+      },
+      { name: "application-name", content: "V2B" },
+      { name: "author", content: "V2B (V2 Business)" },
+      { property: "og:site_name", content: "V2B (V2 Business)" },
+      { property: "og:title", content: "V2B | V2 Business — Rajahmundry's #1 Multi-Vendor Marketplace" },
       {
         property: "og:description",
         content:
-          "Discover independent stores and shop thousands of products from vendors around the world on V2 Business.",
+          "Shop from verified stores in Rajahmundry across 29 categories on V2B (V2 Business). Authentic gold jewellery, gadgets, fashion & local goods with instant doorstep delivery.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://v2-business-alpha.vercel.app/" },
+      { property: "og:image", content: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png" },
+      { property: "og:locale", content: "en_IN" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "V2B | V2 Business Marketplace Rajahmundry" },
+      {
+        name: "twitter:description",
+        content:
+          "Rajahmundry's premier multi-vendor marketplace. Discover top local sellers and brands on V2B.",
+      },
+      { name: "twitter:image", content: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png" },
+      { name: "robots", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "googlebot", content: "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" },
+      { name: "geo.region", content: "IN-AP" },
+      { name: "geo.placename", content: "Rajahmundry" },
+      { name: "geo.position", content: "17.0005;81.8040" },
+      { name: "ICBM", content: "17.0005, 81.8040" },
     ],
     links: [
+      { rel: "canonical", href: "https://v2-business-alpha.vercel.app/" },
+      { rel: "manifest", href: "/manifest.json" },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "icon", href: "/v2b-gold-logo.png", type: "image/png" },
@@ -101,10 +127,101 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const jsonLdOrg = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "V2B",
+    legalName: "V2 Business",
+    alternateName: [
+      "v2b",
+      "V2B",
+      "v2business",
+      "V2 Business",
+      "V2B Rajahmundry",
+      "v2business in rajahmundry",
+      "V2B Marketplace"
+    ],
+    url: "https://v2-business-alpha.vercel.app/",
+    logo: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png",
+    description: "V2B (V2 Business) is Rajahmundry's official multi-vendor online marketplace connecting verified merchants across 29 categories directly with shoppers.",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Danavaipeta, Main Road",
+      addressLocality: "Rajahmundry",
+      addressRegion: "Andhra Pradesh",
+      postalCode: "533101",
+      addressCountry: "IN"
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: "+91-1800-123-4567",
+      contactType: "customer service",
+      areaServed: ["IN", "IN-AP", "Rajahmundry"],
+      availableLanguage: ["English", "Telugu", "Hindi"]
+    }
+  };
+
+  const jsonLdWebsite = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "V2B",
+    alternateName: ["v2b", "V2 Business", "v2business", "V2B Rajahmundry"],
+    url: "https://v2-business-alpha.vercel.app/",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://v2-business-alpha.vercel.app/search?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const jsonLdLocalBusiness = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "V2B — V2 Business Rajahmundry",
+    image: "https://v2-business-alpha.vercel.app/v2b-gold-logo.png",
+    "@id": "https://v2-business-alpha.vercel.app/#localbusiness",
+    url: "https://v2-business-alpha.vercel.app/",
+    telephone: "+91-1800-123-4567",
+    priceRange: "₹₹",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Danavaipeta, Main Road",
+      addressLocality: "Rajahmundry",
+      addressRegion: "Andhra Pradesh",
+      postalCode: "533101",
+      addressCountry: "IN"
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 17.0005,
+      longitude: 81.8040
+    },
+    openingHoursSpecification: {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: [
+        "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+      ],
+      opens: "00:00",
+      closes: "23:59"
+    }
+  };
+
   return (
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdLocalBusiness) }}
+        />
       </head>
       <body>
         {children}
