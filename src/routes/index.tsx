@@ -388,8 +388,8 @@ function Home() {
       {/* 2.5 INTERACTIVE HERO SPLIT SECTION: V2B BRAND SPOTLIGHT (LEFT) + FAST GALLERY SLIDER (RIGHT) */}
       <section className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
-          {/* LEFT HALF: V2B SIGNATURE BRAND SPOTLIGHT */}
-          <div className="relative h-[280px] sm:h-[320px] md:h-[350px] lg:h-[380px] rounded-2xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-card via-card/90 to-amber-950/20 p-5 sm:p-6 md:p-7 flex flex-col justify-between shadow-lg select-none group">
+          {/* LEFT HALF: V2B SIGNATURE BRAND SPOTLIGHT (Visible on PC, hidden on phone) */}
+          <div className="hidden lg:flex relative h-[380px] rounded-2xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-card via-card/90 to-amber-950/20 p-5 sm:p-6 md:p-7 flex-col justify-between shadow-lg select-none group">
             {/* Ambient Warm Golden Glow */}
             <div className="absolute -top-20 -left-20 h-52 w-52 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-yellow-500/10 blur-2xl pointer-events-none" />
@@ -457,9 +457,9 @@ function Home() {
             </div>
           </div>
 
-          {/* RIGHT HALF: 1-SECOND FAST GALLERY SLIDER */}
+          {/* RIGHT HALF / MOBILE ONLY HERO: 1-SECOND FAST GALLERY SLIDER */}
           <div
-            className="relative h-[280px] sm:h-[320px] md:h-[350px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
+            className="relative h-[220px] sm:h-[280px] md:h-[320px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
             onTouchStart={onTouchStart}
@@ -488,7 +488,7 @@ function Home() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
                   {/* Content Overlay */}
-                  <div className="absolute inset-0 flex flex-col justify-center px-4 sm:px-6 md:px-8 max-w-sm text-white">
+                  <div className="absolute inset-0 flex flex-col justify-center px-5 sm:px-8 lg:px-6 max-w-xl lg:max-w-sm text-white">
                     {/* Badge */}
                     <div className="mb-1 sm:mb-1.5">
                       <span
