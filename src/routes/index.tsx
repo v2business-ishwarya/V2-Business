@@ -385,93 +385,180 @@ function Home() {
         </div>
       </div>
 
-      {/* 2.5 INTERACTIVE HERO GALLERY SLIDER / CAROUSEL */}
+      {/* 2.5 INTERACTIVE HERO SPLIT SECTION: V2B BRAND SPOTLIGHT (LEFT) + FAST GALLERY SLIDER (RIGHT) */}
       <section className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 lg:px-8">
-        <div
-          className="relative h-[220px] sm:h-[300px] md:h-[360px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-        >
-          {/* Slide items */}
-          {HERO_SLIDES.map((slide, index) => {
-            const isActive = index === currentSlide;
-            return (
-              <div
-                key={slide.id}
-                className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
-                  isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
-                }`}
-              >
-                {/* Background Image */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 items-stretch">
+          {/* LEFT HALF: V2B SIGNATURE BRAND SPOTLIGHT */}
+          <div className="relative h-[280px] sm:h-[320px] md:h-[350px] lg:h-[380px] rounded-2xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-card via-card/90 to-amber-950/20 p-5 sm:p-6 md:p-7 flex flex-col justify-between shadow-lg select-none group">
+            {/* Ambient Warm Golden Glow */}
+            <div className="absolute -top-20 -left-20 h-52 w-52 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-yellow-500/10 blur-2xl pointer-events-none" />
+
+            {/* Top Brand Identity */}
+            <div className="relative z-10">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 shadow-2xs">
+                  <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  RAJAHMUNDRY HYPERLOCAL
+                </div>
+                <span className="text-[10px] font-bold text-amber-600/70 dark:text-amber-400/70 tracking-widest uppercase">
+                  v2business.in
+                </span>
+              </div>
+
+              {/* Big Prominent V2B Brand Name */}
+              <div className="flex items-center gap-3">
                 <img
-                  src={slide.bgImage}
-                  alt={slide.title}
-                  className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
+                  src="/v2b-gold-logo.png"
+                  alt="V2B Logo"
+                  className="h-11 w-auto sm:h-13 shrink-0 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)] transition-transform group-hover:scale-105 duration-300"
                 />
-
-                {/* Dark & Vibrant Gradient Overlay for text contrast */}
-                <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
-
-                {/* Content Overlay */}
-                <div className="absolute inset-0 flex flex-col justify-center px-5 sm:px-8 md:px-10 lg:px-12 max-w-xl text-white">
-                  {/* Badge */}
-                  <div className="mb-1 sm:mb-2">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[11px] font-bold tracking-wide uppercase shadow-xs ${slide.badgeColor}`}
-                    >
-                      {slide.tag}
-                    </span>
-                  </div>
-
-                  {/* Headline */}
-                  <h2 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold tracking-tight leading-snug mb-1 sm:mb-1.5 drop-shadow-sm">
-                    {slide.title}
-                    <span className="block text-amber-300 font-semibold mt-0.5 text-xs sm:text-base md:text-lg">
-                      {slide.highlight}
-                    </span>
-                  </h2>
-
-                  {/* Subtitle */}
-                  <p className="hidden sm:block text-[11px] sm:text-xs text-gray-200/85 font-normal mb-2.5 sm:mb-3 line-clamp-2 max-w-md">
-                    {slide.subtitle}
+                <div>
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-none bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 bg-clip-text text-transparent drop-shadow-xs">
+                    V2B
+                  </h1>
+                  <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground mt-0.5">
+                    V2 Business Marketplace
                   </p>
-
-                  {/* CTA Button */}
-                  <div className="mt-0.5 sm:mt-1">
-                    <Link to={slide.targetLink}>
-                      <Button
-                        size="sm"
-                        className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-bold text-[11px] sm:text-xs px-3.5 sm:px-4.5 h-7 sm:h-8 shadow-md gap-1 hover:scale-102 transition-transform"
-                      >
-                        <span>{slide.ctaText}</span>
-                        <ArrowRight className="h-3 w-3" />
-                      </Button>
-                    </Link>
-                  </div>
                 </div>
               </div>
-            );
-          })}
 
-          {/* Bottom Slide Indicators */}
-          <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/20 backdrop-blur-xs px-2 py-0.5 rounded-full border border-white/10 shadow-xs">
-            {HERO_SLIDES.map((slide, idx) => (
-              <button
-                type="button"
-                key={slide.id}
-                onClick={() => setCurrentSlide(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
-                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                  idx === currentSlide
-                    ? "w-4 sm:w-5 bg-amber-400"
-                    : "w-1.5 bg-white/50 hover:bg-white/90"
-                }`}
-              />
-            ))}
+              {/* Unique / Non-Routine Local Caption */}
+              <div className="mt-3.5 sm:mt-4 space-y-1.5 sm:space-y-2">
+                <p className="text-sm sm:text-base font-extrabold text-foreground leading-snug">
+                  Where Rajahmundry’s iconic streets meet instant doorstep commerce.
+                </p>
+                <p className="text-xs sm:text-[13px] text-muted-foreground leading-relaxed font-normal line-clamp-3">
+                  No bloated markups. No faceless warehouses. Just your city’s proudest jewellers, weavers, and gadget hubs — delivered before your evening chai cools down.
+                </p>
+              </div>
+            </div>
+
+            {/* Bottom Micro Perks & CTAs */}
+            <div className="relative z-10 pt-3 border-t border-border/60">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-3 text-[10px] sm:text-[11px] font-semibold">
+                <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  ⚡ Hyperlocal Drop
+                </span>
+                <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  🛡️ Verified Stores
+                </span>
+                <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full border border-amber-500/20">
+                  🏷️ Direct Bazaar Rates
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <Link to="/search">
+                  <Button
+                    size="sm"
+                    className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-extrabold text-xs px-4 h-8 shadow-md gap-1.5 hover:scale-102 transition-transform"
+                  >
+                    <span>Explore Bazaar</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+                <Link to="/vendor">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 h-8"
+                  >
+                    <Store className="h-3.5 w-3.5 mr-1" />
+                    <span>Sell on V2B</span>
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT HALF: 1-SECOND FAST GALLERY SLIDER */}
+          <div
+            className="relative h-[280px] sm:h-[320px] md:h-[350px] lg:h-[380px] w-full rounded-2xl overflow-hidden shadow-lg border border-border/80 group select-none bg-neutral-900"
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
+            {/* Slide items */}
+            {HERO_SLIDES.map((slide, index) => {
+              const isActive = index === currentSlide;
+              return (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 transition-opacity duration-300 ease-in-out ${
+                    isActive ? "opacity-100 z-10 pointer-events-auto" : "opacity-0 z-0 pointer-events-none"
+                  }`}
+                >
+                  {/* Background Image */}
+                  <img
+                    src={slide.bgImage}
+                    alt={slide.title}
+                    className="h-full w-full object-cover object-center transform scale-100 transition-transform duration-7000 ease-out group-hover:scale-105"
+                  />
+
+                  {/* Dark & Vibrant Gradient Overlay for text contrast */}
+                  <div className={`absolute inset-0 bg-gradient-to-r ${slide.themeColor}`} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-center px-4 sm:px-6 md:px-8 max-w-sm text-white">
+                    {/* Badge */}
+                    <div className="mb-1 sm:mb-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold tracking-wide uppercase shadow-xs ${slide.badgeColor}`}
+                      >
+                        {slide.tag}
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold tracking-tight leading-snug mb-1 drop-shadow-sm">
+                      {slide.title}
+                      <span className="block text-amber-300 font-semibold mt-0.5 text-xs sm:text-sm md:text-base">
+                        {slide.highlight}
+                      </span>
+                    </h2>
+
+                    {/* Subtitle */}
+                    <p className="hidden sm:block text-[11px] text-gray-200/85 font-normal mb-2.5 line-clamp-2 max-w-xs">
+                      {slide.subtitle}
+                    </p>
+
+                    {/* CTA Button */}
+                    <div className="mt-0.5">
+                      <Link to={slide.targetLink}>
+                        <Button
+                          size="sm"
+                          className="rounded-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black font-bold text-[11px] sm:text-xs px-3.5 h-7 sm:h-8 shadow-md gap-1 hover:scale-102 transition-transform"
+                        >
+                          <span>{slide.ctaText}</span>
+                          <ArrowRight className="h-3 w-3" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Bottom Slide Indicators */}
+            <div className="absolute bottom-2.5 sm:bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 bg-black/20 backdrop-blur-xs px-2 py-0.5 rounded-full border border-white/10 shadow-xs">
+              {HERO_SLIDES.map((slide, idx) => (
+                <button
+                  type="button"
+                  key={slide.id}
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                    idx === currentSlide
+                      ? "w-4 sm:w-5 bg-amber-400"
+                      : "w-1.5 bg-white/50 hover:bg-white/90"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
