@@ -342,6 +342,40 @@ function VendorPaymentsPage() {
             </div>
           </div>
 
+          {payoutForm.upiId.trim() && (
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-center gap-4">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                  `upi://pay?pa=${payoutForm.upiId.trim()}&pn=${encodeURIComponent(
+                    payoutForm.accountHolder.trim() || user?.name || "Vendor",
+                  )}&cu=INR`,
+                )}`}
+                alt="Vendor UPI QR Preview"
+                className="h-28 w-28 rounded-lg border bg-white p-1.5 shadow-sm shrink-0"
+              />
+              <div className="space-y-1.5 text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-1.5 font-bold text-emerald-900 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                  Live Customer Direct Payment QR Preview
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Customers choosing <strong>Direct UPI to Seller</strong> at checkout will scan this QR or click to pay directly into:{" "}
+                  <strong className="text-foreground font-mono">{payoutForm.upiId}</strong> (₹0 platform fee).
+                </p>
+                <div className="pt-1">
+                  <a
+                    href={`upi://pay?pa=${payoutForm.upiId.trim()}&pn=${encodeURIComponent(
+                      payoutForm.accountHolder.trim() || user?.name || "Vendor",
+                    )}&cu=INR`}
+                    className="inline-flex items-center gap-1 text-xs text-emerald-700 underline font-medium hover:text-emerald-900"
+                  >
+                    Test Open in PhonePe / GPay app
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-2">
             <p className="text-xs text-muted-foreground">
               {isSaved ? "✓ Your receiving details are active and secured." : "Provide your details so customer payments can be disbursed to you."}
