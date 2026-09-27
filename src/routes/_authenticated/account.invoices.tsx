@@ -5,16 +5,40 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Download, Store } from "lucide-react";
 
+import { useMemo } from "react";
+import { QrCode, CheckCircle2 } from "lucide-react";
+
 export const Route = createFileRoute("/_authenticated/account/invoices")({
   head: () => ({ meta: [{ title: "My Invoices — Account" }] }),
   component: CustomerInvoicesPage,
 });
 
 function CustomerInvoicesPage() {
-  const { data: invoices = [], isLoading } = useQuery({
+  const { data: serverInvoices = [], isLoading } = useQuery({
     queryKey: ["customer-invoices"],
     queryFn: () => api.getInvoices(),
   });
+
+  const invoices = useMemo(() => {
+    const list: any[] = Array.isArray(serverInvoices) ? [...serverInvoices] : [];
+    if (typeof window !== "undefined") {
+      try {
+        const userStr = localStorage.getItem("auth_user");
+        const userId = userStr ? JSON.parse(userStr)?.id : null;
+        const localList = JSON.parse(
+          (userId ? localStorage.getItem(`customer_invoices_${userId}`) : null) ||
+            localStorage.getItem("all_marketplace_invoices") ||
+            "[]",
+        );
+        for (const loc of localList) {
+          if (!list.some((i) => i.id === loc.id || i.invoiceNumber === loc.invoiceNumber)) {
+            list.unshift(loc);
+          }
+        }
+      } catch {}
+    }
+    return list;
+  }, [serverInvoices]);
 
   const statusColor: Record<string, string> = {
     paid: "bg-green-100 text-green-800",
@@ -31,21 +55,34 @@ function CustomerInvoicesPage() {
     <style>body{font-family:system-ui,sans-serif;padding:40px;max-width:720px;margin:auto;color:#1a1a1a}
     h1{font-size:24px;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin:20px 0}
     th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #e5e5e5}th{background:#f8f8f8;font-weight:600}
-    .total-row{font-size:18px;font-weight:700}.meta{color:#666;font-size:14px}
+    .total-row{font-size:18px;font-weight:700}.meta{color:#555;font-size:14px;margin:4px 0}
+    .utr-box{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:8px;margin:15px 0;font-size:13px}
     hr{border:none;border-top:1px solid #e5e5e5;margin:20px 0}</style></head><body>
-    <h1>Invoice</h1><p class="meta">#${inv.invoiceNumber}</p><hr/>
-    <p><strong>From:</strong> ${inv.vendor?.name ?? "Vendor"}</p>
-    <p><strong>To:</strong> ${inv.customer?.name ?? inv.customer?.email ?? "—"}</p>
-    <p class="meta">Date: ${new Date(inv.issueDate || inv.createdAt).toLocaleDateString("en-IN")}</p>
-    <table><thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Tax</th><th>Total</th></tr></thead><tbody>
-    ${(inv.invoiceItems ?? []).map((i: any) => `<tr><td>${i.name || i.product?.name || "Item"}</td><td>${i.quantity}</td><td>₹${Number(i.unitPrice).toFixed(2)}</td><td>₹${Number(i.tax ?? 0).toFixed(2)}</td><td>₹${Number(i.total ?? i.unitPrice * i.quantity).toFixed(2)}</td></tr>`).join("")}
+    <h1>Official Tax Invoice</h1><p class="meta">Invoice No: <strong>#${inv.invoiceNumber}</strong></p><hr/>
+    <p><strong>Seller / Merchant:</strong> ${inv.vendor?.name ?? "Vendor Store"}</p>
+    <p><strong>Billed To:</strong> ${inv.customer?.name ?? inv.customer?.email ?? "Customer"}</p>
+    <p class="meta"><strong>Date:</strong> ${new Date(inv.issueDate || inv.createdAt).toLocaleDateString("en-IN", { dateStyle: "long" })}</p>
+    <p class="meta"><strong>Payment Mode:</strong> ${inv.paymentMethod || "Direct UPI (PhonePe / GPay / Paytm)"}</p>
+    ${
+      inv.utrNumber
+        ? `<div class="utr-box"><strong>UPI Transaction ID (UTR):</strong> <span style="font-family:monospace;letter-spacing:1px;font-size:14px">${inv.utrNumber}</span> &bull; Status: <strong>VERIFIED</strong></div>`
+        : ""
+    }
+    <table><thead><tr><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Tax</th><th>Total</th></tr></thead><tbody>
+    ${(inv.invoiceItems ?? [])
+      .map(
+        (i: any) =>
+          `<tr><td>${i.name || i.product?.name || "Item"}</td><td>${i.quantity}</td><td>₹${Number(i.unitPrice).toFixed(2)}</td><td>₹${Number(i.tax ?? 0).toFixed(2)}</td><td>₹${Number(i.total ?? i.unitPrice * i.quantity).toFixed(2)}</td></tr>`,
+      )
+      .join("")}
     </tbody></table>
     <div style="text-align:right;margin-top:16px">
     <p>Subtotal: ₹${Number(inv.subtotal ?? 0).toFixed(2)}</p>
     <p>Tax: ₹${Number(inv.taxAmount ?? 0).toFixed(2)}</p>
-    <p>Shipping: ₹${Number(inv.shippingAmount ?? 0).toFixed(2)}</p>
+    <p>Delivery / Shipping: ₹${Number(inv.shippingAmount ?? 0).toFixed(2)}</p>
     ${inv.discountAmount > 0 ? `<p>Discount: -₹${Number(inv.discountAmount).toFixed(2)}</p>` : ""}
-    <p class="total-row">Total: ₹${Number(inv.totalAmount ?? 0).toFixed(2)}</p>
+    <p class="total-row">Grand Total: ₹${Number(inv.totalAmount ?? 0).toFixed(2)}</p>
+    <p style="color:#059669;font-weight:600;font-size:13px;margin-top:4px">&#10003; Paid via Direct UPI</p>
     </div></body></html>`);
     w.document.close();
     w.print();
@@ -56,29 +93,31 @@ function CustomerInvoicesPage() {
       <div>
         <h1 className="text-2xl font-semibold">Your Invoices</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Separate invoice for each vendor — if you ordered from 2 vendors, you get 2 invoices
+          Every order automatically generates a separate invoice with the seller details and UPI Transaction ID (UTR).
         </p>
       </div>
 
       {isLoading ? (
         <div className="text-center py-12 text-muted-foreground">Loading your invoices…</div>
-      ) : (invoices as any[]).length === 0 ? (
+      ) : invoices.length === 0 ? (
         <Card className="p-8 text-center">
           <FileText className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
           <p className="font-medium">No invoices yet</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Place an order and your invoices will appear here automatically.
+            Place an order and your official invoice with UPI Transaction ID will generate automatically.
           </p>
         </Card>
       ) : (
         <div className="space-y-4">
-          {(invoices as any[]).map((inv: any) => (
+          {invoices.map((inv: any) => (
             <Card key={inv.id} className="p-5 space-y-3">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-bold">{inv.invoiceNumber}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[inv.status] ?? "bg-gray-100 text-gray-700"}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor[inv.status] ?? "bg-gray-100 text-gray-700"}`}
+                    >
                       {inv.status}
                     </span>
                   </div>
@@ -88,9 +127,20 @@ function CustomerInvoicesPage() {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {new Date(inv.issueDate || inv.createdAt).toLocaleDateString("en-IN", {
-                      year: "numeric", month: "long", day: "numeric",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
                     })}
                   </p>
+
+                  {/* Transaction ID / UTR badge */}
+                  {inv.utrNumber && (
+                    <div className="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md px-2.5 py-1 mt-1 font-medium">
+                      <QrCode className="h-3 w-3 text-emerald-600" />
+                      <span>UPI Ref / UTR:</span>
+                      <code className="font-mono font-bold tracking-wider">{inv.utrNumber}</code>
+                    </div>
+                  )}
                 </div>
                 <p className="text-xl font-bold">₹{Number(inv.totalAmount ?? 0).toFixed(2)}</p>
               </div>

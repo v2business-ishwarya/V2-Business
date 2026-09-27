@@ -37,13 +37,9 @@ function VendorPaymentsPage() {
   const [utrNumber, setUtrNumber] = useState("");
   const [utrSubmitted, setUtrSubmitted] = useState(false);
 
-  // Vendor Payout Form State
+  // Vendor Payout Form State (Direct UPI Only)
   const [payoutForm, setPayoutForm] = useState({
     accountHolder: "",
-    bankName: "",
-    accountNumber: "",
-    confirmAccountNumber: "",
-    ifscCode: "",
     upiId: "",
   });
   const [isSaved, setIsSaved] = useState(false);
@@ -57,13 +53,9 @@ function VendorPaymentsPage() {
           const parsed = JSON.parse(stored);
           setPayoutForm({
             accountHolder: parsed.accountHolder || user.name || "",
-            bankName: parsed.bankName || "",
-            accountNumber: parsed.accountNumber || "",
-            confirmAccountNumber: parsed.accountNumber || "",
-            ifscCode: parsed.ifscCode || "",
             upiId: parsed.upiId || "",
           });
-          setIsSaved(Boolean(parsed.accountNumber || parsed.upiId));
+          setIsSaved(Boolean(parsed.upiId));
           return;
         } catch {}
       }
@@ -72,13 +64,9 @@ function VendorPaymentsPage() {
       if (storedStore) {
         try {
           const parsedStore = JSON.parse(storedStore);
-          if (parsedStore.bankAccount || parsedStore.ifscCode || parsedStore.upiId) {
+          if (parsedStore.upiId) {
             setPayoutForm({
               accountHolder: parsedStore.name || user.name || "",
-              bankName: parsedStore.bankName || "",
-              accountNumber: parsedStore.bankAccount || "",
-              confirmAccountNumber: parsedStore.bankAccount || "",
-              ifscCode: parsedStore.ifscCode || "",
               upiId: parsedStore.upiId || "",
             });
             setIsSaved(true);
@@ -91,23 +79,14 @@ function VendorPaymentsPage() {
   const handleSavePayout = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return toast.error("Please login to save payment details");
-    if (!payoutForm.accountNumber.trim() && !payoutForm.upiId.trim()) {
-      return toast.error("Please provide at least a Bank Account Number or UPI ID to receive payouts");
-    }
-    if (payoutForm.accountNumber.trim()) {
-      if (!payoutForm.ifscCode.trim()) return toast.error("IFSC Code is required when providing a Bank Account");
-      if (payoutForm.accountNumber.trim() !== payoutForm.confirmAccountNumber.trim()) {
-        return toast.error("Account Numbers do not match. Please re-check.");
-      }
+    if (!payoutForm.upiId.trim()) {
+      return toast.error("Please enter your UPI ID (Google Pay / PhonePe / Paytm)");
     }
 
     setSavingPayout(true);
     try {
       const payload = {
         accountHolder: payoutForm.accountHolder.trim() || user.name || "Vendor",
-        bankName: payoutForm.bankName.trim(),
-        accountNumber: payoutForm.accountNumber.trim(),
-        ifscCode: payoutForm.ifscCode.trim().toUpperCase(),
         upiId: payoutForm.upiId.trim(),
         updatedAt: new Date().toISOString(),
       };
@@ -118,16 +97,13 @@ function VendorPaymentsPage() {
       if (storeStr) {
         try {
           const parsed = JSON.parse(storeStr);
-          parsed.bankAccount = payload.accountNumber;
-          parsed.ifscCode = payload.ifscCode;
           parsed.upiId = payload.upiId;
-          parsed.bankName = payload.bankName;
           localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(parsed));
         } catch {}
       }
 
       setIsSaved(true);
-      toast.success("Payout details saved! You are 100% ready to receive direct sales payments.");
+      toast.success("UPI details saved! You are 100% ready to receive direct sales payments.");
     } catch (e: any) {
       toast.error(e.message || "Failed to save payout details");
     } finally {
@@ -246,26 +222,26 @@ function VendorPaymentsPage() {
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
-          1. YOUR PAYOUT BANK & UPI DETAILS (WHERE VENDORS RECEIVE MONEY)
+          1. YOUR SELLER UPI RECEIVING ACCOUNT (DIRECT PAYMENTS)
           ───────────────────────────────────────────────────────────── */}
-      <Card className="p-6 space-y-6 border-2 border-primary/20 shadow-sm">
+      <Card className="p-6 space-y-6 border-2 border-emerald-500/20 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4">
           <div>
             <h2 className="text-lg font-bold flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" /> Your Receiving Bank & UPI Payout Details
+              <QrCode className="h-5 w-5 text-emerald-600" /> Your Seller UPI Receiving Account
             </h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Enter your bank account or UPI ID. <strong>100% of your sales money (0% commission deducted)</strong> is transferred directly here after customer orders are fulfilled.
+              Enter your UPI ID (Google Pay, PhonePe, Paytm, or BHIM). Customers will scan your direct QR code and pay directly to this account with <strong>0% fee (keep 100% of sales)</strong>.
             </p>
           </div>
           <div>
             {isSaved ? (
               <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white flex items-center gap-1.5 py-1 px-3">
-                <CheckCircle2 className="h-4 w-4" /> Ready for Payouts
+                <CheckCircle2 className="h-4 w-4" /> Ready to Receive Direct Payments
               </Badge>
             ) : (
               <Badge variant="outline" className="border-amber-400 bg-amber-50 text-amber-800 flex items-center gap-1.5 py-1 px-3">
-                <Info className="h-4 w-4" /> Action Required: Add Payout Info
+                <Info className="h-4 w-4" /> Action Required: Add UPI ID
               </Badge>
             )}
           </div>
@@ -274,9 +250,9 @@ function VendorPaymentsPage() {
         <form onSubmit={handleSavePayout} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label className="text-xs font-semibold">Beneficiary / Account Holder Name *</Label>
+              <Label className="text-xs font-semibold">Store / Beneficiary Name *</Label>
               <Input
-                placeholder="Name as printed in your bank account / passbook"
+                placeholder="Name as registered on your UPI app / passbook"
                 value={payoutForm.accountHolder}
                 onChange={(e) => setPayoutForm({ ...payoutForm, accountHolder: e.target.value })}
                 className="mt-1"
@@ -284,61 +260,18 @@ function VendorPaymentsPage() {
               />
             </div>
 
-            <div>
-              <Label className="text-xs font-semibold">Bank Name *</Label>
-              <Input
-                placeholder="e.g. State Bank of India, HDFC Bank, ICICI Bank"
-                value={payoutForm.bankName}
-                onChange={(e) => setPayoutForm({ ...payoutForm, bankName: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">Bank Account Number</Label>
-              <Input
-                type="text"
-                placeholder="e.g. 50100234567890"
-                value={payoutForm.accountNumber}
-                onChange={(e) => setPayoutForm({ ...payoutForm, accountNumber: e.target.value.replace(/\s/g, "") })}
-                className="mt-1 font-mono"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">Confirm Bank Account Number</Label>
-              <Input
-                type="text"
-                placeholder="Re-enter bank account number"
-                value={payoutForm.confirmAccountNumber}
-                onChange={(e) => setPayoutForm({ ...payoutForm, confirmAccountNumber: e.target.value.replace(/\s/g, "") })}
-                className="mt-1 font-mono"
-              />
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">Bank IFSC Code</Label>
-              <Input
-                placeholder="e.g. SBIN0001234 or HDFC0001234"
-                maxLength={11}
-                value={payoutForm.ifscCode}
-                onChange={(e) => setPayoutForm({ ...payoutForm, ifscCode: e.target.value.toUpperCase().replace(/\s/g, "") })}
-                className="mt-1 font-mono uppercase"
-              />
-              <span className="text-[11px] text-muted-foreground mt-0.5 block">11-character Indian Financial System Code</span>
-            </div>
-
             <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 space-y-1">
               <Label className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                <QrCode className="h-4 w-4 text-emerald-600" /> Instant UPI ID (Google Pay / PhonePe / Paytm / BHIM)
+                <QrCode className="h-4 w-4 text-emerald-600" /> Seller UPI ID (Google Pay / PhonePe / Paytm / BHIM) *
               </Label>
               <Input
-                placeholder="e.g. yourname@okhdfcbank or 9876543210@ybl"
+                placeholder="e.g. yourstore@okhdfcbank or 9876543210@paytm"
                 value={payoutForm.upiId}
                 onChange={(e) => setPayoutForm({ ...payoutForm, upiId: e.target.value.trim().toLowerCase() })}
                 className="mt-1 font-mono bg-background"
+                required
               />
-              <span className="text-[11px] text-emerald-700">For fast, instant mobile settlements directly to your UPI app.</span>
+              <span className="text-[11px] text-emerald-700">All customer payments for your products are credited directly here.</span>
             </div>
           </div>
 

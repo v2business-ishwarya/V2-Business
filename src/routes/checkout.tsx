@@ -234,19 +234,68 @@ function CheckoutPage() {
           const allDirect = JSON.parse(localStorage.getItem("all_direct_upi_orders") || "[]");
           allDirect.unshift(orderMeta);
           localStorage.setItem("all_direct_upi_orders", JSON.stringify(allDirect.slice(0, 100)));
+
+          // Automatically generate an invoice for each vendor order with customer & transaction ID
+          vendorGroups.forEach((vg, idx) => {
+            const invNumber = `INV-${Date.now().toString().slice(-6)}-${vg.vendorId.slice(0, 4).toUpperCase()}${idx + 1}`;
+            const invoiceRecord = {
+              id: `inv_${Date.now()}_${vg.vendorId}`,
+              invoiceNumber: invNumber,
+              orderId,
+              vendorId: vg.vendorId,
+              vendor: { id: vg.vendorId, name: vg.vendorName },
+              customerId: user?.id,
+              customer: { id: user?.id, name: user?.name || shippingAddress.name, email: user?.email },
+              shippingAddress,
+              paymentMethod: "Direct UPI",
+              utrNumber: cleanUtr,
+              status: "paid",
+              subtotal: vg.subtotal,
+              taxAmount: 0,
+              shippingAmount: 0,
+              discountAmount: 0,
+              totalAmount: vg.subtotal,
+              paidAmount: vg.subtotal,
+              balanceDue: 0,
+              issueDate: new Date().toISOString(),
+              createdAt: new Date().toISOString(),
+              invoiceItems: vg.items.map((it: any) => {
+                const p = it.product || it;
+                return {
+                  name: p.name || "Item",
+                  quantity: it.quantity || 1,
+                  unitPrice: Number(p.price || 0),
+                  total: Number(p.price || 0) * (it.quantity || 1),
+                };
+              }),
+            };
+
+            if (user?.id) {
+              const custKey = `customer_invoices_${user.id}`;
+              const custInvoices = JSON.parse(localStorage.getItem(custKey) || "[]");
+              custInvoices.unshift(invoiceRecord);
+              localStorage.setItem(custKey, JSON.stringify(custInvoices.slice(0, 50)));
+            }
+
+            const vendKey = `vendor_invoices_${vg.vendorId}`;
+            const vendInvoices = JSON.parse(localStorage.getItem(vendKey) || "[]");
+            vendInvoices.unshift(invoiceRecord);
+            localStorage.setItem(vendKey, JSON.stringify(vendInvoices.slice(0, 50)));
+
+            const allInvoices = JSON.parse(localStorage.getItem("all_marketplace_invoices") || "[]");
+            allInvoices.unshift(invoiceRecord);
+            localStorage.setItem("all_marketplace_invoices", JSON.stringify(allInvoices.slice(0, 100)));
+          });
         } catch {}
       }
 
-      toast.success(
-        selectedProvider === "direct_upi"
-          ? "Order placed! Your 12-digit UTR has been submitted to the seller for verification."
-          : "Order placed successfully!"
-      );
+      toast.success("Order placed and invoice generated with your UPI Transaction ID!");
       qc.invalidateQueries({ queryKey: ["cart"] });
       qc.invalidateQueries({ queryKey: ["orders"] });
       qc.invalidateQueries({ queryKey: ["my-orders"] });
+      qc.invalidateQueries({ queryKey: ["customer-invoices"] });
 
-      nav({ to: "/account/orders" });
+      nav({ to: "/account/invoices" });
     } catch (err: any) {
       toast.error(err.message || "Failed to place order. Please try again.");
     } finally {
@@ -324,95 +373,41 @@ function CheckoutPage() {
             </div>
           </Card>
 
-          {/* Payment Method */}
+          {/* Payment Method - Direct UPI Only */}
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <CreditCard className="h-5 w-5 text-primary" />
+              <QrCode className="h-5 w-5 text-emerald-600" />
               <h2 className="text-lg font-semibold">Payment Method</h2>
             </div>
 
-            <RadioGroup
-              value={selectedProvider}
-              onValueChange={setSelectedProvider}
-              className="space-y-3"
-            >
-              {/* Direct UPI to Seller (Featured) */}
-              <div
-                onClick={() => setSelectedProvider("direct_upi")}
-                className={`flex items-start space-x-3 rounded-xl border-2 p-4 cursor-pointer transition-all ${
-                  selectedProvider === "direct_upi"
-                    ? "border-emerald-500 bg-emerald-500/10 shadow-sm"
-                    : "border-border hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="direct_upi" id="pay-direct-upi" className="mt-1" />
-                <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Label htmlFor="pay-direct-upi" className="cursor-pointer font-bold text-base text-foreground">
-                      Direct UPI to Seller (GPay / PhonePe / Paytm / BHIM)
-                    </Label>
-                    <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] font-bold py-0.5 px-2">
-                      0% Fee • Instant Direct Credit
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Scan the seller's direct QR code or tap to pay via your UPI app. ₹0 transaction fee, 100% direct settlement.
-                  </p>
-                </div>
+            <div className="rounded-xl border-2 border-emerald-500 bg-emerald-500/10 p-4 shadow-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-bold text-base text-foreground">
+                  Direct UPI to Seller (GPay / PhonePe / Paytm / BHIM)
+                </span>
+                <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] font-bold py-0.5 px-2">
+                  0% Fee • Instant Direct Settlement
+                </Badge>
               </div>
-
-              <div
-                onClick={() => setSelectedProvider("razorpay")}
-                className={`flex items-center space-x-3 rounded-lg border p-4 cursor-pointer transition-all ${
-                  selectedProvider === "razorpay" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="razorpay" id="pay-razorpay" />
-                <Label htmlFor="pay-razorpay" className="flex-1 cursor-pointer font-medium">
-                  Razorpay (Credit/Debit Cards, NetBanking, All UPI, Wallets)
-                </Label>
-              </div>
-
-              <div
-                onClick={() => setSelectedProvider("cashfree")}
-                className={`flex items-center space-x-3 rounded-lg border p-4 cursor-pointer transition-all ${
-                  selectedProvider === "cashfree" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="cashfree" id="pay-cashfree" />
-                <Label htmlFor="pay-cashfree" className="flex-1 cursor-pointer font-medium">
-                  Cashfree Payments (Instant NetBanking & Cards)
-                </Label>
-              </div>
-
-              <div
-                onClick={() => setSelectedProvider("mock")}
-                className={`flex items-center space-x-3 rounded-lg border p-4 cursor-pointer transition-all ${
-                  selectedProvider === "mock" ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="mock" id="pay-mock" />
-                <Label htmlFor="pay-mock" className="flex-1 cursor-pointer font-medium">
-                  Cash on Delivery (Pay at Doorstep)
-                </Label>
-              </div>
-            </RadioGroup>
+              <p className="text-xs text-muted-foreground mt-1">
+                Scan the seller's QR code or tap to pay via UPI app. No cards or bank account details required — 100% direct seller settlement.
+              </p>
+            </div>
 
             {/* Direct UPI Interactive Payment Section */}
-            {selectedProvider === "direct_upi" && (
-              <div className="mt-6 rounded-xl border border-emerald-500/30 bg-card p-5 space-y-5 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between border-b pb-3">
-                  <div className="flex items-center gap-2">
-                    <QrCode className="h-5 w-5 text-emerald-600" />
-                    <div>
-                      <h3 className="font-bold text-sm text-foreground">Step 1: Scan & Pay Seller Directly</h3>
-                      <p className="text-xs text-muted-foreground">Use Google Pay, PhonePe, Paytm, or BHIM</p>
-                    </div>
+            <div className="mt-5 rounded-xl border border-emerald-500/30 bg-card p-5 space-y-5 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between border-b pb-3">
+                <div className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5 text-emerald-600" />
+                  <div>
+                    <h3 className="font-bold text-sm text-foreground">Step 1: Scan & Pay Seller Directly</h3>
+                    <p className="text-xs text-muted-foreground">Use Google Pay, PhonePe, Paytm, or BHIM</p>
                   </div>
-                  <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 text-xs">
-                    0% Commission
-                  </Badge>
                 </div>
+                <Badge variant="outline" className="text-emerald-700 bg-emerald-50 border-emerald-200 text-xs">
+                  0% Fee • Direct Settlement
+                </Badge>
+              </div>
 
                 {vendorGroups.map((vg) => {
                   const upiUrl = `upi://pay?pa=${vg.upiId}&pn=${encodeURIComponent(
@@ -541,7 +536,6 @@ function CheckoutPage() {
                   </div>
                 </div>
               </div>
-            )}
           </Card>
         </div>
 

@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Eye } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { QrCode } from "lucide-react";
+import { useMyVendor } from "@/hooks/use-session";
 
 export const Route = createFileRoute("/_authenticated/vendor/invoices")({
   head: () => ({ meta: [{ title: "Invoices — Vendor" }] }),
@@ -15,11 +17,32 @@ export const Route = createFileRoute("/_authenticated/vendor/invoices")({
 
 function VendorInvoicesPage() {
   const [viewInvoice, setViewInvoice] = useState<any>(null);
+  const { data: vendor } = useMyVendor();
 
-  const { data: invoices = [], isLoading } = useQuery({
+  const { data: serverInvoices = [], isLoading } = useQuery({
     queryKey: ["vendor-invoices"],
     queryFn: () => api.getInvoices(),
   });
+
+  const invoices = useMemo(() => {
+    const list: any[] = Array.isArray(serverInvoices) ? [...serverInvoices] : [];
+    if (typeof window !== "undefined") {
+      try {
+        const vId = vendor?.id;
+        const localList = JSON.parse(
+          (vId ? localStorage.getItem(`vendor_invoices_${vId}`) : null) ||
+            localStorage.getItem("all_marketplace_invoices") ||
+            "[]",
+        );
+        for (const loc of localList) {
+          if (!list.some((i) => i.id === loc.id || i.invoiceNumber === loc.invoiceNumber)) {
+            list.unshift(loc);
+          }
+        }
+      } catch {}
+    }
+    return list;
+  }, [serverInvoices, vendor?.id]);
 
   const statusColor: Record<string, string> = {
     paid: "bg-green-100 text-green-800",
@@ -36,17 +59,29 @@ function VendorInvoicesPage() {
     <style>body{font-family:system-ui,sans-serif;padding:40px;max-width:720px;margin:auto;color:#1a1a1a}
     h1{font-size:24px;margin-bottom:4px}table{width:100%;border-collapse:collapse;margin:20px 0}
     th,td{padding:10px 14px;text-align:left;border-bottom:1px solid #e5e5e5}th{background:#f8f8f8;font-weight:600}
-    .total-row{font-size:18px;font-weight:700}.meta{color:#666;font-size:14px}
-    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px}
+    .total-row{font-size:18px;font-weight:700}.meta{color:#555;font-size:14px;margin:4px 0}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+    .utr-box{background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:10px 14px;border-radius:8px;margin:15px 0;font-size:13px}
     hr{border:none;border-top:1px solid #e5e5e5;margin:20px 0}</style></head><body>
-    <div class="header"><div><h1>Invoice</h1><p class="meta">#${inv.invoiceNumber}</p></div>
+    <div class="header"><div><h1>Official Tax Invoice</h1><p class="meta">#${inv.invoiceNumber}</p></div>
     <div style="text-align:right"><p class="meta">Date: ${new Date(inv.issueDate || inv.createdAt).toLocaleDateString("en-IN")}</p>
-    <p class="meta">Status: ${inv.status?.toUpperCase()}</p></div></div>
+    <p class="meta">Status: <strong>${inv.status?.toUpperCase()}</strong></p></div></div>
     <hr/>
-    <p><strong>Vendor:</strong> ${inv.vendor?.name ?? "—"}</p>
+    <p><strong>Vendor / Store:</strong> ${inv.vendor?.name ?? "Vendor Store"}</p>
     <p><strong>Customer:</strong> ${inv.customer?.name ?? inv.customer?.email ?? "—"}</p>
-    <table><thead><tr><th>Item</th><th>Qty</th><th>Unit Price</th><th>Tax</th><th>Total</th></tr></thead><tbody>
-    ${(inv.invoiceItems ?? []).map((i: any) => `<tr><td>${i.name || i.product?.name || "Item"}</td><td>${i.quantity}</td><td>₹${Number(i.unitPrice).toFixed(2)}</td><td>₹${Number(i.tax ?? 0).toFixed(2)}</td><td>₹${Number(i.total ?? i.unitPrice * i.quantity).toFixed(2)}</td></tr>`).join("")}
+    <p class="meta"><strong>Payment Method:</strong> ${inv.paymentMethod || "Direct UPI"}</p>
+    ${
+      inv.utrNumber
+        ? `<div class="utr-box"><strong>Customer UPI Ref / UTR:</strong> <span style="font-family:monospace;letter-spacing:1px;font-size:14px">${inv.utrNumber}</span> &bull; <strong>DIRECT CREDIT</strong></div>`
+        : ""
+    }
+    <table><thead><tr><th>Item Description</th><th>Qty</th><th>Unit Price</th><th>Tax</th><th>Total</th></tr></thead><tbody>
+    ${(inv.invoiceItems ?? [])
+      .map(
+        (i: any) =>
+          `<tr><td>${i.name || i.product?.name || "Item"}</td><td>${i.quantity}</td><td>₹${Number(i.unitPrice).toFixed(2)}</td><td>₹${Number(i.tax ?? 0).toFixed(2)}</td><td>₹${Number(i.total ?? i.unitPrice * i.quantity).toFixed(2)}</td></tr>`,
+      )
+      .join("")}
     </tbody></table>
     <div style="text-align:right;margin-top:16px">
     <p>Subtotal: ₹${Number(inv.subtotal ?? 0).toFixed(2)}</p>
@@ -97,6 +132,13 @@ function VendorInvoicesPage() {
                     {new Date(inv.issueDate || inv.createdAt).toLocaleDateString("en-IN")}
                     {inv.orderId && ` · Order #${inv.orderId.substring(0, 8)}`}
                   </p>
+                  {inv.utrNumber && (
+                    <div className="inline-flex items-center gap-1.5 text-xs bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md px-2 py-0.5 mt-1 font-medium">
+                      <QrCode className="h-3 w-3 text-emerald-600" />
+                      <span>Customer UTR:</span>
+                      <code className="font-mono font-bold tracking-wider">{inv.utrNumber}</code>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="text-lg font-bold mr-2">₹{Number(inv.totalAmount ?? 0).toFixed(2)}</p>

@@ -53,11 +53,14 @@ function AdminPaymentsPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 flex gap-3 text-sm text-amber-800">
-        <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-        <span>
-          API credentials are configured via environment variables on the server. Enable/disable providers here; credentials never leave the backend.
-        </span>
+      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 flex gap-3 text-sm text-emerald-900">
+        <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
+        <div>
+          <strong className="font-semibold">Direct UPI Payments Active (0% Gateway Fee):</strong>
+          <p className="text-xs text-emerald-800 mt-0.5">
+            The platform is configured for Direct UPI to Seller. Customers pay directly to vendor UPI accounts (GPay/PhonePe/Paytm), eliminating 2% bank gateway deductions. Invoices with 12-digit UTR are generated automatically on checkout.
+          </p>
+        </div>
       </div>
 
       {isLoading ? (
