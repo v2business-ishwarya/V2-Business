@@ -440,14 +440,14 @@ function Home() {
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
-                <Link to="/vendor">
+                <Link to="/vendors">
                   <Button
                     variant="outline"
                     size="sm"
                     className="rounded-full text-xs font-bold border-amber-500/40 text-amber-700 dark:text-amber-300 hover:bg-amber-500/10 h-8"
                   >
                     <Store className="h-3.5 w-3.5 mr-1" />
-                    <span>Sell on V2 Business</span>
+                    <span>Vendors</span>
                   </Button>
                 </Link>
               </div>
