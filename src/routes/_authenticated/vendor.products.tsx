@@ -84,9 +84,17 @@ function VendorProducts() {
 
   const products: any[] = (rawProducts as any)?.data ?? (Array.isArray(rawProducts) ? rawProducts : []);
   
-  // Combine 30 marketplace categories with any custom backend categories
+  // Combine 30 marketplace categories and subcategories with any custom backend categories
   const cats = React.useMemo(() => {
-    const list = MARKETPLACE_CATEGORIES.map((c) => ({ id: c.id, name: c.name }));
+    const list: { id: string; name: string }[] = [];
+    MARKETPLACE_CATEGORIES.forEach((c) => {
+      list.push({ id: c.id, name: c.name });
+      if (c.subcategories) {
+        c.subcategories.forEach((sub) => {
+          list.push({ id: sub.id, name: `${c.name} — ${sub.name}` });
+        });
+      }
+    });
     const dbCats: any[] = Array.isArray(rawCats) ? rawCats : [];
     for (const dc of dbCats) {
       if (!list.some((c) => c.name.toLowerCase() === dc.name.toLowerCase())) {

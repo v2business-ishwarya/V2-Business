@@ -48,7 +48,7 @@ import { formatMoney, slugify } from "@/lib/utils-app";
 import { Badge } from "@/components/ui/badge";
 import { useState, useRef, useEffect, useMemo } from "react";
 import { V2Logo } from "@/components/v2-logo";
-import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy } from "@/data/categories";
+import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy, matchSubcategoryFuzzy } from "@/data/categories";
 import { MovingGradientFrame } from "@/components/originkit/ui/moving-gradient-button";
 import { VisualSearchModal } from "@/components/visual-search-modal";
 import {
@@ -154,6 +154,11 @@ export function SiteHeader() {
     return q.trim().length >= 1 ? matchCategoryFuzzy(q) : [];
   }, [q]);
 
+  // Instant local subcategory suggestions directly from memory (0ms perceived latency)
+  const instantMatchingSubs = useMemo(() => {
+    return q.trim().length >= 1 ? matchSubcategoryFuzzy(q) : [];
+  }, [q]);
+
   // Instant local location suggestions directly from memory (0ms perceived latency)
   const instantMatchingLocations = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -210,15 +215,21 @@ export function SiteHeader() {
       // 1. Matching Categories with fuzzy typo tolerance
       const matchingCats = matchCategoryFuzzy(term).slice(0, 3);
 
-      // 2. Matching Locations / Cities
+      // 2. Matching Subcategories (e.g. Gold & Silver, Imitation Jewellery)
+      const matchingSubs = matchSubcategoryFuzzy(term).slice(0, 3);
+
+      // 3. Matching Locations / Cities
       const matchingLocations = KNOWN_LOCATIONS.filter((loc) =>
         loc.toLowerCase().includes(term)
       ).slice(0, 3);
 
-      // 3. Products
+      // 4. Products
       let items: any[] = [];
       try {
-        if (matchingCats.length > 0) {
+        if (matchingSubs.length > 0) {
+          const res = await api.getProducts({ category: matchingSubs[0].category.name, limit: 6, isActive: true });
+          items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
+        } else if (matchingCats.length > 0) {
           const res = await api.getProducts({ category: matchingCats[0].name, limit: 6, isActive: true });
           items = (res as any)?.data ?? (Array.isArray(res) ? res : []);
         } else {
@@ -272,6 +283,7 @@ export function SiteHeader() {
 
       return {
         categories: matchingCats,
+        subcategories: matchingSubs,
         locations: matchingLocations,
         stores: Array.from(storeMap.values()).slice(0, 3),
         products: items.slice(0, 4),
@@ -283,6 +295,9 @@ export function SiteHeader() {
   const displayCategories =
     instantMatchingCats.length > 0 ? instantMatchingCats.slice(0, 3) : (searchResults?.categories || []);
 
+  const displaySubcategories =
+    instantMatchingSubs.length > 0 ? instantMatchingSubs.slice(0, 3) : (searchResults?.subcategories || []);
+
   const displayLocations =
     instantMatchingLocations.length > 0 ? instantMatchingLocations.slice(0, 3) : (searchResults?.locations || []);
 
@@ -293,6 +308,7 @@ export function SiteHeader() {
 
   const hasAnyResults =
     displayCategories.length > 0 ||
+    displaySubcategories.length > 0 ||
     displayLocations.length > 0 ||
     displayProducts.length > 0;
 
@@ -610,6 +626,56 @@ export function SiteHeader() {
                             </div>
                             <Badge variant="outline" className="text-[10px] shrink-0 font-medium">
                               Category
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Matching Subcategories */}
+                  {displaySubcategories && displaySubcategories.length > 0 && (
+                    <div className="space-y-1 pt-1 border-t border-border/50">
+                      <div className="px-2">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                          <Sparkles className="h-3 w-3 text-amber-500" /> Subcategories
+                        </span>
+                      </div>
+                      <div className="space-y-1">
+                        {displaySubcategories.map(({ subcategory, category }: any) => (
+                          <div
+                            key={subcategory.id}
+                            onClick={() => {
+                              setShowDropdown(false);
+                              navigate({
+                                to: "/search",
+                                search: { category: category.name, sub: subcategory.slug },
+                              });
+                            }}
+                            className="flex items-center justify-between p-2 rounded-xl hover:bg-muted/70 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className="h-7 w-7 rounded-lg overflow-hidden bg-muted shrink-0 border border-border">
+                                <img
+                                  src={subcategory.imageUrl || category.imageUrl}
+                                  alt=""
+                                  className="h-full w-full object-cover"
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="text-xs font-semibold text-foreground truncate block">
+                                  {subcategory.name}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground truncate block">
+                                  in {category.name}
+                                </span>
+                              </div>
+                            </div>
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] shrink-0 font-medium bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
+                            >
+                              Subcategory
                             </Badge>
                           </div>
                         ))}
@@ -1055,6 +1121,52 @@ export function SiteHeader() {
                         </div>
                         <Badge variant="outline" className="text-[9px]">
                           Category
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Subcategories */}
+                {displaySubcategories && displaySubcategories.length > 0 && (
+                  <div className="space-y-1 pt-1 border-t border-border/50">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1 px-1">
+                      <Sparkles className="h-3 w-3 text-amber-500" /> Subcategories
+                    </span>
+                    {displaySubcategories.map(({ subcategory, category }: any) => (
+                      <div
+                        key={subcategory.id}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          navigate({
+                            to: "/search",
+                            search: { category: category.name, sub: subcategory.slug },
+                          });
+                        }}
+                        className="flex items-center justify-between p-1.5 rounded-xl hover:bg-muted/70 cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 truncate text-xs min-w-0">
+                          <div className="h-6 w-6 rounded-md overflow-hidden bg-muted shrink-0 border border-border">
+                            <img
+                              src={subcategory.imageUrl || category.imageUrl}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="truncate">
+                            <span className="font-semibold text-foreground truncate block">
+                              {subcategory.name}
+                            </span>
+                            <span className="text-[9px] text-muted-foreground truncate block">
+                              in {category.name}
+                            </span>
+                          </div>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className="text-[9px] shrink-0 bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
+                        >
+                          Subcategory
                         </Badge>
                       </div>
                     ))}

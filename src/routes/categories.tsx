@@ -178,6 +178,25 @@ function CategoriesList() {
                     {c.description}
                   </p>
 
+                  {/* Subcategories (e.g. Gold & Silver, Imitation Jewellery) */}
+                  {c.subcategories && c.subcategories.length > 0 && (
+                    <div className="pt-1 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        <Sparkles className="h-3 w-3" /> Subcategories
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {c.subcategories.map((sub) => (
+                          <span
+                            key={sub.id}
+                            className="rounded-full bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 text-[11px] font-bold text-amber-700 dark:text-amber-300"
+                          >
+                            {sub.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Popular Tags */}
                   {c.popularTags && c.popularTags.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">

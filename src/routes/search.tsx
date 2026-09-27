@@ -30,7 +30,12 @@ import {
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { MARKETPLACE_CATEGORIES, matchCategoryFuzzy } from "@/data/categories";
+import {
+  MARKETPLACE_CATEGORIES,
+  matchCategoryFuzzy,
+  matchSubcategoryFuzzy,
+  getSubcategoryBySlug,
+} from "@/data/categories";
 import { VisualSearchModal } from "@/components/visual-search-modal";
 
 const KNOWN_LOCATIONS = [
@@ -48,6 +53,7 @@ const KNOWN_LOCATIONS = [
 const searchSchema = z.object({
   q: z.string().optional(),
   category: z.string().optional(),
+  sub: z.string().optional(),
   vendor: z.string().optional(),
   location: z.string().optional(),
   sort: z.enum(["new", "price_asc", "price_desc"]).optional(),
@@ -106,15 +112,19 @@ function SearchPage() {
       "search-products",
       params.q,
       params.category,
+      params.sub,
       params.vendor,
       params.location,
       sort,
     ],
     queryFn: async () => {
       const cleanTerm = isLocationSearch ? undefined : params.q;
-      // If query is a known category or category typo, target the category directly in 1 request!
+      const subMatch = params.sub ? getSubcategoryBySlug(params.sub) : null;
+      // If query is a known category or subcategory, target the category directly in 1 request!
       const targetCategory =
-        params.category || (matchedCategories.length > 0 ? matchedCategories[0].name : undefined);
+        params.category ||
+        (subMatch ? subMatch.category.name : undefined) ||
+        (matchedCategories.length > 0 ? matchedCategories[0].name : undefined);
       const searchParam = targetCategory ? undefined : cleanTerm;
 
       const res = await api.getProducts({
@@ -357,19 +367,78 @@ function SearchPage() {
 
     // 3. Filter by category
     if (params.category) {
-      const targetSlug = params.category.toLowerCase().replace(/[^a-z0-9]/g, "-");
+      const catObj = MARKETPLACE_CATEGORIES.find(
+        (c) =>
+          c.name.toLowerCase() === params.category!.toLowerCase() ||
+          c.slug === params.category!.toLowerCase() ||
+          (c.aliases && c.aliases.some((a) => a.toLowerCase() === params.category!.toLowerCase()))
+      );
+      const catAliases = [
+        params.category!.toLowerCase(),
+        ...(catObj?.aliases || []).map((a) => a.toLowerCase()),
+      ];
       list = list.filter((p: any) => {
         if (!p.category && !p.categories) return false;
         const pCats = Array.isArray(p.categories) ? p.categories : [p.category];
         return pCats.some((catStr: string) => {
           if (!catStr) return false;
-          const norm = catStr.toLowerCase().replace(/[^a-z0-9]/g, "-");
-          return (
-            norm === targetSlug ||
-            catStr.toLowerCase().includes(params.category!.toLowerCase()) ||
-            params.category!.toLowerCase().includes(catStr.toLowerCase())
-          );
+          const cLower = catStr.toLowerCase();
+          return catAliases.some((alias) => cLower.includes(alias) || alias.includes(cLower));
         });
+      });
+    }
+
+    // 3.5. Filter by subcategory
+    if (params.sub) {
+      const subInfo = getSubcategoryBySlug(params.sub);
+      const subSlug = params.sub.toLowerCase().trim();
+      const subTags = subInfo?.subcategory.popularTags?.map((t) => t.toLowerCase()) || [];
+
+      list = list.filter((p: any) => {
+        const pName = (p.name || "").toLowerCase();
+        const pDesc = (p.description || "").toLowerCase();
+        const pTags = Array.isArray(p.tags) ? p.tags.join(" ").toLowerCase() : "";
+        const pCat = (p.category || "").toLowerCase();
+        const pSub = (p.subcategory || p.subCategory || "").toLowerCase();
+        const haystack = `${pName} ${pDesc} ${pTags} ${pCat} ${pSub}`;
+
+        if (subSlug.includes("gold-silver") || subSlug.includes("gold") || subSlug.includes("silver")) {
+          const isGoldOrSilver =
+            haystack.includes("gold") ||
+            haystack.includes("silver") ||
+            haystack.includes("22k") ||
+            haystack.includes("24k") ||
+            haystack.includes("925") ||
+            haystack.includes("hallmark") ||
+            haystack.includes("coin") ||
+            subTags.some((t) => haystack.includes(t));
+          const isImitationOnly =
+            haystack.includes("imitation") ||
+            haystack.includes("1 gram") ||
+            haystack.includes("fashion jewel") ||
+            haystack.includes("artificial");
+          return isGoldOrSilver && !isImitationOnly;
+        }
+
+        if (subSlug.includes("imitation")) {
+          return (
+            haystack.includes("imitation") ||
+            haystack.includes("1 gram") ||
+            haystack.includes("fashion jewel") ||
+            haystack.includes("kundan") ||
+            haystack.includes("cz") ||
+            haystack.includes("oxidised") ||
+            haystack.includes("temple") ||
+            haystack.includes("artificial") ||
+            subTags.some((t) => haystack.includes(t))
+          );
+        }
+
+        return (
+          haystack.includes(subSlug) ||
+          (subInfo && haystack.includes(subInfo.subcategory.name.toLowerCase())) ||
+          subTags.some((t) => haystack.includes(t))
+        );
       });
     }
 
@@ -395,14 +464,43 @@ function SearchPage() {
     }
 
     return list;
-  }, [products.data, params.q, params.location, params.category, params.vendor, priceRange, sort, allStores]);
+  }, [products.data, params.q, params.location, params.category, params.sub, params.vendor, priceRange, sort, allStores]);
 
   // Check if search query matches a known category
   const matchingCategory = useMemo(() => {
     if (!params.q) return null;
     const q = params.q.toLowerCase().trim();
-    return catList.find((c) => c.name.toLowerCase() === q || c.slug === q);
+    return catList.find(
+      (c) =>
+        c.name.toLowerCase() === q ||
+        c.slug === q ||
+        (c.aliases && c.aliases.some((a) => a.toLowerCase() === q))
+    );
   }, [params.q, catList]);
+
+  // Resolve target category metadata for subcategories
+  const targetCategoryMeta = useMemo(() => {
+    if (params.category) {
+      const found = MARKETPLACE_CATEGORIES.find(
+        (c) =>
+          c.name.toLowerCase() === params.category!.toLowerCase() ||
+          c.slug === params.category!.toLowerCase() ||
+          (c.aliases && c.aliases.some((a) => a.toLowerCase() === params.category!.toLowerCase()))
+      );
+      if (found) return found;
+    }
+    if (params.sub) {
+      const subInfo = getSubcategoryBySlug(params.sub);
+      if (subInfo) return subInfo.category;
+    }
+    if (matchedCategory) {
+      return matchedCategory;
+    }
+    return null;
+  }, [params.category, params.sub, matchedCategory]);
+
+  const availableSubcategories = targetCategoryMeta?.subcategories || [];
+  const activeSubcategoryObj = params.sub ? getSubcategoryBySlug(params.sub)?.subcategory : null;
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -565,30 +663,83 @@ function SearchPage() {
           </button>
           {filteredCategoryList.map((c) => {
             const isSelected =
-              params.category === c.name || params.category === c.slug;
+              params.category === c.name ||
+              params.category === c.slug ||
+              (c.aliases && c.aliases.includes(params.category || ""));
+            const showSubcategories =
+              Boolean(c.subcategories && c.subcategories.length > 0) &&
+              (isSelected || (targetCategoryMeta && targetCategoryMeta.id === c.id));
+
             return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() =>
-                  navigate({
-                    to: "/search",
-                    search: { ...params, category: isSelected ? undefined : c.name },
-                  })
-                }
-                className={`w-full flex items-center justify-between rounded-xl px-3 py-1.5 text-xs transition-colors hover:bg-muted text-left group ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground font-bold"
-                    : "text-foreground/90 font-medium"
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <div className="h-5 w-5 rounded-md overflow-hidden bg-muted shrink-0 border border-border/40">
-                    <img src={c.imageUrl} alt="" className="h-full w-full object-cover" />
+              <div key={c.id} className="space-y-0.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/search",
+                      search: {
+                        ...params,
+                        category: isSelected ? undefined : c.name,
+                        sub: isSelected ? undefined : params.sub,
+                      },
+                    })
+                  }
+                  className={`w-full flex items-center justify-between rounded-xl px-3 py-1.5 text-xs transition-colors hover:bg-muted text-left group ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground font-bold"
+                      : "text-foreground/90 font-medium"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <div className="h-5 w-5 rounded-md overflow-hidden bg-muted shrink-0 border border-border/40">
+                      <img src={c.imageUrl} alt="" className="h-full w-full object-cover" />
+                    </div>
+                    <span className="truncate">{c.name}</span>
                   </div>
-                  <span className="truncate">{c.name}</span>
-                </div>
-              </button>
+                  {c.subcategories && c.subcategories.length > 0 && (
+                    <Badge
+                      variant="outline"
+                      className={`text-[9px] px-1 py-0 h-4 border-primary/30 ${
+                        isSelected ? "bg-white/20 text-white" : "text-primary"
+                      }`}
+                    >
+                      {c.subcategories.length} subs
+                    </Badge>
+                  )}
+                </button>
+
+                {/* Subcategories nested tree */}
+                {showSubcategories && (
+                  <div className="ml-5 pl-2.5 border-l-2 border-amber-500/40 space-y-1 py-1">
+                    {c.subcategories!.map((sub) => {
+                      const isSubSelected = params.sub === sub.slug;
+                      return (
+                        <button
+                          key={sub.id}
+                          type="button"
+                          onClick={() =>
+                            navigate({
+                              to: "/search",
+                              search: {
+                                ...params,
+                                category: c.name,
+                                sub: isSubSelected ? undefined : sub.slug,
+                              },
+                            })
+                          }
+                          className={`w-full flex items-center justify-between rounded-lg px-2.5 py-1 text-[11px] transition-colors hover:bg-muted text-left ${
+                            isSubSelected
+                              ? "bg-amber-500 text-white font-bold shadow-xs"
+                              : "text-muted-foreground hover:text-foreground font-medium"
+                          }`}
+                        >
+                          <span className="truncate">↳ {sub.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </div>
@@ -749,7 +900,23 @@ function SearchPage() {
             <X
               className="h-3.5 w-3.5 cursor-pointer text-primary hover:text-primary/80"
               onClick={() =>
-                navigate({ to: "/search", search: { ...params, category: undefined } })
+                navigate({ to: "/search", search: { ...params, category: undefined, sub: undefined } })
+              }
+            />
+          </Badge>
+        )}
+
+        {params.sub && (
+          <Badge
+            variant="outline"
+            className="py-1 px-3 text-xs bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30 flex items-center gap-1.5 rounded-full"
+          >
+            <Sparkles className="h-3 w-3 text-amber-500" />
+            <span>Subcategory: <strong>{activeSubcategoryObj?.name || params.sub}</strong></span>
+            <X
+              className="h-3.5 w-3.5 cursor-pointer text-amber-600 hover:text-amber-800"
+              onClick={() =>
+                navigate({ to: "/search", search: { ...params, sub: undefined } })
               }
             />
           </Badge>
@@ -771,6 +938,74 @@ function SearchPage() {
           </Button>
         )}
       </div>
+
+      {/* Horizontal Subcategory Filter Chips Row */}
+      {availableSubcategories.length > 0 && (
+        <div className="mb-6 p-3 rounded-2xl bg-amber-500/5 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-none">
+            <span className="text-xs font-bold text-foreground flex items-center gap-1.5 shrink-0">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              <span>Subcategories:</span>
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: "/search",
+                  search: { ...params, sub: undefined },
+                })
+              }
+              className={`rounded-full px-3 py-1 text-xs font-semibold shrink-0 transition-all ${
+                !params.sub
+                  ? "bg-amber-500 text-white font-bold shadow-xs"
+                  : "bg-background hover:bg-muted text-foreground border border-border/80"
+              }`}
+            >
+              All {targetCategoryMeta?.name || "Items"}
+            </button>
+            {availableSubcategories.map((sub) => {
+              const isSubSelected = params.sub === sub.slug;
+              return (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() =>
+                    navigate({
+                      to: "/search",
+                      search: {
+                        ...params,
+                        category: targetCategoryMeta?.name || params.category || "Jewellery, Gold & Silver",
+                        sub: isSubSelected ? undefined : sub.slug,
+                      },
+                    })
+                  }
+                  className={`rounded-full px-3 py-1 text-xs font-semibold shrink-0 transition-all flex items-center gap-1.5 ${
+                    isSubSelected
+                      ? "bg-amber-500 text-white font-bold shadow-xs"
+                      : "bg-background hover:bg-muted text-foreground border border-border/80"
+                  }`}
+                >
+                  <span>{sub.name}</span>
+                </button>
+              );
+            })}
+          </div>
+          {params.sub && (
+            <button
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: "/search",
+                  search: { ...params, sub: undefined },
+                })
+              }
+              className="text-xs text-muted-foreground hover:text-foreground font-medium shrink-0 self-end sm:self-auto cursor-pointer"
+            >
+              Clear subcategory filter
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Prominent Matched Category Spotlight Card */}
       {matchedCategory && (
@@ -796,6 +1031,37 @@ function SearchPage() {
               <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                 {matchedCategory.description}
               </p>
+              {matchedCategory.subcategories && matchedCategory.subcategories.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                  <span className="text-[11px] font-semibold text-muted-foreground">Subcategories:</span>
+                  {matchedCategory.subcategories.map((sub) => {
+                    const isSubSelected = params.sub === sub.slug;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() =>
+                          navigate({
+                            to: "/search",
+                            search: {
+                              ...params,
+                              category: matchedCategory.name,
+                              sub: isSubSelected ? undefined : sub.slug,
+                            },
+                          })
+                        }
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full transition-colors border cursor-pointer ${
+                          isSubSelected
+                            ? "bg-amber-500 text-white border-amber-600 shadow-xs"
+                            : "bg-amber-500/10 text-amber-800 dark:text-amber-200 border-amber-500/25 hover:bg-amber-500/20"
+                        }`}
+                      >
+                        {sub.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
           <Link

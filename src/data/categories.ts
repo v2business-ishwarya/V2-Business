@@ -8,6 +8,15 @@ export function slugify(text: string): string {
     .replace(/\-\-+/g, "-");
 }
 
+export interface MarketplaceSubcategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  imageUrl?: string;
+  popularTags?: string[];
+}
+
 export interface MarketplaceCategory {
   id: string;
   name: string;
@@ -17,6 +26,8 @@ export interface MarketplaceCategory {
   itemCount: string;
   popularTags?: string[];
   featured?: boolean;
+  aliases?: string[];
+  subcategories?: MarketplaceSubcategory[];
 }
 
 export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
@@ -52,18 +63,69 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   },
   {
     "id": "cat_jewellery",
-    "name": "Jewellery & Accessories",
+    "name": "Jewellery, Gold & Silver",
     "slug": "jewellery-accessories",
-    "description": "Fine gold & silver jewellery, fashion accessories, watches & gemstones",
+    "description": "Fine gold & silver jewellery, imitation jewellery, bridal sets, gemstones & ornaments",
     "imageUrl": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
     "itemCount": "3,100+ items",
     "popularTags": [
-      "Gold Plated",
+      "Gold & Silver",
+      "Imitation Jewellery",
+      "Pure Gold 22K/24K",
       "Silver 925",
       "Temple Jewellery",
+      "1 Gram Gold",
+      "Bridal Sets",
       "Handmade Necklaces"
     ],
-    "featured": true
+    "featured": true,
+    "aliases": [
+      "Jewellery & Accessories",
+      "Jewellery",
+      "Jewelry",
+      "Gold & Silver",
+      "Gold and Silver",
+      "Gold Jewellery",
+      "Silver Jewellery",
+      "Imitation Jewellery",
+      "Immitation Jewellery",
+      "Fashion Jewellery"
+    ],
+    "subcategories": [
+      {
+        "id": "sub_jewel_gold_silver",
+        "name": "Gold & Silver Jewellery",
+        "slug": "gold-silver-jewellery",
+        "description": "Hallmarked 22K/24K pure gold jewellery, certified 925 sterling silver ornaments, coins & pooja articles",
+        "imageUrl": "https://images.unsplash.com/photo-1611591475855-6b4d3066fba0?auto=format&fit=crop&w=600&q=80",
+        "popularTags": [
+          "Gold 22K",
+          "Gold 24K",
+          "Silver 925",
+          "Hallmarked Gold",
+          "Gold Chains",
+          "Gold Bangles",
+          "Silver Anklets",
+          "Coins & Bars"
+        ]
+      },
+      {
+        "id": "sub_jewel_imitation",
+        "name": "Imitation Jewellery",
+        "slug": "imitation-jewellery",
+        "description": "Premium 1 gram gold plated sets, bridal kundan chokers, CZ American diamond & antique oxidised temple jewellery",
+        "imageUrl": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80",
+        "popularTags": [
+          "1 Gram Gold",
+          "Fashion Jewellery",
+          "Kundan Sets",
+          "Temple Jewellery",
+          "CZ Diamonds",
+          "Oxidised Silver",
+          "Bridal Chokers"
+        ]
+      }
+    ]
   },
   {
     "id": "cat_footwear",
@@ -472,11 +534,22 @@ export const MARKETPLACE_CATEGORIES: MarketplaceCategory[] = [
   }
 ];
 
+export interface MatchedSubcategory {
+  subcategory: MarketplaceSubcategory;
+  category: MarketplaceCategory;
+}
+
 export function getCategoryBySlug(slug: string): MarketplaceCategory | undefined {
   if (!slug) return undefined;
   const normalized = slug.toLowerCase().trim();
   return MARKETPLACE_CATEGORIES.find(
-    (c) => c.slug === normalized || c.slug.replace(/-/g, '') === normalized.replace(/-/g, '')
+    (c) =>
+      c.slug === normalized ||
+      c.slug.replace(/-/g, '') === normalized.replace(/-/g, '') ||
+      c.id === normalized ||
+      (c.aliases && c.aliases.some((a) => a.toLowerCase() === normalized || slugify(a) === normalized)) ||
+      (normalized === "jewellery" && c.id === "cat_jewellery") ||
+      (normalized === "jewelry" && c.id === "cat_jewellery")
   );
 }
 
@@ -484,8 +557,38 @@ export function getCategoryByName(name: string): MarketplaceCategory | undefined
   if (!name) return undefined;
   const normalized = name.toLowerCase().trim();
   return MARKETPLACE_CATEGORIES.find(
-    (c) => c.name.toLowerCase() === normalized || c.slug === normalized
+    (c) =>
+      c.name.toLowerCase() === normalized ||
+      c.slug === normalized ||
+      (c.aliases && c.aliases.some((a) => a.toLowerCase() === normalized || slugify(a) === normalized))
   );
+}
+
+export function getSubcategoryBySlug(slug: string): MatchedSubcategory | undefined {
+  if (!slug) return undefined;
+  const normalized = slug.toLowerCase().trim();
+  for (const cat of MARKETPLACE_CATEGORIES) {
+    if (!cat.subcategories) continue;
+    const found = cat.subcategories.find(
+      (s) => s.slug === normalized || slugify(s.name) === normalized || s.id === normalized
+    );
+    if (found) {
+      return { subcategory: found, category: cat };
+    }
+  }
+  return undefined;
+}
+
+export function getAllSubcategories(): MatchedSubcategory[] {
+  const list: MatchedSubcategory[] = [];
+  for (const cat of MARKETPLACE_CATEGORIES) {
+    if (cat.subcategories) {
+      for (const sub of cat.subcategories) {
+        list.push({ subcategory: sub, category: cat });
+      }
+    }
+  }
+  return list;
 }
 
 export function resolveCategoryInfo(nameOrSlug: string): MarketplaceCategory {
@@ -657,11 +760,25 @@ export function matchCategoryFuzzy(term: string): MarketplaceCategory[] {
     const cName = c.name.toLowerCase();
     const cSlug = c.slug.toLowerCase();
     const cTags = (c.popularTags || []).map((t) => t.toLowerCase());
+    const cAliases = (c.aliases || []).map((a) => a.toLowerCase());
+    const subNames = (c.subcategories || []).map((s) => s.name.toLowerCase());
+    const subSlugs = (c.subcategories || []).map((s) => s.slug.toLowerCase());
+    const subTags = (c.subcategories || []).flatMap((s) => (s.popularTags || []).map((t) => t.toLowerCase()));
+
     return (
       cName.includes(clean) ||
       cSlug.includes(clean) ||
       cTags.some((t) => t.includes(clean)) ||
-      cleanWords.some((w) => cName.includes(w) || cSlug.includes(w))
+      cAliases.some((a) => a.includes(clean)) ||
+      subNames.some((sn) => sn.includes(clean)) ||
+      subSlugs.some((ss) => ss.includes(clean)) ||
+      subTags.some((st) => st.includes(clean)) ||
+      cleanWords.some((w) =>
+        cName.includes(w) ||
+        cSlug.includes(w) ||
+        cAliases.some((a) => a.includes(w)) ||
+        subNames.some((sn) => sn.includes(w))
+      )
     );
   });
 
@@ -669,11 +786,14 @@ export function matchCategoryFuzzy(term: string): MarketplaceCategory[] {
 
   // 2. Fuzzy typo tolerance (e.g. "jewwley" -> "jewellery", "electonic" -> "electronics", "clothng" -> "clothing")
   return MARKETPLACE_CATEGORIES.filter((c) => {
-    const haystack = `${c.name.toLowerCase()} ${c.slug.toLowerCase()} ${(c.popularTags || []).join(" ").toLowerCase()}`;
+    const haystack = `${c.name.toLowerCase()} ${c.slug.toLowerCase()} ${(c.popularTags || []).join(" ").toLowerCase()} ${(c.aliases || []).join(" ").toLowerCase()}`;
     return cleanWords.some((w) => {
       if (w.length < 3) return false;
       const prefix = w.slice(0, 3);
       if (w.startsWith("jew") && haystack.includes("jewel")) return true;
+      if (w.startsWith("gold") && (haystack.includes("gold") || c.id === "cat_jewellery")) return true;
+      if (w.startsWith("silv") && (haystack.includes("silver") || c.id === "cat_jewellery")) return true;
+      if ((w.startsWith("imit") || w.startsWith("immit")) && (haystack.includes("imitation") || c.id === "cat_jewellery")) return true;
       if (w.startsWith("elec") && haystack.includes("electr")) return true;
       if (w.startsWith("cloth") && haystack.includes("cloth")) return true;
       if (w.startsWith("groc") && haystack.includes("grocer")) return true;
@@ -684,4 +804,46 @@ export function matchCategoryFuzzy(term: string): MarketplaceCategory[] {
       return haystack.includes(prefix);
     });
   });
+}
+
+export function matchSubcategoryFuzzy(term: string): MatchedSubcategory[] {
+  if (!term || term.trim().length < 2) return [];
+  const clean = term.toLowerCase().trim();
+  const cleanWords = clean.split(/[\s&-_]+/).filter((w) => w.length >= 2);
+
+  const results: MatchedSubcategory[] = [];
+  const seen = new Set<string>();
+
+  for (const cat of MARKETPLACE_CATEGORIES) {
+    if (!cat.subcategories) continue;
+    for (const sub of cat.subcategories) {
+      const sName = sub.name.toLowerCase();
+      const sSlug = sub.slug.toLowerCase();
+      const sTags = (sub.popularTags || []).map((t) => t.toLowerCase());
+      const sDesc = (sub.description || "").toLowerCase();
+      const haystack = `${sName} ${sSlug} ${sTags.join(" ")} ${sDesc}`;
+
+      const isDirectMatch =
+        sName.includes(clean) ||
+        sSlug.includes(clean) ||
+        sTags.some((t) => t.includes(clean)) ||
+        cleanWords.some((w) => sName.includes(w) || sSlug.includes(w) || sTags.some((t) => t.includes(w)));
+
+      const isTypoMatch = cleanWords.some((w) => {
+        if (w.length < 3) return false;
+        if ((w.startsWith("gold") || w.startsWith("silv")) && (sSlug.includes("gold") || sSlug.includes("silver"))) return true;
+        if ((w.startsWith("immit") || w.startsWith("imit") || w.startsWith("imita")) && sSlug.includes("imitation")) return true;
+        if (w.startsWith("jew") && sSlug.includes("jewel")) return true;
+        if (w.startsWith("kund") && sTags.some((t) => t.includes("kundan"))) return true;
+        return false;
+      });
+
+      if ((isDirectMatch || isTypoMatch) && !seen.has(sub.id)) {
+        seen.add(sub.id);
+        results.push({ subcategory: sub, category: cat });
+      }
+    }
+  }
+
+  return results;
 }
