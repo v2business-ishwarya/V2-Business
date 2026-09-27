@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { formatMoney } from "@/lib/utils-app";
-import { Package, ShoppingBag, DollarSign, Clock } from "lucide-react";
+import { Package, ShoppingBag, DollarSign, Clock, Plus } from "lucide-react";
 import { StoreShareCard } from "@/components/store-share-card";
 
 export const Route = createFileRoute("/_authenticated/vendor/")({
@@ -101,8 +101,11 @@ function VendorOverview() {
           Manage your catalogue, track shipments, and inspect your payouts.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Link to="/vendor/products">
-            <Button>Manage products</Button>
+          <Link to="/vendor/products" search={{ new: "true" }}>
+            <Button className="gap-1.5 font-bold">
+              <Plus className="h-4 w-4" />
+              Add a product
+            </Button>
           </Link>
           <Link to="/vendor/orders">
             <Button variant="outline">View orders</Button>

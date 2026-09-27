@@ -30,7 +30,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { z } from "zod";
+
+const vendorProductsSearchSchema = z.object({
+  new: z.union([z.boolean(), z.string()]).optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/vendor/products")({
+  validateSearch: vendorProductsSearchSchema,
   component: VendorProducts,
 });
 
@@ -66,10 +73,18 @@ const empty: FormState = {
 };
 
 function VendorProducts() {
+  const search = Route.useSearch();
   const { data: vendor } = useMyVendor();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<FormState>(empty);
+
+  React.useEffect(() => {
+    if (search?.new === true || search?.new === "true") {
+      setForm(empty);
+      setOpen(true);
+    }
+  }, [search?.new]);
 
   const { data: rawProducts = [], isLoading } = useQuery({
     queryKey: ["vendor-products", vendor?.id],
