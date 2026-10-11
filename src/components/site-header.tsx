@@ -864,7 +864,7 @@ export function SiteHeader() {
                     onClick={() => setBecomeVendorOpen(true)}
                     className="cursor-pointer font-semibold text-amber-600 dark:text-amber-400 focus:text-amber-600 focus:bg-amber-500/10"
                   >
-                    <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
+                    <Store className="mr-2 h-4 w-4 text-amber-500" /> Sell on V2B
                   </DropdownMenuItem>
                 )}
                 {isAdmin && (
@@ -965,7 +965,7 @@ export function SiteHeader() {
                       }}
                       className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
                     >
-                      <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
+                      <Store className="mr-2 h-4 w-4 text-amber-500" /> Sell on V2B
                     </Button>
                   </div>
                 ) : (
@@ -991,7 +991,7 @@ export function SiteHeader() {
                         }}
                         className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
                       >
-                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Become a Seller
+                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Sell on V2B
                       </Button>
                     )}
                     <Button
@@ -1261,10 +1261,10 @@ export function SiteHeader() {
               <Store className="h-6 w-6" />
             </div>
             <DialogTitle className="text-center text-xl font-bold">
-              Register to Become a Seller
+              Sell on V2B — Register Store
             </DialogTitle>
             <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
-              Please provide your contact phone number and storefront location to register and activate your seller account.
+              Please provide your contact phone number and storefront location to register and activate your seller account on V2B.
             </DialogDescription>
           </DialogHeader>
 
@@ -1485,7 +1485,7 @@ export function SiteHeader() {
                 className="rounded-2xl font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
                 disabled={becomingVendor}
               >
-                {becomingVendor ? "Activating Store…" : "Complete Registration & Start Selling"}
+                {becomingVendor ? "Activating Store…" : "Complete Registration & Sell on V2B"}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>

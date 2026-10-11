@@ -165,10 +165,10 @@ function VendorOnboardingForm() {
           <Store className="h-7 w-7" />
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Register as a Vendor
+          Sell on V2B — Register Store
         </h1>
         <p className="text-xs text-muted-foreground max-w-md mx-auto">
-          To sell on V2 Business, please provide your contact phone number and storefront location.
+          To sell on V2B, please provide your contact phone number and storefront location.
         </p>
       </div>
 
@@ -375,7 +375,7 @@ function VendorOnboardingForm() {
           className="w-full rounded-2xl h-11 font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-lg shadow-amber-600/25"
           disabled={loading || sessionLoading}
         >
-          {loading ? "Activating Store…" : "Complete Registration & Activate Vendor"}
+          {loading ? "Activating Store…" : "Complete Registration & Sell on V2B"}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </form>
