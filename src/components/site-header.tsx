@@ -58,7 +58,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LocationMapPicker } from "@/components/location-map-picker";
+import { LocationMapPicker, SelectOnMapDialog } from "@/components/location-map-picker";
+import { VendorAiAssistant } from "@/components/vendor-ai-assistant";
 
 const KNOWN_LOCATIONS = [
   "Rajahmundry",
@@ -129,6 +130,13 @@ export function SiteHeader() {
       }));
     }
   }, [becomeVendorOpen, user]);
+
+  // Allow child components or assistant bot to trigger vendor registration modal
+  useEffect(() => {
+    const handleOpenRegister = () => setBecomeVendorOpen(true);
+    window.addEventListener("open-vendor-register-modal", handleOpenRegister);
+    return () => window.removeEventListener("open-vendor-register-modal", handleOpenRegister);
+  }, []);
 
   // Prefetch active product catalog in background for instant (0ms) client-side search
   const { data: quickCatalogRaw } = useQuery({
@@ -1277,6 +1285,23 @@ export function SiteHeader() {
             <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
               Please provide your contact phone number and storefront location to register and activate your seller account on V2B.
             </DialogDescription>
+            <div className="flex items-center justify-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setBecomeVendorOpen(false);
+                  window.dispatchEvent(
+                    new CustomEvent("open-vendor-ai-assistant", {
+                      detail: { tab: "tutorials", tutorialId: "registration" },
+                    })
+                  );
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] font-semibold border border-amber-500/20 transition-all cursor-pointer"
+              >
+                <Sparkles className="h-3 w-3 text-amber-600" />
+                <span>Need help? Open Seller AI Guide & Tutorials</span>
+              </button>
+            </div>
           </DialogHeader>
 
           <form onSubmit={handleBecomeVendor} className="space-y-4 py-2">
@@ -1339,11 +1364,103 @@ export function SiteHeader() {
               </div>
             </div>
 
-            {/* 4. Interactive Location Map Picker */}
+            {/* 4. City / Town Location with Select on Map feature */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-rose-500" />
+                  <span>City / Town Location <span className="text-rose-500">*</span></span>
+                </Label>
+                <SelectOnMapDialog
+                  initialLocation={{
+                    city: vendorForm.city,
+                    address: vendorForm.address,
+                    pincode: vendorForm.pincode,
+                    latitude: vendorForm.latitude,
+                    longitude: vendorForm.longitude,
+                  }}
+                  onLocationSelect={(loc) => {
+                    setVendorForm((prev) => ({
+                      ...prev,
+                      city: loc.city,
+                      address: loc.address,
+                      pincode: loc.pincode,
+                      state: loc.state,
+                      latitude: loc.latitude,
+                      longitude: loc.longitude,
+                    }));
+                  }}
+                  buttonLabel="Select on Map"
+                />
+              </div>
+
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-500" />
+                <Input
+                  value={vendorForm.city}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, city: e.target.value }))}
+                  placeholder="e.g. Rajahmundry (or click 'Select on Map')"
+                  required
+                  className="pl-9 h-10 rounded-xl text-xs"
+                />
+              </div>
+
+              {/* Verified Pinned Location Status Badge */}
+              {vendorForm.latitude && vendorForm.longitude ? (
+                <div className="flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1.5 text-[11px] text-emerald-800 dark:text-emerald-300">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[3]" />
+                    <span className="font-bold shrink-0">Map Pinned:</span>
+                    <span className="truncate">{vendorForm.address || vendorForm.city}</span>
+                    <span className="font-mono text-[10px] text-muted-foreground hidden sm:inline">
+                      ({vendorForm.latitude.toFixed(4)}, {vendorForm.longitude.toFixed(4)})
+                    </span>
+                  </div>
+                  <SelectOnMapDialog
+                    initialLocation={vendorForm}
+                    onLocationSelect={(loc) => {
+                      setVendorForm((prev) => ({
+                        ...prev,
+                        city: loc.city,
+                        address: loc.address,
+                        pincode: loc.pincode,
+                        state: loc.state,
+                        latitude: loc.latitude,
+                        longitude: loc.longitude,
+                      }));
+                    }}
+                    buttonLabel="Change Pin"
+                    variant="ghost"
+                    buttonClassName="h-6 px-2 text-[10px] text-emerald-700 dark:text-emerald-300 underline hover:bg-emerald-500/15"
+                  />
+                </div>
+              ) : null}
+
+              {/* Quick city suggestions */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span className="text-[10px] text-muted-foreground">Quick pick:</span>
+                {["Rajahmundry", "Danavaipeta", "Kakinada", "Vijayawada", "Visakhapatnam", "Hyderabad"].map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => setVendorForm((prev) => ({ ...prev, city }))}
+                    className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors cursor-pointer ${
+                      vendorForm.city.toLowerCase() === city.toLowerCase()
+                        ? "bg-rose-500 text-white border-rose-500 font-semibold"
+                        : "bg-muted/60 text-foreground/80 border-border hover:bg-muted"
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Interactive Location Map Picker */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
-                <span>Select Storefront Location on Map <span className="text-rose-500">*</span></span>
-                <span className="text-[10px] text-muted-foreground">Pin your shop or use live GPS</span>
+                <span>Interactive Map View <span className="text-rose-500">*</span></span>
+                <span className="text-[10px] text-muted-foreground">Drag pin or use GPS</span>
               </Label>
               <LocationMapPicker
                 initialLocation={{
@@ -1365,42 +1482,6 @@ export function SiteHeader() {
                   }));
                 }}
               />
-            </div>
-
-            {/* 5. Location / City */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
-                <span>City / Town Location <span className="text-rose-500">*</span></span>
-                <span className="text-[10px] text-muted-foreground">Used for local search & buyers</span>
-              </Label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-500" />
-                <Input
-                  value={vendorForm.city}
-                  onChange={(e) => setVendorForm((prev) => ({ ...prev, city: e.target.value }))}
-                  placeholder="e.g. Rajahmundry"
-                  required
-                  className="pl-9 h-10 rounded-xl text-xs"
-                />
-              </div>
-              {/* Quick city suggestions */}
-              <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                <span className="text-[10px] text-muted-foreground">Quick pick:</span>
-                {["Rajahmundry", "Danavaipeta", "Kakinada", "Vijayawada", "Visakhapatnam", "Hyderabad"].map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => setVendorForm((prev) => ({ ...prev, city }))}
-                    className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
-                      vendorForm.city.toLowerCase() === city.toLowerCase()
-                        ? "bg-rose-500 text-white border-rose-500 font-semibold"
-                        : "bg-muted/60 text-foreground/80 border-border hover:bg-muted"
-                    }`}
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* 4. Store Address / Area */}
@@ -1509,6 +1590,9 @@ export function SiteHeader() {
         open={visualSearchOpen}
         onOpenChange={setVisualSearchOpen}
       />
+
+      {/* Vendor AI Assistant & Tutorials Float Widget */}
+      <VendorAiAssistant onOpenRegister={() => setBecomeVendorOpen(true)} />
     </header>
   );
 }

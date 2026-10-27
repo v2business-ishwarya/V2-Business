@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export interface LocationData {
   city: string;
@@ -414,5 +421,101 @@ export function LocationMapPicker({
         </span>
       </div>
     </div>
+  );
+}
+
+export interface SelectOnMapDialogProps {
+  initialLocation?: Partial<LocationData>;
+  onLocationSelect: (location: LocationData) => void;
+  buttonLabel?: string;
+  buttonClassName?: string;
+  variant?: "outline" | "default" | "ghost" | "secondary";
+  size?: "default" | "sm" | "lg" | "icon";
+}
+
+export function SelectOnMapDialog({
+  initialLocation,
+  onLocationSelect,
+  buttonLabel = "Select on Map",
+  buttonClassName = "",
+  variant = "outline",
+  size = "sm",
+}: SelectOnMapDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [pendingLocation, setPendingLocation] = useState<LocationData | null>(null);
+
+  const handleConfirm = () => {
+    const finalLoc: LocationData = pendingLocation || {
+      city: initialLocation?.city || "Rajahmundry",
+      address: initialLocation?.address || "Rajahmundry Main Road",
+      pincode: initialLocation?.pincode || "533101",
+      state: initialLocation?.state || "Andhra Pradesh",
+      latitude: initialLocation?.latitude || 16.9890,
+      longitude: initialLocation?.longitude || 81.7840,
+    };
+    onLocationSelect(finalLoc);
+    toast.success(`📍 Store location set to ${finalLoc.city || "pinned coordinates"}!`);
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        onClick={() => setOpen(true)}
+        className={`h-7 px-2.5 rounded-full text-xs font-semibold text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 gap-1.5 cursor-pointer shadow-2xs transition-all ${buttonClassName}`}
+      >
+        <MapPin className="h-3.5 w-3.5 text-rose-500" />
+        <span>{buttonLabel}</span>
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-xl max-h-[92vh] overflow-y-auto p-5 sm:p-6 rounded-3xl">
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+              <div className="h-7 w-7 rounded-lg bg-rose-500/10 text-rose-600 flex items-center justify-center">
+                <MapPin className="h-4 w-4" />
+              </div>
+              <span>Select Store Location on Map</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Search your area, tap a popular commercial hub, or use live GPS to pin your shop's exact location.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="pt-2">
+            <LocationMapPicker
+              initialLocation={initialLocation}
+              onLocationSelect={(loc) => {
+                setPendingLocation(loc);
+              }}
+            />
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setOpen(false)}
+              className="rounded-xl text-xs h-9 px-4 cursor-pointer"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirm}
+              className="rounded-xl text-xs h-9 px-5 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-xs cursor-pointer gap-1.5"
+            >
+              <Check className="h-3.5 w-3.5 stroke-[3]" />
+              <span>Confirm & Set Location</span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

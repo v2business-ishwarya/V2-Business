@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LocationMapPicker } from "@/components/location-map-picker";
+import { LocationMapPicker, SelectOnMapDialog } from "@/components/location-map-picker";
 import { MARKETPLACE_CATEGORIES } from "@/data/categories";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
@@ -170,6 +170,22 @@ function VendorOnboardingForm() {
         <p className="text-xs text-muted-foreground max-w-md mx-auto">
           To sell on V2B, please provide your contact phone number and storefront location.
         </p>
+        <div className="flex items-center justify-center pt-1">
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent("open-vendor-ai-assistant", {
+                  detail: { tab: "tutorials", tutorialId: "registration" },
+                })
+              );
+            }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] font-semibold border border-amber-500/20 transition-all cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+            <span>Need help? Open Seller AI Guide & Step Tutorials</span>
+          </button>
+        </div>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4">
@@ -230,11 +246,103 @@ function VendorOnboardingForm() {
           </div>
         </div>
 
-        {/* 4. Interactive Location Map Picker */}
+        {/* 4. City / Town Location with Select on Map feature */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-rose-500" />
+              <span>City / Town Location <span className="text-rose-500">*</span></span>
+            </Label>
+            <SelectOnMapDialog
+              initialLocation={{
+                city: form.city,
+                address: form.address,
+                pincode: form.pincode,
+                latitude: form.latitude,
+                longitude: form.longitude,
+              }}
+              onLocationSelect={(loc) => {
+                setForm((prev) => ({
+                  ...prev,
+                  city: loc.city,
+                  address: loc.address,
+                  pincode: loc.pincode,
+                  state: loc.state,
+                  latitude: loc.latitude,
+                  longitude: loc.longitude,
+                }));
+              }}
+              buttonLabel="Select on Map"
+            />
+          </div>
+
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-500" />
+            <Input
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+              placeholder="e.g. Rajahmundry (or click 'Select on Map')"
+              required
+              className="pl-9 h-10 rounded-xl text-xs"
+            />
+          </div>
+
+          {/* Verified Pinned Location Status Badge */}
+          {form.latitude && form.longitude ? (
+            <div className="flex items-center justify-between rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-1.5 text-[11px] text-emerald-800 dark:text-emerald-300">
+              <div className="flex items-center gap-1.5 truncate">
+                <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 stroke-[3]" />
+                <span className="font-bold shrink-0">Map Pinned:</span>
+                <span className="truncate">{form.address || form.city}</span>
+                <span className="font-mono text-[10px] text-muted-foreground hidden sm:inline">
+                  ({form.latitude.toFixed(4)}, {form.longitude.toFixed(4)})
+                </span>
+              </div>
+              <SelectOnMapDialog
+                initialLocation={form}
+                onLocationSelect={(loc) => {
+                  setForm((prev) => ({
+                    ...prev,
+                    city: loc.city,
+                    address: loc.address,
+                    pincode: loc.pincode,
+                    state: loc.state,
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                  }));
+                }}
+                buttonLabel="Change Pin"
+                variant="ghost"
+                buttonClassName="h-6 px-2 text-[10px] text-emerald-700 dark:text-emerald-300 underline hover:bg-emerald-500/15"
+              />
+            </div>
+          ) : null}
+
+          {/* Quick city suggestions */}
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+            <span className="text-[10px] text-muted-foreground">Quick pick:</span>
+            {["Rajahmundry", "Danavaipeta", "Kakinada", "Vijayawada", "Visakhapatnam", "Hyderabad"].map((city) => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => setForm((prev) => ({ ...prev, city }))}
+                className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors cursor-pointer ${
+                  form.city.toLowerCase() === city.toLowerCase()
+                    ? "bg-rose-500 text-white border-rose-500 font-semibold"
+                    : "bg-muted/60 text-foreground/80 border-border hover:bg-muted"
+                }`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Interactive Location Map Picker */}
         <div className="space-y-1.5">
           <Label className="text-xs font-semibold text-foreground flex items-center justify-between">
-            <span>Select Storefront Location on Map <span className="text-rose-500">*</span></span>
-            <span className="text-[10px] text-muted-foreground">Pin your shop or use live GPS</span>
+            <span>Interactive Map View <span className="text-rose-500">*</span></span>
+            <span className="text-[10px] text-muted-foreground">Drag pin or use GPS</span>
           </Label>
           <LocationMapPicker
             initialLocation={{
@@ -256,42 +364,6 @@ function VendorOnboardingForm() {
               }));
             }}
           />
-        </div>
-
-        {/* 5. City Location */}
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold flex items-center justify-between">
-            <span>City / Town Location *</span>
-            <span className="text-[10px] text-muted-foreground">Used for marketplace search</span>
-          </Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-rose-500" />
-            <Input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-              placeholder="e.g. Rajahmundry"
-              required
-              className="pl-9 h-10 rounded-xl text-xs"
-            />
-          </div>
-          {/* Quick city suggestions */}
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            <span className="text-[10px] text-muted-foreground">Quick pick:</span>
-            {["Rajahmundry", "Danavaipeta", "Kakinada", "Vijayawada", "Visakhapatnam", "Hyderabad"].map((city) => (
-              <button
-                key={city}
-                type="button"
-                onClick={() => setForm((prev) => ({ ...prev, city }))}
-                className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${
-                  form.city.toLowerCase() === city.toLowerCase()
-                    ? "bg-rose-500 text-white border-rose-500 font-semibold"
-                    : "bg-muted/60 text-foreground/80 border-border hover:bg-muted"
-                }`}
-              >
-                {city}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Store Address / Area */}
