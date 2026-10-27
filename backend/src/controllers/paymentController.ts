@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
 import * as z from "zod";
 import crypto from "crypto";
+import { CheckoutService } from "../services/checkoutService";
 
 
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
@@ -84,7 +85,6 @@ export const confirmPayment = asyncHandler(async (req, res) => {
   }
 
   try {
-    const { CheckoutService } = await import("../services/checkoutService.js");
     const checkoutService = new CheckoutService("mock");
     const result = await checkoutService.confirmPayment(paymentId, orderId, providerPaymentId);
     res.json({ message: "Payment confirmed", orderId: result.orderId });
@@ -116,7 +116,6 @@ export const paymentWebhook = asyncHandler(async (req, res) => {
   if (event === "payment.succeeded" && data?.object) {
     const { payment_id, order_id } = data.object;
     try {
-      const { CheckoutService } = await import("../services/checkoutService.js");
       const checkoutService = new CheckoutService("mock");
       if (order_id) {
         await checkoutService.confirmPayment(payment_id, order_id, payment_id);

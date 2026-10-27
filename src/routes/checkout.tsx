@@ -203,6 +203,10 @@ function CheckoutPage() {
         paymentMethod: selectedProvider === "direct_upi" ? "DIRECT_UPI" : selectedProvider,
         paymentStatus: selectedProvider === "direct_upi" ? "UNDER_VERIFICATION" : "PENDING",
         utrNumber: selectedProvider === "direct_upi" ? utrNumber.trim() : undefined,
+        items: cartItems.map((item) => ({
+          productId: item.productId || item.product?.id || item.id,
+          quantity: item.quantity || 1,
+        })),
       };
 
       const result: any = await api.createOrder(payload);

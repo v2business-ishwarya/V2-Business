@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { prisma } from "../server";
 import * as z from "zod";
 import { authenticate, authorizeRole, attachUser } from "../middleware/authMiddleware";
+import { CheckoutService } from "../services/checkoutService";
 
 // Helper
 function asyncHandler(fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) {
@@ -16,6 +17,14 @@ const orderCreateSchema = z.object({
   shippingAddress: z.any().optional(),
   billingAddress: z.any().optional(),
   notes: z.string().optional(),
+  providerType: z.string().optional(),
+  paymentMethod: z.string().optional(),
+  paymentStatus: z.string().optional(),
+  utrNumber: z.string().optional(),
+  items: z.array(z.object({
+    productId: z.string(),
+    quantity: z.number().default(1),
+  })).optional(),
 });
 
 type TOrderCreate = z.infer<typeof orderCreateSchema>;
@@ -29,16 +38,28 @@ export const createOrder = asyncHandler(async (req, res) => {
   if (!parsedBody.success) {
     return res.status(400).json({ error: parsedBody.error.errors });
   }
-  const { couponCode, shippingAddress, billingAddress, notes } = parsedBody.data;
-
-  // We should also accept providerType from request if we want to allow users to select it
-  const providerType = req.body.providerType || 'mock';
+  const {
+    couponCode,
+    shippingAddress,
+    billingAddress,
+    notes,
+    providerType = req.body.providerType || 'mock',
+    paymentMethod,
+    paymentStatus,
+    utrNumber,
+    items,
+  } = parsedBody.data;
 
   try {
-    const { CheckoutService } = await import('../services/checkoutService.js');
     const checkoutService = new CheckoutService(providerType);
-    const checkoutResult = await checkoutService.checkout(userId, shippingAddress, providerType);
-    
+    const checkoutResult = await checkoutService.checkout(userId, shippingAddress, providerType, {
+      paymentMethod,
+      paymentStatus,
+      utrNumber,
+      notes,
+      items,
+    });
+
     // The checkoutResult returns paymentSessionId, orderId, vendorOrders, etc.
     res.status(201).json(checkoutResult);
   } catch (error: any) {

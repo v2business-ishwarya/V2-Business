@@ -23,11 +23,22 @@ export class CheckoutService {
    * @param providerType - Payment provider choice
    * @returns Checkout result with order details and payment information
    */
-  async checkout(userId: string, shippingAddress: Record<string, unknown>, providerType: string = 'mock') {
+  async checkout(
+    userId: string,
+    shippingAddress: any,
+    providerType: string = 'mock',
+    extraDetails?: {
+      paymentMethod?: string;
+      paymentStatus?: string;
+      utrNumber?: string;
+      notes?: string;
+      items?: { productId: string; quantity: number }[];
+    }
+  ) {
     // Start a transaction to ensure data consistency
     return await prisma.$transaction(async (tx: any) => {
       // Step 1: Get user's cart
-      const cartItems = await tx.cartItem.findMany({
+      let cartItems = await tx.cartItem.findMany({
         where: { userId },
         include: {
           product: {
@@ -37,6 +48,30 @@ export class CheckoutService {
           }
         }
       });
+
+      // If database cart is empty but items were passed in checkout payload, populate cart items
+      if (cartItems.length === 0 && extraDetails?.items && extraDetails.items.length > 0) {
+        for (const it of extraDetails.items) {
+          const prod = await tx.product.findUnique({ where: { id: it.productId } });
+          if (prod) {
+            await tx.cartItem.upsert({
+              where: { userId_productId: { userId, productId: prod.id } },
+              create: { userId, productId: prod.id, quantity: it.quantity || 1 },
+              update: { quantity: it.quantity || 1 },
+            });
+          }
+        }
+        cartItems = await tx.cartItem.findMany({
+          where: { userId },
+          include: {
+            product: {
+              include: {
+                vendor: true
+              }
+            }
+          }
+        });
+      }
 
       if (cartItems.length === 0) {
         throw new Error('Cart is empty');
@@ -67,7 +102,7 @@ export class CheckoutService {
       const totals = this.calculateTotals(groupedItems, platformCommissionRate);
 
       // Step 5: Create parent order
-      const parentOrder = await this.createParentOrder(tx, userId, shippingAddress, totals);
+      const parentOrder = await this.createParentOrder(tx, userId, shippingAddress, totals, extraDetails);
 
       // Step 6: Create vendor sub-orders
       const vendorOrders = await this.createVendorOrders(tx, parentOrder.id, groupedItems, totals);
@@ -77,6 +112,49 @@ export class CheckoutService {
 
       // Step 8: Create commission records
       await this.createCommissions(tx, parentOrder.id, totals.vendorTotals, platformCommissionRate);
+
+      // Step 8.5: If Direct UPI payment with UTR number, generate digital invoices for each vendor order
+      if (extraDetails?.utrNumber) {
+        for (const vOrder of vendorOrders) {
+          const vItems = cartItems.filter((i: any) => i.product.vendorId === vOrder.vendorId);
+          const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${vOrder.vendorId.substring(0, 4).toUpperCase()}`;
+
+          const invoice = await tx.invoice.create({
+            data: {
+              invoiceNumber,
+              orderId: parentOrder.id,
+              vendorId: vOrder.vendorId,
+              customerId: userId,
+              status: 'paid',
+              subtotal: vOrder.subtotal,
+              taxAmount: vOrder.tax,
+              shippingAmount: vOrder.shipping,
+              discountAmount: vOrder.discount,
+              totalAmount: vOrder.total,
+              paidAmount: vOrder.total,
+              balanceDue: 0,
+              issueDate: new Date(),
+              notes: `Direct UPI Settlement - UTR: ${extraDetails.utrNumber}`
+            }
+          });
+
+          for (const item of vItems) {
+            await tx.invoiceItem.create({
+              data: {
+                invoiceId: invoice.id,
+                productId: item.product.id,
+                name: item.product.name,
+                sku: item.product.sku,
+                quantity: item.quantity,
+                unitPrice: item.product.price,
+                discount: 0,
+                tax: item.product.price * item.quantity * 0.05,
+                total: item.product.price * item.quantity * 1.05
+              }
+            });
+          }
+        }
+      }
 
       // Step 9: Clear the cart
       await tx.cartItem.deleteMany({
@@ -90,6 +168,7 @@ export class CheckoutService {
       return {
         success: true,
         orderId: parentOrder.id,
+        id: parentOrder.id,
         totalAmount: totals.grandTotal,
         currency: DEFAULT_CURRENCY,
         paymentClientSecret: paymentRequest.clientSecret,
@@ -180,18 +259,37 @@ export class CheckoutService {
     };
   }
 
-  private async createParentOrder(tx: any, userId: string, shippingAddress: Record<string, unknown>, totals: any) {
+  private async createParentOrder(
+    tx: any,
+    userId: string,
+    shippingAddress: any,
+    totals: any,
+    extraDetails?: { paymentMethod?: string; utrNumber?: string; notes?: string }
+  ) {
+    let parsedAddress = shippingAddress;
+    if (typeof shippingAddress === 'string') {
+      try {
+        parsedAddress = JSON.parse(shippingAddress);
+      } catch {
+        parsedAddress = { address: shippingAddress };
+      }
+    }
+
+    const noteText = extraDetails?.notes || (extraDetails?.utrNumber ? `Payment Method: ${extraDetails.paymentMethod || 'DIRECT_UPI'}, UTR: ${extraDetails.utrNumber}` : undefined);
+
     return await tx.order.create({
       data: {
         userId,
         status: 'PENDING',
-        paymentStatus: 'PENDING',
+        paymentStatus: extraDetails?.utrNumber ? 'PROCESSING' : 'PENDING',
         subtotal: totals.grandSubtotal,
         taxAmount: totals.grandTax,
         shippingCost: totals.grandShipping,
         discountAmount: totals.grandDiscount,
         total: totals.grandTotal,
-        shippingAddress: JSON.stringify(shippingAddress),
+        shippingAddress: parsedAddress || {},
+        notes: noteText,
+        transactionId: extraDetails?.utrNumber || undefined,
       }
     });
   }

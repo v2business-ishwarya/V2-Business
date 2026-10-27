@@ -811,17 +811,18 @@ export function SiteHeader() {
             </Button>
           </Link>
 
-          {/* Become a Seller Button (Left of Sign In, Right of Cart) */}
-          <div className="hidden sm:block shrink-0">
+          {/* Become a Seller / Sell on V2B Button (Visible on Mobile & Desktop) */}
+          <div className="shrink-0">
             <Button
               type="button"
               variant="ghost"
               size="sm"
               onClick={handleBecomeSellerClick}
-              className="flex items-center gap-1.5 rounded-full px-3 text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-500/15 bg-amber-500/10 border border-amber-500/30 cursor-pointer transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-full px-2 sm:px-3 text-xs sm:text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 hover:bg-amber-500/15 bg-amber-500/10 border border-amber-500/30 cursor-pointer transition-all shadow-2xs hover:scale-[1.02] active:scale-[0.98]"
             >
-              <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-              <span>Become a Seller</span>
+              <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-600 dark:text-amber-400" />
+              <span className="hidden xs:inline">Sell on V2B</span>
+              <span className="xs:hidden">Sell</span>
             </Button>
           </div>
 
@@ -889,11 +890,51 @@ export function SiteHeader() {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[350px] p-6 flex flex-col justify-between">
               <div className="space-y-5 overflow-y-auto">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
                   <V2Logo size="sm" />
                 </div>
 
-
+                {/* Mobile Drawer Top: Sell on V2B / Become a Seller */}
+                {!isVendor ? (
+                  <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-amber-500/10 to-amber-500/5 p-3.5 shadow-xs">
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-1.5 font-bold text-xs text-amber-900 dark:text-amber-200">
+                        <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <span>Sell on V2B</span>
+                      </div>
+                      <Badge className="bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0.5">
+                        0% Commission
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mb-2.5 leading-tight">
+                      Open your shop & reach verified customers across all categories.
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setOpen(false);
+                        handleBecomeSellerClick();
+                      }}
+                      className="w-full h-8.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white shadow-2xs cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      <Store className="h-3.5 w-3.5" /> Become a Seller
+                    </Button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/vendor"
+                    onClick={() => setOpen(false)}
+                    className="block rounded-2xl border border-primary/30 bg-primary/10 p-3 shadow-xs hover:bg-primary/15 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-primary flex items-center gap-1.5">
+                        <LayoutDashboard className="h-4 w-4" />
+                        Vendor Dashboard
+                      </span>
+                      <Badge variant="outline" className="text-[10px]">Active Store</Badge>
+                    </div>
+                  </Link>
+                )}
 
                 <nav className="flex flex-col space-y-2 text-sm font-medium">
                   <Link
@@ -953,21 +994,9 @@ export function SiteHeader() {
 
               <div className="border-t pt-4 space-y-2">
                 {!user ? (
-                  <div className="space-y-2">
-                    <Link to="/auth" onClick={() => setOpen(false)} className="block">
-                      <Button className="w-full rounded-full">Sign In / Register</Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setOpen(false);
-                        navigate({ to: "/auth", search: { redirect: "/vendor" } });
-                      }}
-                      className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
-                    >
-                      <Store className="mr-2 h-4 w-4 text-amber-500" /> Sell on V2B
-                    </Button>
-                  </div>
+                  <Link to="/auth" onClick={() => setOpen(false)} className="block">
+                    <Button className="w-full rounded-full">Sign In / Register</Button>
+                  </Link>
                 ) : (
                   <div className="space-y-2">
                     <div className="px-2 text-xs text-muted-foreground truncate">{user.email}</div>
@@ -976,24 +1005,6 @@ export function SiteHeader() {
                         <UserIcon className="mr-2 h-4 w-4" /> My Account
                       </Button>
                     </Link>
-                    {isVendor ? (
-                      <Link to="/vendor" onClick={() => setOpen(false)} className="block">
-                        <Button variant="outline" className="w-full justify-start rounded-xl text-xs font-semibold text-primary">
-                          <LayoutDashboard className="mr-2 h-4 w-4" /> Vendor Dashboard
-                        </Button>
-                      </Link>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setOpen(false);
-                          setBecomeVendorOpen(true);
-                        }}
-                        className="w-full justify-start rounded-xl text-xs font-semibold text-amber-600 border-amber-500/30 hover:bg-amber-500/10 cursor-pointer"
-                      >
-                        <Store className="mr-2 h-4 w-4 text-amber-500" /> Sell on V2B
-                      </Button>
-                    )}
                     <Button
                       variant="ghost"
                       onClick={() => {

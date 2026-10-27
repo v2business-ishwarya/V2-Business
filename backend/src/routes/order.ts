@@ -7,6 +7,9 @@ const router = Router();
 // All routes require authentication
 router.use(authenticate);
 
+// Create a new order
+router.post("/", orderController.createOrder);
+
 // Get my orders (with pagination/filtering)
 router.get("/", orderController.getMyOrders);
 // Optional alias

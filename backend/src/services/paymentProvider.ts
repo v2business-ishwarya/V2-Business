@@ -16,6 +16,10 @@ export class PaymentProviderFactory {
   static createProvider(providerType: string, config?: Record<string, any>): PaymentProvider {
     const type = (providerType || 'mock').toLowerCase();
     switch (type) {
+      case 'direct_upi':
+      case 'upi':
+      case 'mock':
+        return new MockPaymentProvider();
       case 'razorpay':
         return new RazorpayProvider(config);
       case 'cashfree':
@@ -40,7 +44,13 @@ export class RazorpayProvider implements PaymentProvider {
     this.keyId = config?.apiKey || process.env.RAZORPAY_KEY_ID || '';
     this.keySecret = config?.apiSecret || process.env.RAZORPAY_KEY_SECRET || '';
     this.webhookSecret = config?.webhookSecret || process.env.RAZORPAY_WEBHOOK_SECRET || '';
-    this.isLive = !!(this.keyId && this.keySecret && !this.keyId.startsWith('rzp_test_mock'));
+    this.isLive = !!(
+      this.keyId &&
+      this.keySecret &&
+      !this.keyId.startsWith('rzp_test_mock') &&
+      !this.keyId.includes('your_') &&
+      (this.keyId.startsWith('rzp_test_') || this.keyId.startsWith('rzp_live_'))
+    );
   }
 
   private authHeader() {
@@ -205,7 +215,12 @@ export class CashfreeProvider implements PaymentProvider {
     this.baseUrl = this.mode === 'PROD'
       ? 'https://api.cashfree.com/pg'
       : 'https://sandbox.cashfree.com/pg';
-    this.isLive = !!(this.appId && this.secretKey && this.appId !== 'cashfree_app_mock');
+    this.isLive = !!(
+      this.appId &&
+      this.secretKey &&
+      !this.appId.includes('your_') &&
+      this.appId !== 'cashfree_app_mock'
+    );
   }
 
   private headers() {
