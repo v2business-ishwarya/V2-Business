@@ -76,18 +76,23 @@ function VendorPaymentsPage() {
     }
   }, [user]);
 
-  const handleSavePayout = (e: React.FormEvent) => {
+  const handleSavePayout = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return toast.error("Please login to save payment details");
-    if (!payoutForm.upiId.trim()) {
+    const cleanUpi = payoutForm.upiId.trim().toLowerCase();
+    if (!cleanUpi) {
       return toast.error("Please enter your UPI ID (Google Pay / PhonePe / Paytm)");
+    }
+    const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+    if (!upiRegex.test(cleanUpi)) {
+      return toast.error("Please enter a valid UPI ID (e.g. 9876543210@ybl, name@okhdfcbank, store@paytm)");
     }
 
     setSavingPayout(true);
     try {
       const payload = {
         accountHolder: payoutForm.accountHolder.trim() || user.name || "Vendor",
-        upiId: payoutForm.upiId.trim(),
+        upiId: cleanUpi,
         updatedAt: new Date().toISOString(),
       };
       localStorage.setItem(`vendor_payout_${user.id}`, JSON.stringify(payload));
@@ -99,7 +104,31 @@ function VendorPaymentsPage() {
           const parsed = JSON.parse(storeStr);
           parsed.upiId = payload.upiId;
           localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(parsed));
+          if (parsed.slug) {
+            localStorage.setItem(`vendor_store_${parsed.slug}`, JSON.stringify(parsed));
+          }
         } catch {}
+      }
+
+      // Sync active UPI ID into vendor products so buyers on all devices get it immediately
+      try {
+        const rawProds: any = await api.getProducts({ vendorId: user.id });
+        const prodsList: any[] = rawProds?.data ?? (Array.isArray(rawProds) ? rawProds : []);
+        for (const p of prodsList) {
+          const rawTags: string[] = Array.isArray(p.tags) ? p.tags.filter((t: string) => !t.startsWith("upi:")) : [];
+          rawTags.push(`upi:${cleanUpi}`);
+          const nextDimensions = {
+            ...(typeof p.dimensions === "object" && p.dimensions !== null ? p.dimensions : {}),
+            upiId: cleanUpi,
+            vendorUpi: cleanUpi,
+          };
+          await api.updateProduct(p.id, {
+            tags: rawTags,
+            dimensions: nextDimensions,
+          }).catch(() => {});
+        }
+      } catch (syncErr) {
+        console.warn("Could not sync UPI to products:", syncErr);
       }
 
       setIsSaved(true);

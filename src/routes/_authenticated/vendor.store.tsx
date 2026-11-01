@@ -37,6 +37,9 @@ import {
   X,
   Search,
   Layers,
+  QrCode,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor/store")({
@@ -68,10 +71,23 @@ function VendorStore() {
     shopPhotos: [] as string[],
     bankAccount: "",
     ifscCode: "",
+    upiId: "",
+    customQrUrl: "",
   });
 
   useEffect(() => {
     if (vendor || user) {
+      let existingUpi = "";
+      let existingQr = "";
+      try {
+        const payout = localStorage.getItem(`vendor_payout_${user?.id}`);
+        if (payout) {
+          const p = JSON.parse(payout);
+          if (p.upiId) existingUpi = p.upiId;
+          if (p.customQrUrl) existingQr = p.customQrUrl;
+        }
+      } catch {}
+
       const savedStore = localStorage.getItem(`vendor_store_${user?.id}`);
       if (savedStore) {
         try {
@@ -85,7 +101,9 @@ function VendorStore() {
             ...prev,
             ...parsed,
             categories: initialCats,
-            category: initialCats[0] || "Clothing & Fashion"
+            category: initialCats[0] || "Clothing & Fashion",
+            upiId: parsed.upiId || existingUpi || "",
+            customQrUrl: parsed.customQrUrl || existingQr || "",
           }));
           return;
         } catch {}
@@ -95,6 +113,8 @@ function VendorStore() {
         name: vendor?.name || user?.name || "",
         slug: slugify(vendor?.name || user?.name || "my-store"),
         email: user?.email || "",
+        upiId: existingUpi || "",
+        customQrUrl: existingQr || "",
       }));
     }
   }, [vendor, user]);
@@ -131,13 +151,66 @@ function VendorStore() {
     if (!form.address.trim())
       return toast.error("Street or store address is required for store location verification");
 
+    const cleanUpi = form.upiId.trim();
+    if (cleanUpi) {
+      const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+      if (!upiRegex.test(cleanUpi)) {
+        return toast.error("Please enter a valid UPI ID (e.g. 9876543210@ybl, name@okhdfcbank, store@paytm)");
+      }
+    }
+
     setLoading(true);
     try {
       if (user.id && form.name !== user.name) {
         await api.updateUser(user.id, { name: form.name });
       }
-      localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(form));
-      toast.success("Store credentials & verification details updated successfully!");
+
+      const updatedForm = {
+        ...form,
+        upiId: cleanUpi,
+        customQrUrl: form.customQrUrl.trim(),
+      };
+
+      localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(updatedForm));
+      if (updatedForm.slug) {
+        localStorage.setItem(`vendor_store_${updatedForm.slug}`, JSON.stringify(updatedForm));
+      }
+
+      // Persist payout info for checkout resolution
+      const payoutPayload = {
+        accountHolder: updatedForm.name,
+        upiId: cleanUpi,
+        customQrUrl: form.customQrUrl.trim() || undefined,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`vendor_payout_${user.id}`, JSON.stringify(payoutPayload));
+
+      // Sync active UPI ID into existing vendor products so all buyers on all devices get it immediately
+      if (cleanUpi) {
+        try {
+          const rawProds: any = await api.getProducts({ vendorId: user.id });
+          const prodsList: any[] = rawProds?.data ?? (Array.isArray(rawProds) ? rawProds : []);
+          for (const p of prodsList) {
+            const rawTags: string[] = Array.isArray(p.tags) ? p.tags.filter((t: string) => !t.startsWith("upi:") && !t.startsWith("qr:")) : [];
+            rawTags.push(`upi:${cleanUpi}`);
+            if (form.customQrUrl.trim()) rawTags.push(`qr:${form.customQrUrl.trim()}`);
+            const nextDimensions = {
+              ...(typeof p.dimensions === "object" && p.dimensions !== null ? p.dimensions : {}),
+              upiId: cleanUpi,
+              vendorUpi: cleanUpi,
+              customQrUrl: form.customQrUrl.trim() || undefined,
+            };
+            await api.updateProduct(p.id, {
+              tags: rawTags,
+              dimensions: nextDimensions,
+            }).catch(() => {});
+          }
+        } catch (syncErr) {
+          console.warn("Could not sync UPI to products:", syncErr);
+        }
+      }
+
+      toast.success("Store credentials, UPI payment details & verification updated successfully!");
       qc.invalidateQueries();
       refetch();
     } catch (err: any) {
@@ -454,10 +527,100 @@ function VendorStore() {
             />
           </Card>
 
-          {/* 6. Settlement Bank Details */}
+          {/* 6. Direct UPI Payments & Shop QR Standee */}
+          <Card className="p-6 space-y-5 border-2 border-emerald-500/30 bg-emerald-500/5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/20 pb-3">
+              <div>
+                <h2 className="text-base font-bold flex items-center gap-2 text-foreground">
+                  <QrCode className="h-5 w-5 text-emerald-600" /> 6. Direct Customer UPI Payments & Shop QR Standee
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Customers scan your QR code at checkout to pay directly into your account with 0% platform fee.
+                </p>
+              </div>
+              <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-xs font-bold py-1 px-2.5">
+                0% Fee • Instant Direct Settlement
+              </Badge>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-xs font-bold text-foreground">
+                    Seller UPI ID / VPA (Google Pay / PhonePe / Paytm / BHIM) *
+                  </Label>
+                  <div className="mt-1 relative">
+                    <Input
+                      placeholder="e.g. 9876543210@ybl or yourstore@okhdfcbank"
+                      value={form.upiId}
+                      onChange={(e) => setForm({ ...form, upiId: e.target.value.trim() })}
+                      className="font-mono text-sm font-bold bg-background border-emerald-500/40 focus:border-emerald-500"
+                    />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground mt-1.5">
+                    <span className="font-semibold text-emerald-700 dark:text-emerald-400">Examples:</span>
+                    <span>9876543210@ybl</span>
+                    <span>• name@okhdfcbank</span>
+                    <span>• 9876543210@paytm</span>
+                    <span>• store@okaxis</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-xs font-bold text-foreground">
+                    Optional: Upload Official Shop QR Standee Photo
+                  </Label>
+                  <p className="text-[11px] text-muted-foreground mb-2">
+                    Already have a physical shop QR standee (PhonePe / Google Pay / Paytm)? Upload a clear photo here to display your actual merchant standee at checkout!
+                  </p>
+                  <ImageUploader
+                    value={form.customQrUrl ? [form.customQrUrl] : []}
+                    onChange={(imgs) => setForm({ ...form, customQrUrl: imgs[0] || "" })}
+                    maxImages={1}
+                    folderPrefix={`vendors/${user?.id || "store"}/qr`}
+                  />
+                </div>
+              </div>
+
+              {/* Live Test Preview */}
+              <div className="rounded-xl border border-emerald-500/30 bg-background/80 p-4 flex flex-col items-center justify-center text-center space-y-3">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Live Test UPI QR Preview
+                </span>
+                {form.upiId && /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(form.upiId) ? (
+                  <>
+                    <div className="p-2.5 bg-white rounded-xl border border-emerald-300 shadow-sm">
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
+                          `upi://pay?pa=${form.upiId}&pn=${encodeURIComponent(form.name || "Seller")}&cu=INR&tn=${encodeURIComponent(`Test - ${form.name || "Seller"}`)}`
+                        )}`}
+                        alt="Test UPI QR"
+                        className="h-36 w-36 object-contain rounded-lg"
+                      />
+                    </div>
+                    <code className="text-xs font-mono font-bold px-2.5 py-1 rounded bg-muted">
+                      {form.upiId}
+                    </code>
+                    <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                      ✓ Valid UPI ID! Scan with PhonePe / GPay on your phone to test before publishing.
+                    </p>
+                  </>
+                ) : (
+                  <div className="py-8 px-4 text-center space-y-2">
+                    <QrCode className="h-12 w-12 text-muted-foreground/40 mx-auto" />
+                    <p className="text-xs text-muted-foreground">
+                      Enter your valid UPI ID on the left to see your live test QR code.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+
+          {/* 7. Settlement Bank Details */}
           <Card className="p-6 space-y-4">
             <h2 className="text-base font-bold flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-primary" /> 6. Payout Bank Account (100% Direct Net Settlements)
+              <ShieldCheck className="h-5 w-5 text-primary" /> 7. Backup Bank Account (Direct Net Settlements)
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>

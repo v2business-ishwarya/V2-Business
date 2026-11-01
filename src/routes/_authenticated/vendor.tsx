@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, MapPin, Building2, ShieldCheck, ArrowRight, Check } from "lucide-react";
+import { Phone, MapPin, Building2, ShieldCheck, ArrowRight, Check, QrCode } from "lucide-react";
 import { slugify } from "@/lib/utils-app";
 import {
   Select,
@@ -80,6 +80,8 @@ function VendorOnboardingForm() {
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
     latitude: 16.9890,
     longitude: 81.7840,
+    upiId: "",
+    customQrUrl: "",
   });
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -111,6 +113,17 @@ function VendorOnboardingForm() {
       return;
     }
 
+    const cleanUpi = form.upiId.trim();
+    const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+    if (!cleanUpi) {
+      toast.error("Seller UPI ID is required so buyers can scan and pay your store directly.");
+      return;
+    }
+    if (!upiRegex.test(cleanUpi)) {
+      toast.error("Please enter a valid UPI ID (e.g. 9876543210@ybl, yourname@okhdfcbank, store@paytm).");
+      return;
+    }
+
     setLoading(true);
     try {
       const updatedUser = await api.becomeVendor();
@@ -118,7 +131,7 @@ function VendorOnboardingForm() {
       if (!token) throw new Error("Your session has expired. Please sign in again.");
       storeSession({ accessToken: token, user: updatedUser });
 
-      // Save complete store profile with verified location & phone number
+      // Save complete store profile with verified location & phone number & direct UPI
       const storeData = {
         id: user.id,
         name: form.storeName.trim(),
@@ -133,17 +146,29 @@ function VendorOnboardingForm() {
         latitude: form.latitude,
         longitude: form.longitude,
         businessType: form.businessType,
+        upiId: cleanUpi,
+        customQrUrl: form.customQrUrl.trim() || undefined,
         rating: 5.0,
         reviewCount: 1,
         joinedYear: 2026,
       };
       localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(storeData));
+      localStorage.setItem(`vendor_store_${storeData.slug}`, JSON.stringify(storeData));
+
+      // Also persist direct seller payout info
+      const payoutPayload = {
+        accountHolder: form.storeName.trim(),
+        upiId: cleanUpi,
+        customQrUrl: form.customQrUrl.trim() || undefined,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`vendor_payout_${user.id}`, JSON.stringify(payoutPayload));
 
       if (user.id && form.storeName.trim() !== user.name) {
         await api.updateUser(user.id, { name: form.storeName.trim() }).catch(() => {});
       }
 
-      toast.success(`🎉 Verified vendor profile registered in ${form.city.trim()}!`);
+      toast.success(`🎉 Verified vendor profile registered in ${form.city.trim()} with Direct UPI!`);
       navigate({ to: "/vendor", replace: true });
       window.location.reload();
     } catch (error: any) {
@@ -418,6 +443,38 @@ function VendorOnboardingForm() {
                 <p className="text-[9px] text-muted-foreground">Online seller</p>
               </div>
             </button>
+          </div>
+        </div>
+
+        {/* Seller Direct UPI ID / VPA */}
+        <div className="space-y-2 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 p-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+              <QrCode className="h-4 w-4 text-emerald-600" />
+              <span>Seller UPI ID / VPA for Direct Customer Payments <span className="text-rose-500">*</span></span>
+            </Label>
+            <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] font-bold py-0.5 px-2 rounded-full">
+              100% Direct Payouts
+            </Badge>
+          </div>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            When customers scan your store QR code at checkout, payment settles <strong>instantly to your personal or shop UPI ID</strong> with 0% platform deduction.
+          </p>
+          <div className="relative">
+            <Input
+              value={form.upiId}
+              onChange={(e) => setForm({ ...form, upiId: e.target.value.trim() })}
+              placeholder="e.g. 9876543210@ybl or yourstore@okhdfcbank"
+              required
+              className="h-10 rounded-xl text-xs font-mono font-bold bg-background border-emerald-500/40 focus:border-emerald-500"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground pt-0.5">
+            <span className="font-semibold text-emerald-700 dark:text-emerald-400">Supported:</span>
+            <span>PhonePe (@ybl, @ibl)</span>
+            <span>• Google Pay (@okhdfcbank, @okaxis)</span>
+            <span>• Paytm (@paytm)</span>
+            <span>• BHIM (@upi)</span>
           </div>
         </div>
 

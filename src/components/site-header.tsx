@@ -21,6 +21,7 @@ import {
   Camera,
   Check,
   Bot,
+  QrCode,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,6 +97,8 @@ export function SiteHeader() {
     businessType: "physical_shop" as "physical_shop" | "home_cloud",
     latitude: 16.9890,
     longitude: 81.7840,
+    upiId: "",
+    customQrUrl: "",
   });
 
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -106,6 +109,17 @@ export function SiteHeader() {
   // Prefill vendor form from existing user or localStorage when opening
   useEffect(() => {
     if (becomeVendorOpen && user) {
+      let existingUpi = "";
+      let existingQr = "";
+      try {
+        const payout = localStorage.getItem(`vendor_payout_${user.id}`);
+        if (payout) {
+          const p = JSON.parse(payout);
+          if (p.upiId) existingUpi = p.upiId;
+          if (p.customQrUrl) existingQr = p.customQrUrl;
+        }
+      } catch {}
+
       const existing = localStorage.getItem(`vendor_store_${user.id}`);
       if (existing) {
         try {
@@ -121,6 +135,8 @@ export function SiteHeader() {
             businessType: parsed.businessType || "physical_shop",
             latitude: parsed.latitude || 16.9890,
             longitude: parsed.longitude || 81.7840,
+            upiId: parsed.upiId || existingUpi || "",
+            customQrUrl: parsed.customQrUrl || existingQr || "",
           });
           return;
         } catch {}
@@ -128,6 +144,8 @@ export function SiteHeader() {
       setVendorForm((prev) => ({
         ...prev,
         storeName: prev.storeName || user.name || "",
+        upiId: prev.upiId || existingUpi || "",
+        customQrUrl: prev.customQrUrl || existingQr || "",
       }));
     }
   }, [becomeVendorOpen, user]);
@@ -391,6 +409,17 @@ export function SiteHeader() {
       return;
     }
 
+    const cleanUpi = vendorForm.upiId.trim();
+    const upiRegex = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+    if (!cleanUpi) {
+      toast.error("Seller UPI ID is required so buyers can scan and pay your store directly.");
+      return;
+    }
+    if (!upiRegex.test(cleanUpi)) {
+      toast.error("Please enter a valid UPI ID (e.g. 9876543210@ybl, yourname@okhdfcbank, store@paytm).");
+      return;
+    }
+
     setBecomingVendor(true);
     try {
       const updatedUser = await api.becomeVendor();
@@ -413,17 +442,29 @@ export function SiteHeader() {
         latitude: vendorForm.latitude,
         longitude: vendorForm.longitude,
         businessType: vendorForm.businessType,
+        upiId: cleanUpi,
+        customQrUrl: vendorForm.customQrUrl.trim() || undefined,
         rating: 5.0,
         reviewCount: 1,
         joinedYear: 2026,
       };
       localStorage.setItem(`vendor_store_${user.id}`, JSON.stringify(storeData));
+      localStorage.setItem(`vendor_store_${storeData.slug}`, JSON.stringify(storeData));
+
+      // Also persist direct seller payout info
+      const payoutPayload = {
+        accountHolder: vendorForm.storeName.trim(),
+        upiId: cleanUpi,
+        customQrUrl: vendorForm.customQrUrl.trim() || undefined,
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(`vendor_payout_${user.id}`, JSON.stringify(payoutPayload));
 
       if (user.id && vendorForm.storeName.trim() !== user.name) {
         await api.updateUser(user.id, { name: vendorForm.storeName.trim() }).catch(() => {});
       }
 
-      toast.success(`🎉 Vendor storefront registered in ${vendorForm.city.trim()}!`);
+      toast.success(`🎉 Vendor storefront registered in ${vendorForm.city.trim()} with Direct UPI!`);
       setBecomeVendorOpen(false);
       navigate({ to: "/vendor" });
     } catch (err: any) {
@@ -1555,6 +1596,38 @@ export function SiteHeader() {
                     <p className="text-[9px] text-muted-foreground">Online seller</p>
                   </div>
                 </button>
+              </div>
+            </div>
+
+            {/* 7. Seller Direct UPI ID / VPA */}
+            <div className="space-y-2 rounded-2xl border-2 border-emerald-500/30 bg-emerald-500/5 p-3.5">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <QrCode className="h-4 w-4 text-emerald-600" />
+                  <span>Seller UPI ID / VPA for Direct Customer Payments <span className="text-rose-500">*</span></span>
+                </Label>
+                <Badge className="bg-emerald-600 hover:bg-emerald-600 text-white text-[10px] font-bold py-0.5 px-2 rounded-full">
+                  100% Direct Payouts
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                When customers scan your store QR code at checkout, payment goes <strong>directly to this UPI ID</strong> into your bank account with 0% platform fee.
+              </p>
+              <div className="relative">
+                <Input
+                  value={vendorForm.upiId}
+                  onChange={(e) => setVendorForm((prev) => ({ ...prev, upiId: e.target.value.trim() }))}
+                  placeholder="e.g. 9876543210@ybl or yourstore@okhdfcbank"
+                  required
+                  className="h-10 rounded-xl text-xs font-mono font-bold bg-background border-emerald-500/40 focus:border-emerald-500"
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground pt-0.5">
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">Supported:</span>
+                <span>PhonePe (@ybl, @ibl)</span>
+                <span>• Google Pay (@okhdfcbank, @okaxis)</span>
+                <span>• Paytm (@paytm)</span>
+                <span>• BHIM (@upi)</span>
               </div>
             </div>
 

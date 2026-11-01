@@ -21,8 +21,11 @@ import {
   Check,
   ExternalLink,
   AlertCircle,
+  AlertTriangle,
+  Store,
   Sparkles,
 } from "lucide-react";
+import { getVendorByIdOrSlug } from "@/data/categories";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -68,6 +71,8 @@ function CheckoutPage() {
         vendorId: string;
         vendorName: string;
         upiId: string;
+        customQrUrl?: string;
+        vendorPhone?: string;
         items: any[];
         subtotal: number;
       }
@@ -79,24 +84,64 @@ function CheckoutPage() {
       const vName = prod.vendor?.name || prod.vendorName || "Store Seller";
 
       let upi = "";
+      let customQr = "";
+      let phone = prod.vendor?.phone || prod.vendorPhone || "";
+
+      // 1. Check product dimensions (persisted on product in database)
+      if (prod.dimensions && typeof prod.dimensions === "object") {
+        if (prod.dimensions.upiId) upi = String(prod.dimensions.upiId).trim();
+        if (prod.dimensions.vendorUpi && !upi) upi = String(prod.dimensions.vendorUpi).trim();
+        if (prod.dimensions.customQrUrl) customQr = String(prod.dimensions.customQrUrl).trim();
+        if (prod.dimensions.vendorQr && !customQr) customQr = String(prod.dimensions.vendorQr).trim();
+      }
+
+      // 2. Check product tags (persisted on product in database)
+      if (Array.isArray(prod.tags)) {
+        for (const t of prod.tags) {
+          if (typeof t === "string") {
+            if (t.startsWith("upi:") && !upi) {
+              upi = t.replace("upi:", "").trim();
+            }
+            if (t.startsWith("qr:") && !customQr) {
+              customQr = t.replace("qr:", "").trim();
+            }
+          }
+        }
+      }
+
+      // 3. Check client localStorage (for local vendor test / same device)
       if (typeof window !== "undefined") {
         try {
           const payout = localStorage.getItem(`vendor_payout_${vId}`);
           if (payout) {
             const parsed = JSON.parse(payout);
-            if (parsed.upiId) upi = parsed.upiId;
+            if (parsed.upiId && !upi) upi = parsed.upiId.trim();
+            if (parsed.customQrUrl && !customQr) customQr = parsed.customQrUrl.trim();
           }
-          if (!upi) {
-            const store = localStorage.getItem(`vendor_store_${vId}`);
-            if (store) {
-              const parsed = JSON.parse(store);
-              if (parsed.upiId) upi = parsed.upiId;
-            }
+          const store = localStorage.getItem(`vendor_store_${vId}`);
+          if (store) {
+            const parsed = JSON.parse(store);
+            if (parsed.upiId && !upi) upi = parsed.upiId.trim();
+            if (parsed.customQrUrl && !customQr) customQr = parsed.customQrUrl.trim();
+            if (parsed.phone && !phone) phone = parsed.phone.trim();
           }
         } catch {}
       }
-      if (!upi) {
-        upi = "v2business@okhdfcbank"; // Fallback to verified marketplace UPI
+
+      // 4. Check category / seed vendors directory
+      if (!upi || !customQr || !phone) {
+        const seedVendor = getVendorByIdOrSlug(vId);
+        if (seedVendor) {
+          if (seedVendor.upiId && !upi) upi = seedVendor.upiId.trim();
+          if (seedVendor.customQrUrl && !customQr) customQr = seedVendor.customQrUrl.trim();
+          if (seedVendor.phone && !phone) phone = seedVendor.phone.trim();
+        }
+      }
+
+      // 5. Strict UPI format validation: NEVER fallback to dummy fake ID like v2business@okhdfcbank
+      const isValidUpi = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(upi);
+      if (!isValidUpi) {
+        upi = "";
       }
 
       const price = Number(prod.price ?? 0);
@@ -108,6 +153,8 @@ function CheckoutPage() {
           vendorId: vId,
           vendorName: vName,
           upiId: upi,
+          customQrUrl: customQr || undefined,
+          vendorPhone: phone || undefined,
           items: [item],
           subtotal: lineTotal,
         });
@@ -115,6 +162,9 @@ function CheckoutPage() {
         const existing = map.get(vId)!;
         existing.items.push(item);
         existing.subtotal += lineTotal;
+        if (!existing.upiId && upi) existing.upiId = upi;
+        if (!existing.customQrUrl && customQr) existing.customQrUrl = customQr;
+        if (!existing.vendorPhone && phone) existing.vendorPhone = phone;
       }
     });
 
@@ -414,12 +464,20 @@ function CheckoutPage() {
               </div>
 
                 {vendorGroups.map((vg) => {
-                  const upiUrl = `upi://pay?pa=${vg.upiId}&pn=${encodeURIComponent(
-                    vg.vendorName,
-                  )}&am=${vg.subtotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`V2 Order - ${vg.vendorName}`)}`;
-                  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-                    upiUrl,
-                  )}`;
+                  const hasUpi = Boolean(vg.upiId);
+                  const hasCustomQr = Boolean(vg.customQrUrl);
+
+                  const upiUrl = hasUpi
+                    ? `upi://pay?pa=${encodeURIComponent(vg.upiId)}&pn=${encodeURIComponent(
+                        vg.vendorName,
+                      )}&am=${vg.subtotal.toFixed(2)}&cu=INR&tn=${encodeURIComponent(`V2 Order - ${vg.vendorName}`)}`
+                    : "";
+
+                  const qrImageUrl = hasCustomQr
+                    ? vg.customQrUrl!
+                    : hasUpi
+                    ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`
+                    : "";
 
                   return (
                     <div
@@ -447,63 +505,101 @@ function CheckoutPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
-                        <div className="relative group shrink-0">
-                          <div className="p-2.5 bg-white rounded-xl border border-emerald-200 shadow-sm">
-                            <img
-                              src={qrImageUrl}
-                              alt={`UPI QR for ${vg.vendorName}`}
-                              className="h-40 w-40 object-contain rounded-lg"
-                            />
+                      {hasUpi || hasCustomQr ? (
+                        <div className="flex flex-col sm:flex-row items-center gap-5 pt-1">
+                          <div className="relative group shrink-0">
+                            <div className="p-2.5 bg-white rounded-xl border border-emerald-200 shadow-sm">
+                              <img
+                                src={qrImageUrl}
+                                alt={`UPI QR for ${vg.vendorName}`}
+                                className="h-40 w-40 object-contain rounded-lg"
+                              />
+                            </div>
+                            <p className="text-[10px] text-center text-muted-foreground mt-1.5 font-medium">
+                              {hasCustomQr ? "Seller Shop Standee QR" : "Scan with any UPI App"}
+                            </p>
                           </div>
-                          <p className="text-[10px] text-center text-muted-foreground mt-1.5 font-medium">
-                            Scan with any UPI App
-                          </p>
-                        </div>
 
-                        <div className="space-y-3 flex-1 text-center sm:text-left">
-                          <div>
-                            <Label className="text-xs text-muted-foreground font-semibold">Seller UPI ID (VPA)</Label>
-                            <div className="mt-1 flex items-center justify-center sm:justify-start gap-2">
-                              <code className="rounded-md border bg-background px-3 py-1.5 text-xs font-mono font-bold text-foreground shadow-xs">
-                                {vg.upiId}
-                              </code>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="h-8 text-xs gap-1.5 font-semibold"
-                                onClick={() => {
-                                  navigator.clipboard.writeText(vg.upiId);
-                                  setCopiedUpi(vg.upiId);
-                                  toast.success("Seller UPI ID copied to clipboard!");
-                                  setTimeout(() => setCopiedUpi(null), 2500);
-                                }}
-                              >
-                                {copiedUpi === vg.upiId ? (
-                                  <Check className="h-3.5 w-3.5 text-emerald-600" />
-                                ) : (
-                                  <Copy className="h-3.5 w-3.5" />
-                                )}
-                                {copiedUpi === vg.upiId ? "Copied!" : "Copy"}
-                              </Button>
+                          <div className="space-y-3 flex-1 text-center sm:text-left">
+                            {hasUpi ? (
+                              <div>
+                                <Label className="text-xs text-muted-foreground font-semibold">Seller UPI ID (VPA)</Label>
+                                <div className="mt-1 flex items-center justify-center sm:justify-start gap-2">
+                                  <code className="rounded-md border bg-background px-3 py-1.5 text-xs font-mono font-bold text-foreground shadow-xs">
+                                    {vg.upiId}
+                                  </code>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 text-xs gap-1.5 font-semibold"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(vg.upiId);
+                                      setCopiedUpi(vg.upiId);
+                                      toast.success("Seller UPI ID copied to clipboard!");
+                                      setTimeout(() => setCopiedUpi(null), 2500);
+                                    }}
+                                  >
+                                    {copiedUpi === vg.upiId ? (
+                                      <Check className="h-3.5 w-3.5 text-emerald-600" />
+                                    ) : (
+                                      <Copy className="h-3.5 w-3.5" />
+                                    )}
+                                    {copiedUpi === vg.upiId ? "Copied!" : "Copy"}
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : null}
+
+                            {upiUrl ? (
+                              <div className="pt-1">
+                                <p className="text-xs text-muted-foreground mb-2">
+                                  On mobile phone? Tap to launch your UPI app directly:
+                                </p>
+                                <a
+                                  href={upiUrl}
+                                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-sm transition-all"
+                                >
+                                  <ExternalLink className="h-3.5 w-3.5" />
+                                  Pay {formatMoney(vg.subtotal)} via GPay / PhonePe / Paytm
+                                </a>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-3 text-left">
+                          <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200">
+                            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                            <div>
+                              <h4 className="font-bold text-sm">Seller UPI ID Awaiting Setup</h4>
+                              <p className="text-xs text-muted-foreground">
+                                The seller "<strong>{vg.vendorName}</strong>" has not configured their direct UPI ID yet.
+                              </p>
                             </div>
                           </div>
-
-                          <div className="pt-1">
-                            <p className="text-xs text-muted-foreground mb-2">
-                              On mobile phone? Tap to launch your UPI app directly:
+                          {vg.vendorPhone ? (
+                            <p className="text-xs text-amber-900 dark:text-amber-200">
+                              Please contact <strong>{vg.vendorName}</strong> directly at{" "}
+                              <a href={`tel:${vg.vendorPhone}`} className="font-bold underline text-amber-800 dark:text-amber-300">
+                                {vg.vendorPhone}
+                              </a>{" "}
+                              to arrange direct payment.
                             </p>
-                            <a
-                              href={upiUrl}
-                              className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-700 shadow-sm transition-all"
-                            >
-                              <ExternalLink className="h-3.5 w-3.5" />
-                              Pay {formatMoney(vg.subtotal)} via GPay / PhonePe / Paytm
-                            </a>
+                          ) : null}
+                          <div className="text-[11px] text-muted-foreground bg-background/80 rounded-lg p-2.5 border">
+                            <strong>Store Owner Tip:</strong> If you own {vg.vendorName}, go to{" "}
+                            <Link to="/vendor/store" className="font-bold text-primary underline">
+                              Store Settings
+                            </Link>{" "}
+                            or{" "}
+                            <Link to="/vendor/payments" className="font-bold text-primary underline">
+                              Payments
+                            </Link>{" "}
+                            and enter your real UPI ID (Google Pay / PhonePe / Paytm) so customers can scan and pay you directly.
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   );
                 })}

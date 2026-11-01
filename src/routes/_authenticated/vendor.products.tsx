@@ -188,6 +188,35 @@ function VendorProducts() {
 
   const save = () => {
     if (!form.name.trim() || !form.price) return toast.error("Product name and discount price are required");
+
+    let vendorUpi = "";
+    let vendorQr = "";
+    if (typeof window !== "undefined") {
+      try {
+        const vId = vendor?.id;
+        if (vId) {
+          const payout = localStorage.getItem(`vendor_payout_${vId}`);
+          if (payout) {
+            const parsed = JSON.parse(payout);
+            if (parsed.upiId) vendorUpi = parsed.upiId;
+            if (parsed.customQrUrl) vendorQr = parsed.customQrUrl;
+          }
+          if (!vendorUpi) {
+            const store = localStorage.getItem(`vendor_store_${vId}`);
+            if (store) {
+              const parsed = JSON.parse(store);
+              if (parsed.upiId) vendorUpi = parsed.upiId;
+              if (parsed.customQrUrl) vendorQr = parsed.customQrUrl;
+            }
+          }
+        }
+      } catch {}
+    }
+
+    const tags: string[] = [];
+    if (vendorUpi) tags.push(`upi:${vendorUpi}`);
+    if (vendorQr) tags.push(`qr:${vendorQr}`);
+
     const payload = {
       name: form.name.trim(),
       description: form.description || undefined,
@@ -199,6 +228,8 @@ function VendorProducts() {
       images: form.images.length > 0 ? form.images : (form.featured_image ? [form.featured_image] : []),
       sku: form.sku || undefined,
       isActive: form.isActive,
+      tags: tags.length > 0 ? tags : undefined,
+      dimensions: vendorUpi || vendorQr ? { upiId: vendorUpi, vendorUpi, customQrUrl: vendorQr } : undefined,
     };
 
     if (form.id) {

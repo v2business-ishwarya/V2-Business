@@ -625,6 +625,9 @@ export interface CategoryVendor {
   rating?: number;
   reviewCount?: number;
   joinedYear?: number;
+  upiId?: string;
+  customQrUrl?: string;
+  phone?: string;
 }
 
 export function getVendorsForCategory(categorySlugOrName: string): CategoryVendor[] {
@@ -692,6 +695,17 @@ export function getVendorByIdOrSlug(idOrSlug: string): CategoryVendor | undefine
       const direct = localStorage.getItem(`vendor_store_${idOrSlug}`);
       if (direct) {
         const vData = JSON.parse(direct);
+        let payoutUpi = "";
+        let payoutQr = "";
+        try {
+          const payout = localStorage.getItem(`vendor_payout_${idOrSlug}`);
+          if (payout) {
+            const p = JSON.parse(payout);
+            payoutUpi = p.upiId || "";
+            payoutQr = p.customQrUrl || "";
+          }
+        } catch {}
+
         return {
           id: idOrSlug,
           name: vData.name || "Seller Store",
@@ -710,6 +724,9 @@ export function getVendorByIdOrSlug(idOrSlug: string): CategoryVendor | undefine
           rating: 5.0,
           reviewCount: 0,
           joinedYear: 2026,
+          upiId: vData.upiId || payoutUpi || undefined,
+          customQrUrl: vData.customQrUrl || payoutQr || undefined,
+          phone: vData.phone || undefined,
         };
       }
 
@@ -721,8 +738,20 @@ export function getVendorByIdOrSlug(idOrSlug: string): CategoryVendor | undefine
           if (raw) {
             const vData = JSON.parse(raw);
             if (vData.slug === idOrSlug || vData.id === idOrSlug) {
+              const actualId = vData.id || key.replace("vendor_store_", "");
+              let payoutUpi = "";
+              let payoutQr = "";
+              try {
+                const payout = localStorage.getItem(`vendor_payout_${actualId}`);
+                if (payout) {
+                  const p = JSON.parse(payout);
+                  payoutUpi = p.upiId || "";
+                  payoutQr = p.customQrUrl || "";
+                }
+              } catch {}
+
               return {
-                id: vData.id || key.replace("vendor_store_", ""),
+                id: actualId,
                 name: vData.name || "Seller Store",
                 slug: vData.slug || idOrSlug,
                 tagline: vData.tagline || "",
@@ -739,6 +768,9 @@ export function getVendorByIdOrSlug(idOrSlug: string): CategoryVendor | undefine
                 rating: 5.0,
                 reviewCount: 0,
                 joinedYear: 2026,
+                upiId: vData.upiId || payoutUpi || undefined,
+                customQrUrl: vData.customQrUrl || payoutQr || undefined,
+                phone: vData.phone || undefined,
               };
             }
           }
