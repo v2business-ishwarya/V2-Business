@@ -170,22 +170,6 @@ function VendorOnboardingForm() {
         <p className="text-xs text-muted-foreground max-w-md mx-auto">
           To sell on V2B, please provide your contact phone number and storefront location.
         </p>
-        <div className="flex items-center justify-center pt-1">
-          <button
-            type="button"
-            onClick={() => {
-              window.dispatchEvent(
-                new CustomEvent("open-vendor-ai-assistant", {
-                  detail: { tab: "tutorials", tutorialId: "registration" },
-                })
-              );
-            }}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] font-semibold border border-amber-500/20 transition-all cursor-pointer"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
-            <span>Need help? Open Seller AI Guide & Step Tutorials</span>
-          </button>
-        </div>
       </div>
 
       <form onSubmit={handleRegister} className="space-y-4">
@@ -437,9 +421,25 @@ function VendorOnboardingForm() {
           </div>
         </div>
 
-        <div className="rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
-          <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+            <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(
+                new CustomEvent("open-vendor-ai-assistant", {
+                  detail: { tab: "tutorials", tutorialId: "registration" },
+                })
+              );
+            }}
+            className="inline-flex items-center gap-1 font-bold text-amber-700 dark:text-amber-300 hover:underline shrink-0 cursor-pointer"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+            <span>Need help? Open AI Guide</span>
+          </button>
         </div>
 
         <Button

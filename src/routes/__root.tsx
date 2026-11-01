@@ -15,6 +15,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { VendorAiAssistant } from "@/components/vendor-ai-assistant";
 
 function NotFoundComponent() {
   return (
@@ -250,6 +251,7 @@ function RootComponent() {
         </main>
         <SiteFooter />
       </div>
+      <VendorAiAssistant />
       <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );

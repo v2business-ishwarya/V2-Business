@@ -22,6 +22,7 @@ import {
   MessageSquare,
   BadgePercent,
   Check,
+  GripVertical,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -250,6 +251,99 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
   // Active tutorial state
   const [selectedTutorialId, setSelectedTutorialId] = useState<string>("registration");
   const [activeStepIndex, setActiveStepIndex] = useState(0);
+
+  // Free-floating draggable position state (persisted across sessions)
+  const [position, setPosition] = useState<{ x: number; y: number } | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("v2b_ai_bot_pos");
+        if (saved) return JSON.parse(saved);
+      } catch {}
+    }
+    return null;
+  });
+
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    initialLeft: number;
+    initialTop: number;
+    hasMoved: boolean;
+  }>({ startX: 0, startY: 0, initialLeft: 0, initialTop: 0, hasMoved: false });
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    const target = e.currentTarget;
+    try {
+      target.setPointerCapture(e.pointerId);
+    } catch {}
+
+    const rect = target.getBoundingClientRect();
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialLeft: rect.left,
+      initialTop: rect.top,
+      hasMoved: false,
+    };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+
+    if (!dragRef.current.hasMoved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      dragRef.current.hasMoved = true;
+    }
+
+    if (dragRef.current.hasMoved) {
+      const buttonWidth = e.currentTarget.offsetWidth || 180;
+      const buttonHeight = e.currentTarget.offsetHeight || 50;
+      const margin = 10;
+
+      const newX = Math.min(
+        Math.max(margin, dragRef.current.initialLeft + dx),
+        Math.max(margin, window.innerWidth - buttonWidth - margin)
+      );
+      const newY = Math.min(
+        Math.max(margin, dragRef.current.initialTop + dy),
+        Math.max(margin, window.innerHeight - buttonHeight - margin)
+      );
+
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {}
+
+    if (dragRef.current.hasMoved) {
+      if (position) {
+        try {
+          localStorage.setItem("v2b_ai_bot_pos", JSON.stringify(position));
+        } catch {}
+      }
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  const handleResetPosition = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPosition(null);
+    try {
+      localStorage.removeItem("v2b_ai_bot_pos");
+    } catch {}
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -494,23 +588,47 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
     };
   };
 
+  const floatingStyle: React.CSSProperties = position
+    ? {
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        right: "auto",
+        bottom: "auto",
+        touchAction: "none",
+      }
+    : {
+        bottom: "1.25rem",
+        right: "1.25rem",
+        touchAction: "none",
+      };
+
   return (
     <>
-      {/* Floating Launcher Button */}
-      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2 print:hidden">
-        {!isOpen && (
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-rose-600 p-3 sm:px-4 sm:py-2.5 text-white shadow-xl shadow-amber-600/30 transition-all hover:scale-105 active:scale-95 hover:shadow-amber-600/40 cursor-pointer"
-            aria-label="Open Seller AI Assistant and Tutorials"
+      {/* Draggable Floating Launcher Button */}
+      {!isOpen && (
+        <div
+          style={floatingStyle}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className={`fixed z-50 flex items-center gap-1.5 print:hidden select-none touch-none ${
+            isDragging
+              ? "cursor-grabbing scale-105 shadow-2xl opacity-95"
+              : "cursor-grab hover:scale-105 active:scale-95"
+          } transition-transform duration-75`}
+        >
+          <div
+            className="group relative flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-rose-600 p-2.5 sm:px-3.5 sm:py-2.5 text-white shadow-xl shadow-amber-600/30 border border-white/20 hover:shadow-amber-600/40 cursor-grab active:cursor-grabbing"
+            title="Click to open Seller AI · Drag anywhere on page"
           >
-            <span className="relative flex h-3 w-3">
+            <GripVertical className="h-3.5 w-3.5 text-white/70 group-hover:text-white shrink-0 cursor-grab active:cursor-grabbing" />
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-400" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
             </span>
             <Bot className="h-5 w-5 shrink-0 transition-transform group-hover:rotate-12" />
-            <div className="hidden sm:flex flex-col text-left">
+            <div className="hidden sm:flex flex-col text-left pr-0.5">
               <span className="text-xs font-bold leading-tight flex items-center gap-1">
                 Seller AI & Tutorials
                 <Sparkles className="h-3 w-3 text-amber-200 fill-amber-200" />
@@ -519,14 +637,27 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
                 Ask registering & map guide
               </span>
             </div>
-          </button>
-        )}
-      </div>
+          </div>
 
-      {/* Main Assistant Modal / Flyout */}
+          {/* Quick reset button if moved from default bottom position */}
+          {position && !isDragging && (
+            <button
+              type="button"
+              onClick={handleResetPosition}
+              className="h-7 w-7 rounded-full bg-card/95 backdrop-blur-md border border-border shadow-md hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              title="Reset to default bottom-right position"
+              aria-label="Reset bot to bottom-right"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Main Assistant Modal / Flyout - Docked to bottom on all screen sizes */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-6 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200 print:hidden"
+          className="fixed inset-0 z-[60] flex items-end sm:items-end justify-center sm:justify-end sm:p-6 sm:pb-6 bg-black/40 backdrop-blur-xs animate-in fade-in duration-200 print:hidden"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}

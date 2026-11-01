@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   Camera,
   Check,
+  Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,7 +61,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { LocationMapPicker, SelectOnMapDialog } from "@/components/location-map-picker";
-import { VendorAiAssistant } from "@/components/vendor-ai-assistant";
 
 const KNOWN_LOCATIONS = [
   "Rajahmundry",
@@ -1026,6 +1026,23 @@ export function SiteHeader() {
                     </Button>
                   </div>
                 )}
+
+                {/* Seller AI Assistant & Step Tutorials Link */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    window.dispatchEvent(
+                      new CustomEvent("open-vendor-ai-assistant", {
+                        detail: { tab: "chat" },
+                      })
+                    );
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-rose-500/15 hover:from-amber-500/25 hover:to-rose-500/25 text-foreground text-xs font-semibold border border-amber-500/30 transition-all cursor-pointer shadow-xs"
+                >
+                  <Bot className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                  <span>Seller AI Assistant & Tutorials</span>
+                </button>
               </div>
             </SheetContent>
           </Sheet>
@@ -1286,23 +1303,6 @@ export function SiteHeader() {
             <DialogDescription className="text-center text-xs text-muted-foreground pt-0.5">
               Please provide your contact phone number and storefront location to register and activate your seller account on V2B.
             </DialogDescription>
-            <div className="flex items-center justify-center pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setBecomeVendorOpen(false);
-                  window.dispatchEvent(
-                    new CustomEvent("open-vendor-ai-assistant", {
-                      detail: { tab: "tutorials", tutorialId: "registration" },
-                    })
-                  );
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[11px] font-semibold border border-amber-500/20 transition-all cursor-pointer"
-              >
-                <Sparkles className="h-3 w-3 text-amber-600" />
-                <span>Need help? Open Seller AI Guide & Tutorials</span>
-              </button>
-            </div>
           </DialogHeader>
 
           <form onSubmit={handleBecomeVendor} className="space-y-4 py-2">
@@ -1558,9 +1558,26 @@ export function SiteHeader() {
               </div>
             </div>
 
-            <div className="rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200 flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
-              <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 rounded-xl bg-amber-500/10 p-3 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-200">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+                <span>0% Commission · Instant Seller Tools · Direct Payouts</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setBecomeVendorOpen(false);
+                  window.dispatchEvent(
+                    new CustomEvent("open-vendor-ai-assistant", {
+                      detail: { tab: "tutorials", tutorialId: "registration" },
+                    })
+                  );
+                }}
+                className="inline-flex items-center gap-1 font-bold text-amber-700 dark:text-amber-300 hover:underline shrink-0 cursor-pointer"
+              >
+                <Sparkles className="h-3 w-3 text-amber-600" />
+                <span>Need help? Open AI Guide</span>
+              </button>
             </div>
 
             <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
@@ -1591,9 +1608,6 @@ export function SiteHeader() {
         open={visualSearchOpen}
         onOpenChange={setVisualSearchOpen}
       />
-
-      {/* Vendor AI Assistant & Tutorials Float Widget */}
-      <VendorAiAssistant onOpenRegister={() => setBecomeVendorOpen(true)} />
     </header>
   );
 }
