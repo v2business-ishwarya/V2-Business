@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, MapPin, Building2, ShieldCheck, ArrowRight } from "lucide-react";
+import { Phone, MapPin, Building2, ShieldCheck, ArrowRight, Check } from "lucide-react";
 import { slugify } from "@/lib/utils-app";
 import {
   Select,

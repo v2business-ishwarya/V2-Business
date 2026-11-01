@@ -84,6 +84,8 @@ function VendorOrders() {
         {orders.map((o: any) => {
           const items = o.items || o.order?.items || [];
           const currentStatus = (o.status || "PENDING").toUpperCase();
+          const meta = getOrderMeta(o);
+          const utr = meta?.utrNumber || o.utrNumber || o.order?.utrNumber;
 
           return (
             <Card key={o.id} className="p-4">

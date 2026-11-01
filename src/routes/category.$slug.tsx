@@ -123,10 +123,10 @@ function CategoryPage() {
       const q = searchQuery.toLowerCase();
       list = list.filter(
         (v) =>
-          v.name.toLowerCase().includes(q) ||
-          v.tagline.toLowerCase().includes(q) ||
-          v.city.toLowerCase().includes(q) ||
-          v.categories.some((c) => c.toLowerCase().includes(q))
+          v.name?.toLowerCase().includes(q) ||
+          v.tagline?.toLowerCase().includes(q) ||
+          v.city?.toLowerCase().includes(q) ||
+          v.categories?.some((c) => c.toLowerCase().includes(q))
       );
     }
     return list;

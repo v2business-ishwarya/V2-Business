@@ -103,16 +103,16 @@ function VendorsList() {
     return allVendors.filter((v) => {
       const matchCat =
         selectedCat === "all" ||
-        v.categories.some((c) => c.toLowerCase().includes(selectedCat.toLowerCase()));
+        v.categories?.some((c) => c.toLowerCase().includes(selectedCat.toLowerCase()));
 
       const matchSearch =
         !search.trim() ||
-        v.name.toLowerCase().includes(search.toLowerCase()) ||
-        v.tagline.toLowerCase().includes(search.toLowerCase()) ||
-        v.city.toLowerCase().includes(search.toLowerCase()) ||
-        v.categories.some((c) => c.toLowerCase().includes(search.toLowerCase()));
+        v.name?.toLowerCase().includes(search.toLowerCase()) ||
+        v.tagline?.toLowerCase().includes(search.toLowerCase()) ||
+        v.city?.toLowerCase().includes(search.toLowerCase()) ||
+        v.categories?.some((c) => c.toLowerCase().includes(search.toLowerCase()));
 
-      return matchCat && matchSearch;
+      return Boolean(matchCat && matchSearch);
     });
   }, [allVendors, selectedCat, search]);
 

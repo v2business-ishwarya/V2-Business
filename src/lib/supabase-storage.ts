@@ -42,7 +42,7 @@ export async function uploadProductImage(
         savingsPercent: 0,
         width: 800,
         height: 800,
-        format: file.type,
+        previewUrl: url,
         file,
       },
       path: url,

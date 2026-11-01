@@ -40,6 +40,7 @@ export interface VendorTrustData {
   categories?: string[];
   joinedYear?: string | number;
   rating?: number;
+  reviewCount?: number;
   totalOrders?: number;
 }
 

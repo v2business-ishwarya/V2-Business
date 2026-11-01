@@ -103,7 +103,7 @@ function VendorAdsPage() {
     try {
       await api.createVendorSpotlightAd({
         ...form,
-        storeName: vendor?.business_name || vendor?.name || "Verified Merchant",
+        storeName: (vendor as any)?.business_name || vendor?.name || "Verified Merchant",
         targetUrl: form.targetUrl || (vendor?.slug ? `/store/${vendor.slug}` : "/search"),
       });
       toast.success("Ad submitted successfully! Admin will verify your payment and activate it.");
