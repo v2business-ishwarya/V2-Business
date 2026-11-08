@@ -326,7 +326,7 @@ function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       {/* 1. TOP SUB-NAV CATEGORY BAR */}
-      <div className="border-b border-border/70 bg-card/75 backdrop-blur-md sticky top-[96px] sm:top-[57px] z-30 shadow-2xs">
+      <div className="border-b border-border/70 bg-card/75 backdrop-blur-md sticky top-[96px] sm:top-[57px] z-30 shadow-2xs transform-gpu will-change-transform">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 overflow-x-auto px-4 py-1.5 text-xs font-semibold scrollbar-none sm:px-6 lg:px-8">
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
             {QUICK_NAV_CATS.map((cat) => (
@@ -334,7 +334,7 @@ function Home() {
                 key={cat.slug}
                 to="/category/$slug"
                 params={{ slug: cat.slug }}
-                className="text-foreground/80 hover:text-primary transition-colors whitespace-nowrap py-0.5 border-b-2 border-transparent hover:border-primary"
+                className="text-foreground/80 hover:text-primary transition-all duration-150 active:scale-95 touch-manipulation whitespace-nowrap py-0.5 border-b-2 border-transparent hover:border-primary"
               >
                 {cat.name}
               </Link>
@@ -568,7 +568,7 @@ function Home() {
               onClick={() =>
                 navigate({ to: "/category/$slug", params: { slug: banner.targetSlug } })
               }
-              className="group relative h-[155px] sm:h-[190px] md:h-[240px] lg:h-[270px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01]"
+              className="group relative h-[155px] sm:h-[190px] md:h-[240px] lg:h-[270px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-border/80 bg-muted cursor-pointer transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] touch-manipulation transform-gpu"
             >
               {/* Background Cover Image */}
               <img
@@ -791,7 +791,7 @@ function Home() {
                 key={idx}
                 to="/category/$slug"
                 params={{ slug: deal.slug }}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2 sm:p-3 shadow-2xs hover:border-amber-500/50 hover:shadow-lg transition-all duration-300 ${
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2 sm:p-3 shadow-2xs hover:border-amber-500/50 hover:shadow-lg transition-all duration-200 active:scale-[0.98] touch-manipulation transform-gpu ${
                   (deal as any).isMobileOnly ? "block sm:hidden" : ""
                 }`}
               >
@@ -876,7 +876,7 @@ function Home() {
               key={i}
               to="/category/$slug"
               params={{ slug: corner.slug }}
-              className={`group relative overflow-hidden rounded-2xl border ${corner.border} bg-gradient-to-br ${corner.gradient} bg-card p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+              className={`group relative overflow-hidden rounded-2xl border ${corner.border} bg-gradient-to-br ${corner.gradient} bg-card p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg active:scale-[0.98] touch-manipulation transform-gpu`}
             >
               <span className="text-lg sm:text-2xl font-black text-foreground block tracking-tight group-hover:text-primary transition-colors">
                 {corner.price}
@@ -980,7 +980,7 @@ function Home() {
               key={cat.slug}
               to="/category/$slug"
               params={{ slug: cat.slug }}
-              className="group flex flex-col items-center p-1 sm:p-1.5 transition-all"
+              className="group flex flex-col items-center p-1 sm:p-1.5 transition-all duration-150 active:scale-95 touch-manipulation"
             >
               <div className="relative h-12 w-12 sm:h-16 sm:w-16 rounded-2xl overflow-hidden bg-muted border border-border/80 group-hover:border-amber-500 group-hover:shadow-md transition-all group-hover:scale-105">
                 <img
@@ -1093,7 +1093,7 @@ function Home() {
               key={idx}
               to="/category/$slug"
               params={{ slug: edit.slug }}
-              className={`group relative h-44 sm:h-80 rounded-2xl sm:rounded-3xl overflow-hidden border border-border bg-card shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl ${
+              className={`group relative h-44 sm:h-80 rounded-2xl sm:rounded-3xl overflow-hidden border border-border bg-card shadow-md transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl active:scale-[0.98] touch-manipulation transform-gpu ${
                 (edit as any).isMobileOnly ? "block sm:hidden" : ""
               }`}
             >

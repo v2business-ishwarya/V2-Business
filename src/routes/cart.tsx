@@ -73,13 +73,49 @@ function CartPage() {
 
   const updateQty = async (id: string, quantity: number) => {
     if (quantity < 1) return;
-    await api.updateCartItem(id, { quantity });
+    qc.setQueryData<any>(["cart", user?.id], (old: any) => {
+      if (!old) return old;
+      const oldItems = old.items ?? (Array.isArray(old) ? old : []);
+      const newItems = oldItems.map((item: any) =>
+        item.id === id ? { ...item, quantity } : item
+      );
+      return Array.isArray(old) ? newItems : { ...old, items: newItems };
+    });
+    qc.setQueryData<number>(["cart-count", user?.id], (oldCount = 0) => {
+      const currentItem = items.find((i: any) => i.id === id);
+      const diff = quantity - (currentItem?.quantity || 1);
+      return Math.max(0, oldCount + diff);
+    });
+    try {
+      await api.updateCartItem(id, { quantity });
+    } catch {
+      qc.invalidateQueries({ queryKey: ["cart", user?.id] });
+      qc.invalidateQueries({ queryKey: ["cart-count", user?.id] });
+      toast.error("Failed to update quantity");
+    }
     qc.invalidateQueries({ queryKey: ["cart"] });
     qc.invalidateQueries({ queryKey: ["cart-count"] });
   };
 
   const remove = async (id: string) => {
-    await api.removeFromCart(id);
+    const itemToRemove = items.find((i: any) => i.id === id);
+    const qtyToRemove = itemToRemove?.quantity || 1;
+    qc.setQueryData<any>(["cart", user?.id], (old: any) => {
+      if (!old) return old;
+      const oldItems = old.items ?? (Array.isArray(old) ? old : []);
+      const newItems = oldItems.filter((item: any) => item.id !== id);
+      return Array.isArray(old) ? newItems : { ...old, items: newItems };
+    });
+    qc.setQueryData<number>(["cart-count", user?.id], (oldCount = 0) =>
+      Math.max(0, oldCount - qtyToRemove)
+    );
+    try {
+      await api.removeFromCart(id);
+    } catch {
+      qc.invalidateQueries({ queryKey: ["cart", user?.id] });
+      qc.invalidateQueries({ queryKey: ["cart-count", user?.id] });
+      toast.error("Failed to remove item");
+    }
     qc.invalidateQueries({ queryKey: ["cart"] });
     qc.invalidateQueries({ queryKey: ["cart-count"] });
     toast.success("Removed from cart");

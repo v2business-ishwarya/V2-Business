@@ -296,7 +296,7 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
     const dx = e.clientX - dragRef.current.startX;
     const dy = e.clientY - dragRef.current.startY;
 
-    if (!dragRef.current.hasMoved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+    if (!dragRef.current.hasMoved && (Math.abs(dx) > 3 || Math.abs(dy) > 3)) {
       dragRef.current.hasMoved = true;
     }
 
@@ -595,11 +595,13 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
         right: "auto",
         bottom: "auto",
         touchAction: "none",
+        willChange: isDragging ? "left, top, transform" : "auto",
       }
     : {
         bottom: "1.25rem",
         right: "1.25rem",
         touchAction: "none",
+        willChange: isDragging ? "left, top, transform" : "auto",
       };
 
   return (
@@ -614,9 +616,9 @@ export function VendorAiAssistant({ onOpenRegister }: VendorAiAssistantProps) {
           onPointerCancel={handlePointerUp}
           className={`fixed z-50 flex items-center gap-1.5 print:hidden select-none touch-none ${
             isDragging
-              ? "cursor-grabbing scale-105 shadow-2xl opacity-95"
-              : "cursor-grab hover:scale-105 active:scale-95"
-          } transition-transform duration-75`}
+              ? "cursor-grabbing scale-105 shadow-2xl opacity-95 transition-none"
+              : "cursor-grab hover:scale-105 active:scale-95 transition-transform duration-150"
+          }`}
         >
           <div
             className="group relative flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-600 via-amber-500 to-rose-600 p-2.5 sm:px-3.5 sm:py-2.5 text-white shadow-xl shadow-amber-600/30 border border-white/20 hover:shadow-amber-600/40 cursor-grab active:cursor-grabbing"

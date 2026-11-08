@@ -140,7 +140,7 @@ function CategoriesList() {
                 key={c.id || c.slug}
                 to="/category/$slug"
                 params={{ slug: c.slug || slugify(c.name) }}
-                className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1"
+                className="group relative flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:border-primary/50 hover:shadow-xl hover:-translate-y-1 active:scale-[0.985] touch-manipulation transform-gpu"
               >
                 {/* Visual Category Photo Banner */}
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">

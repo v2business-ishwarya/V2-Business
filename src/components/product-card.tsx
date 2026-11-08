@@ -76,14 +76,15 @@ export function ProductCard({ product }: { product: Product }) {
       to="/product/$slug"
       params={{ slug: productIdentifier }}
       preload="intent"
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-soft transition hover:shadow-card"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border/70 bg-surface shadow-soft transition-all duration-200 hover:-translate-y-1 hover:shadow-card active:scale-[0.985] touch-manipulation transform-gpu"
     >
       <div className="relative aspect-square overflow-hidden bg-surface-muted">
         {imgUrl ? (
           <img
             src={imgUrl}
             alt={product.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform"
+            decoding="async"
             loading="lazy"
           />
         ) : (
@@ -124,7 +125,7 @@ export function ProductCard({ product }: { product: Product }) {
             type="button"
             disabled={product.stock === 0 || buying}
             onClick={handleBuyNow}
-            className="inline-flex items-center gap-1 rounded-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-2.5 py-1 text-xs font-bold shadow-sm transition hover:shadow active:scale-95 shrink-0"
+            className="inline-flex items-center gap-1 rounded-full bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-2.5 py-1 text-xs font-bold shadow-xs transition-all duration-150 hover:shadow-sm active:scale-95 shrink-0 touch-manipulation"
             title="Buy Now"
           >
             <Zap className="h-3 w-3 fill-white" />

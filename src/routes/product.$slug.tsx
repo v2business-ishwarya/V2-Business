@@ -137,10 +137,12 @@ function ProductDetail() {
   const addToCart = async () => {
     if (!user) return nav({ to: "/auth", search: { redirect: `/product/${slug}` } });
     try {
+      qc.setQueryData<number>(["cart-count", user.id], (oldCount = 0) => oldCount + qty);
+      toast.success("Added to cart");
       await api.addToCart(product.id, qty);
       qc.invalidateQueries({ queryKey: ["cart-count"] });
       qc.invalidateQueries({ queryKey: ["cart"] });
-      toast.success("Added to cart");
+      // cart queries invalidated
     } catch (err) {
       toast.error("Failed to add to cart");
     }
@@ -154,6 +156,7 @@ function ProductDetail() {
     }
     setBuyingNow(true);
     try {
+      qc.setQueryData<number>(["cart-count", user.id], (oldCount = 0) => oldCount + qty);
       await api.addToCart(product.id, qty);
       await qc.invalidateQueries({ queryKey: ["cart-count"] });
       await qc.invalidateQueries({ queryKey: ["cart"] });

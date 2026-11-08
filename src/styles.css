@@ -113,6 +113,12 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    -webkit-tap-highlight-color: transparent;
+  }
+  html {
+    scroll-behavior: smooth;
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
   }
   html,
   body {
@@ -123,6 +129,7 @@
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
   h1,
@@ -132,6 +139,53 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
   }
+
+  /* Responsive image rendering and content containment for maximum scroll fps */
+  img {
+    content-visibility: auto;
+  }
+
+  /* Instant tap responsiveness by eliminating mobile 300ms double-tap wait */
+  button,
+  a,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
+/* GPU Hardware Acceleration for silky 60/120fps scrolling & movement */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Tactile micro-press feedback for interactive elements */
+.interactive-press {
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s ease;
+  touch-action: manipulation;
+}
+.interactive-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Ultra-smooth slim scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.6 0.02 60 / 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0.03 60 / 0.5);
 }
 
 @keyframes marquee {
